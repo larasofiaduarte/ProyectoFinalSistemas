@@ -28,7 +28,6 @@ com\mycompany\GUI\Button.class
 com\mycompany\proyectofinal\Servicio.class
 com\mycompany\proyectofinal\Producto.class
 com\mycompany\GUI\Login.class
-com\mycompany\GUI\Ventana$2.class
 com\mycompany\GUI\Button$1.class
 com\mycompany\GUI\TextField$2.class
 com\mycompany\persistencia\UsuarioJpaController.class

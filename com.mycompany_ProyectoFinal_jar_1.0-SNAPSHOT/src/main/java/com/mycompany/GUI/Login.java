@@ -247,22 +247,27 @@ import javax.swing.border.EmptyBorder;
         
     }
     
+    private boolean loginExitoso = false;
+    
+    
     //Login logic
     private void Login() {
-    String user = txtUser.getText();
-    String pass = new String(txtPass.getPassword());
+        String user = txtUser.getText();
+        String pass = new String(txtPass.getPassword());
 
-    if (control != null && control.validarUsuario(user, pass)) {
-        JOptionPane.showMessageDialog(this, "Login exitoso");
-        dispose();
-    } else {
-        JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos");
-        
+
+        if (control != null && control.validarUsuario(user, pass)) {
+            loginExitoso = true; 
+            dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos");
+        }
+    
     }
     
-}
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Login(null).setVisible(true));
+    public boolean isLoginExitoso() {
+        return loginExitoso;
     }
+
+    
 }

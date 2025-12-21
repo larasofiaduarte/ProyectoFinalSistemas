@@ -50,25 +50,34 @@ public class Ventana extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public static void main(String args[]) {
+    /*public static void main(String args[]) {
         
 
-        /* Create and display the form */
+        /* Create and display the form 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 Ventana ventana = new Ventana();
-                ventana.setVisible(true);
+                
 
                 
                 ventana.getContentPane().setLayout(null); 
                 
+                Login login = new Login(ventana); // parent = ventana
+
+                login.setVisible(true); // MODAL → blocks here
+
+                if (login.isLoginExitoso()) {
+                    ventana.setVisible(true);
+                } else {
+                    System.exit(0); // user closed login
+                }
                 
                 ventana.revalidate();
                 ventana.repaint();
             }
         });
     }
-
+*/
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }

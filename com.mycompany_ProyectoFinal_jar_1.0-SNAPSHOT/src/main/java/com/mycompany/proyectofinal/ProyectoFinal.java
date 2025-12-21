@@ -4,7 +4,9 @@
 
 package com.mycompany.proyectofinal;
 
-//import com.mycompany.GUI.Login;
+import com.mycompany.GUI.*;
+import javax.swing.*;
+
 //import com.mycompany.GUI.Ventana;
 
 /**
@@ -15,6 +17,18 @@ public class ProyectoFinal {
 
     public static void main(String[] args) {
         
-        
+        SwingUtilities.invokeLater(() -> {
+
+            Ventana ventana = new Ventana();
+            Login login = new Login(ventana);
+
+            login.setVisible(true); // modal → blocks
+
+            if (login.isLoginExitoso()) {
+                ventana.setVisible(true);
+            } else {
+                System.exit(0);
+            }
+        });
     }
 }
