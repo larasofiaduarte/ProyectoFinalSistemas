@@ -4,8 +4,10 @@
  */
 package com.mycompany.GUI;
 
-import java.awt.KeyboardFocusManager;
-import javax.swing.SwingUtilities;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import com.mycompany.proyectofinal.Controladora;
 
 /**
  *
@@ -13,9 +15,10 @@ import javax.swing.SwingUtilities;
  */
 public class Ventana extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Ventana
-     */
+    
+    
+    //inicializar variables globales
+    
     public Ventana() {
         initComponents();
         // Run after window is displayed
@@ -29,6 +32,8 @@ public class Ventana extends javax.swing.JFrame {
             });
     }
 
+    //UI
+    
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -50,34 +55,7 @@ public class Ventana extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /*public static void main(String args[]) {
-        
-
-        /* Create and display the form 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                Ventana ventana = new Ventana();
-                
-
-                
-                ventana.getContentPane().setLayout(null); 
-                
-                Login login = new Login(ventana); // parent = ventana
-
-                login.setVisible(true); // MODAL → blocks here
-
-                if (login.isLoginExitoso()) {
-                    ventana.setVisible(true);
-                } else {
-                    System.exit(0); // user closed login
-                }
-                
-                ventana.revalidate();
-                ventana.repaint();
-            }
-        });
-    }
-*/
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
 }
