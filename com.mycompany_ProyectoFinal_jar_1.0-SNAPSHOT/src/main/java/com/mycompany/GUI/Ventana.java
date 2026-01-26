@@ -1,39 +1,59 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.mycompany.GUI;
 
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.*;
-import com.mycompany.proyectofinal.Controladora;
 
-/**
- *
- * @author duart
- */
-public class Ventana extends javax.swing.JFrame {
+import com.mycompany.GUI.cards.*;
+import com.mycompany.GUI.components.SideMenu;
 
-    
-    
-    //inicializar variables globales
-    
+public class Ventana extends JFrame implements Navigator {
+
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
+
     public Ventana() {
-        initComponents();
-        // Run after window is displayed
-            this.addWindowListener(new java.awt.event.WindowAdapter() {
-                @Override
-                public void windowOpened(java.awt.event.WindowEvent e) {
-                    SwingUtilities.invokeLater(() -> {
-                        KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
-                    });
-                }
-            });
+        initUI();           // our code
+        initCards();        // CardLayout
     }
 
-    //UI
+    private void initUI() {
+        setTitle("Sistema Peluquería");
+        setSize(1000, 650);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        //change layout of content pane, not frame
+        getContentPane().setLayout(new BorderLayout());
+        
+        
+        // side menu
+        SideMenu menu = new SideMenu(this);
+        getContentPane().add(menu, BorderLayout.WEST);
+    }
+
+    private void initCards() {
+
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout); //cardPanel es el main Panel que tiene asignado Card Layout, va a contener las dif. cards
+
+        // cards
+        cardPanel.add(new Usuarios(this), "USUARIOS");
+        cardPanel.add(new Clientes(this), "CLIENTES");
+        getContentPane().add(cardPanel, BorderLayout.CENTER);
+
+        cardLayout.show(cardPanel, "USUARIOS");
+    }
+
+    public void showCard(String name) {
+        cardLayout.show(cardPanel, name);
+    }
     
+    @Override
+        public void goTo(String cardName) {
+            CardLayout cl = (CardLayout) cardPanel.getLayout();
+            cl.show(cardPanel, cardName);
+        }
+
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

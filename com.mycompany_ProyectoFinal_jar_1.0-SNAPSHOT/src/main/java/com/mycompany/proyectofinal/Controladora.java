@@ -90,6 +90,11 @@ public class Controladora {
             return controlPersis.doesUsernameExist(username);
     }
     
+    public void resetPassword(String user, String newPass) {
+        controlPersis.resetPassword(user, newPass);
+    }
+
+    
     //DELETE USUARIO
     public void borrarUsuario(int numUsuario) {
         controlPersis.borrarUsuario(numUsuario);

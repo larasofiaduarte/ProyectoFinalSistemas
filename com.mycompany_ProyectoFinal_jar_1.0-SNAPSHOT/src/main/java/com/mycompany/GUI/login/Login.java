@@ -5,8 +5,8 @@
 package com.mycompany.GUI.login;
 
 import com.mycompany.GUI.Styles;
-import com.mycompany.GUI.components.TextField;
-import com.mycompany.GUI.components.PasswordField;
+import com.mycompany.GUI.components.TxtField;
+import com.mycompany.GUI.components.PassField;
 import com.mycompany.GUI.components.ImagePanel;
 import com.mycompany.GUI.components.Button;
 import com.mycompany.proyectofinal.Controladora;
@@ -25,12 +25,12 @@ import javax.swing.border.EmptyBorder;
  * @author duart
  */public class Login extends JDialog {
 
-    private TextField txtUser;
-    private PasswordField txtPass;
+    private TxtField txtUser;
+    private PassField txtPass;
     private JLabel lblForgotPass;
     private JCheckBox check;
     private Controladora control;
-    
+   
     public Login(Frame parent) {
         super(parent, "Iniciar Sesión", true);
         this.control = new Controladora();
@@ -160,7 +160,7 @@ import javax.swing.border.EmptyBorder;
         lblContainer.add(lblUser);
         lblContainer.add(Box.createHorizontalGlue());
 
-        txtUser = new TextField(20, "Ingrese su nombre de usuario");
+        txtUser = new TxtField(20, "Ingrese su nombre de usuario");
         txtUser.setMaximumSize(new Dimension(300, 40));
 
         JPanel txtContainer = new JPanel();
@@ -191,7 +191,7 @@ import javax.swing.border.EmptyBorder;
         lblContainer.add(lblPass);
         lblContainer.add(Box.createHorizontalGlue());
 
-        txtPass = new PasswordField(20, "Ingrese su contraseña");
+        txtPass = new PassField(20, "Ingrese su contraseña");
         txtPass.setMaximumSize(new Dimension(300, 40));
 
         JPanel txtContainer = new JPanel();
@@ -219,7 +219,6 @@ import javax.swing.border.EmptyBorder;
         bottomContainer.add(Box.createHorizontalGlue());
 
         passPanel.add(lblContainer);
-        //passPanel.add(Box.createVerticalStrut(2));
         passPanel.add(txtContainer);
         passPanel.add(bottomContainer);
 
@@ -247,6 +246,17 @@ import javax.swing.border.EmptyBorder;
             @Override
             public void mouseExited(MouseEvent e) {
                 lblForgotPass.setForeground(Styles.accent);
+            }
+        });
+        
+        //abrir dialog contraseña olvidada
+        
+        lblForgotPass.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                RecoverPass dialog = new RecoverPass(Login.this);
+                dialog.setLocationRelativeTo(Login.this); // center over Login
+                dialog.setVisible(true);
             }
         });
         

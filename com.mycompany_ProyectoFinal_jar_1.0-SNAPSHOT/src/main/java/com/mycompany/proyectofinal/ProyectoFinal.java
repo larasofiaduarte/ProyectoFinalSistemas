@@ -19,7 +19,7 @@ public class ProyectoFinal {
     public static void main(String[] args) {
         
         SwingUtilities.invokeLater(() -> {
-
+            Styles.applyLightTheme();
             Ventana ventana = new Ventana();
             Login login = new Login(ventana);
 

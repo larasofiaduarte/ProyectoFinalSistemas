@@ -30,7 +30,7 @@ public class ControladoraPersistencia {
         public void borrarUsuario(int numUsuario) {
             usuJpa.destroy(numUsuario); 
         }
-        
+        ///???
         public Usuario findUsuario(int numEmpleado) {
             return usuJpa.findUsuario(numEmpleado);
         }
@@ -39,6 +39,16 @@ public class ControladoraPersistencia {
         }
         public boolean checkIfUsuReferenced(int id){
             return usuJpa.checkIfReferenced(id);
+        }
+        public Usuario findUsuarioByUser(String user){
+            return usuJpa.findUsuarioByUsername(user);
+        }
+        public void resetPassword(String user, String newPass) {
+            Usuario u = usuJpa.findUsuarioByUsername(user);
+            if (u != null) {
+                u.setPassword(newPass); // or setPassword()
+                usuJpa.edit(u);     // MERGE
+            }
         }
     
     //CLIENTE
@@ -240,6 +250,7 @@ public class ControladoraPersistencia {
         prodJpa.edit(prod);
     }
 
+    
 
         
 

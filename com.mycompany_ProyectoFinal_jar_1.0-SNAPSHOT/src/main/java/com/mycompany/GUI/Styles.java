@@ -22,31 +22,67 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 public class Styles {
-    //background
-    public static final Color bgDark = new Color(43, 43, 45);  //Petrol grey, sidebar
-    public static final Color bgDarkHover = new Color(76, 76, 79);
-    public static final Color bgLight = new Color(250, 250, 250); //Off White
-    public static final Color bgDisabledField = new Color(189, 189, 189);
-    public static final Color bgTextField = new Color(225,225,225);
+    //COLORS
+    public static Color bgDark;  //Petrol grey, sidebar
+    public static Color bgDarkHover;
+    public static Color bgLight; //Off White
+    public static Color bgDisabledField;
+    public static Color bgTextField;
     
     //font
-    public static final Color fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
-    public static final Color fontLightHover = new Color(200, 171, 255); //lilac
-    public static final Color fontDisabledField = new Color(148, 148, 148); //for disabled fields?
-    public static final Color fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
-    public static final Color fontDark = new Color(43, 43, 45); //Petrol grey
+    public static Color fontLight;  //for dark bg, sidebar, button
+    public static Color fontLightHover; //lila
+    public static Color fontDisabledField; //for disabled fields?
+    public static Color fontPlaceholder; //for textfield placeholder text
+    public static Color fontDark; //Petrol grey
     
     //accent colors
-    public static final Color accent = new Color(127, 52, 201); //Dark Violet
-    public static final Color accentHover = new Color(175, 119, 230); //Lilac
-    public static final Color accentNotif = new Color(243, 112, 136); //Pink
+    public static Color accent; //Dark Violet
+    public static Color accentHover; //Lilac
+    public static Color accentNotif; //Pink
     
     //button colors
-    public static final Color btnSec = new Color(255, 255, 255); //Pure White
-    public static final Color btnSecBorder = new Color(148, 148, 148); //Dark grey
-    public static final Color btnSecFontCol = new Color(148,148,148);
-    public static final Color btnSecHover = new Color(246, 240, 252);
-    public static final Color btnSecBorHov = new Color (245,245,245);
+    public static Color btnSec; //Pure White
+    public static Color btnSecBorder; //Dark grey
+    public static Color btnSecFontCol;
+    public static Color btnSecHover;
+    public static Color btnSecBorHov;
+    
+    
+    
+    
+    //background
+    public static void applyLightTheme(){
+    
+    bgDark = new Color(43, 43, 45);  //Petrol grey, sidebar
+    bgDarkHover = new Color(76, 76, 79);
+    bgLight = new Color(250, 250, 250); //Off White
+    bgDisabledField = new Color(189, 189, 189);
+    bgTextField = new Color(225,225,225);
+    
+    //font
+    fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
+    fontLightHover = new Color(200, 171, 255); //lilac
+    fontDisabledField = new Color(148, 148, 148); //for disabled fields?
+    fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
+    fontDark = new Color(43, 43, 45); //Petrol grey
+    
+    //accent colors
+    accent = new Color(127, 52, 201); //Dark Violet
+    accentHover = new Color(175, 119, 230); //Lilac
+    accentNotif = new Color(243, 112, 136); //Pink
+    
+    //button colors
+    btnSec = new Color(255, 255, 255); //Pure White
+    btnSecBorder = new Color(148, 148, 148); //Dark grey
+    btnSecFontCol = new Color(148,148,148);
+    btnSecHover = new Color(246, 240, 252);
+    btnSecBorHov = new Color (245,245,245);
+    
+    }
+    
+    
+    
     
     //btn sizes
     public static final Dimension btnSizeSm = new Dimension(150,35);

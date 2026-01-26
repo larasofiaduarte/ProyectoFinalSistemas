@@ -10,6 +10,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -146,6 +147,21 @@ public class UsuarioJpaController implements Serializable {
         }
     }
     
+    public Usuario findUsuarioByUsername(String username) {
+    EntityManager em = emf.createEntityManager();
+    try {
+        TypedQuery<Usuario> query = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.username = :username",
+            Usuario.class
+        );
+        query.setParameter("username", username);
+        return query.getSingleResult();
+    } catch (NoResultException e) {
+        return null; // username does not exist
+    } finally {
+        em.close();
+    }
+}
     
     public boolean checkIfReferenced(int usuId) {
         EntityManager em = emf.createEntityManager();

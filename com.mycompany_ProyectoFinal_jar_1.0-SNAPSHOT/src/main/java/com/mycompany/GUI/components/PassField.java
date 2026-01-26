@@ -12,15 +12,15 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class PasswordField extends JPasswordField {
+public class PassField extends JPasswordField {
     private int cornerRadius = 25;
     private String placeholder = "";
-    public PasswordField(int columns) {
+    public PassField(int columns) {
             super(columns);
             init();
         }
 
-        public PasswordField(int columns, String placeholder) {
+        public PassField(int columns, String placeholder) {
             super(columns);
             this.placeholder = placeholder;
             init();

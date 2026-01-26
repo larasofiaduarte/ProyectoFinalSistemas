@@ -13,15 +13,15 @@ import java.awt.event.FocusEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class TextField extends JTextField {
+public class TxtField extends JTextField {
     private int cornerRadius = 25;
     private String placeholder = "";
-public TextField(int columns) {
+public TxtField(int columns) {
         super(columns);
         init();
     }
 
-    public TextField(int columns, String placeholder) {
+    public TxtField(int columns, String placeholder) {
         super(columns);
         this.placeholder = placeholder;
         init();
