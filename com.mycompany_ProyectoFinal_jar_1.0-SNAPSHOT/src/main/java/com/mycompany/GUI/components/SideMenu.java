@@ -6,10 +6,11 @@ package com.mycompany.GUI.components;
 
 import java.awt.*;
 import javax.swing.*;
-import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.Navigator;
+import com.mycompany.GUI.Styles;
 
-public class SideMenu extends JPanel{
+public class SideMenu extends JPanel {
+
     private Navigator navigator;
 
     public SideMenu(Navigator navigator) {
@@ -18,18 +19,71 @@ public class SideMenu extends JPanel{
     }
 
     private void initUI() {
-        setLayout(new GridLayout(0, 1, 0, 10)); // vertical buttons
-        setPreferredSize(new Dimension(180, 0));
 
-        JButton btnUsuarios = new JButton("Usuarios");
-        JButton btnClientes = new JButton("Clientes");
+        // ===== MAIN PANEL =====
+        setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(180, 0));
+        setBackground(Styles.bgDark);
+        setOpaque(true);
+
+        // ===== LOGO PANEL (TOP) =====
+        JPanel logoPanel = new JPanel();
+        logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
+        logoPanel.setBackground(Styles.bgDark);
+
+        JLabel logo = new JLabel("HECTOR");
+        JLabel logo2 = new JLabel("YAGUSZ");
+        JLabel subtitle = new JLabel("P   E   L   U   Q   U   E   R   I   A");
+
+        logo.setFont(Styles.customFontMd);
+        logo2.setFont(Styles.customFontMd);
+        subtitle.setFont(Styles.customFontSm);
+
+        logo.setForeground(Styles.fontLight);
+        logo2.setForeground(Styles.fontLight);
+        subtitle.setForeground(Styles.fontLight);
+
+        logo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logo2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        logoPanel.add(Box.createVerticalStrut(15));
+        logoPanel.add(logo);
+        logoPanel.add(logo2);
+        logoPanel.add(Box.createVerticalStrut(4));   // small gap
+        logoPanel.add(subtitle);
+        logoPanel.add(Box.createVerticalStrut(15));
+
+        // ===== MENU PANEL (CENTER) =====
+        JPanel menuPanel = new JPanel(new GridLayout(0, 1, 0, 10));
+        menuPanel.setBackground(Styles.bgDark);
+
+        MenuButton btnUsuarios = new MenuButton("EMPLEADOS");
+        MenuButton btnClientes = new MenuButton("CLIENTES");
+        MenuButton btnServicios = new MenuButton("SERVICIOS");
+        MenuButton btnInventario = new MenuButton("INVENTARIO");
+        MenuButton btnTurnos = new MenuButton("TURNOS");
+        MenuButton btnProveedores = new MenuButton("PROVEEDORES");
+        MenuButton btnCaja = new MenuButton("CAJA");
 
         btnUsuarios.addActionListener(e -> navigator.goTo("USUARIOS"));
         btnClientes.addActionListener(e -> navigator.goTo("CLIENTES"));
+        btnServicios.addActionListener(e -> navigator.goTo("SERVICIOS"));
+        btnInventario.addActionListener(e -> navigator.goTo("INVENTARIO"));
+        btnTurnos.addActionListener(e -> navigator.goTo("TURNOS"));
+        btnProveedores.addActionListener(e -> navigator.goTo("PROVEEDORES"));
+        btnCaja.addActionListener(e -> navigator.goTo("CAJA"));
 
-        add(Box.createVerticalStrut(20));
-        add(btnUsuarios);
-        add(btnClientes);
-        add(Box.createVerticalGlue());
+        menuPanel.add(btnTurnos);
+        menuPanel.add(btnUsuarios);
+        menuPanel.add(btnClientes);
+        menuPanel.add(btnInventario);
+        menuPanel.add(btnProveedores);
+        menuPanel.add(btnServicios);
+        menuPanel.add(btnCaja);
+
+        // ===== ADD TO MAIN PANEL =====
+        add(logoPanel, BorderLayout.NORTH);
+        add(menuPanel, BorderLayout.CENTER);
     }
 }

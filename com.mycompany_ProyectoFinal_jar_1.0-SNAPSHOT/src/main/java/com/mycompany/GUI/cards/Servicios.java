@@ -8,11 +8,11 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 
-public class Usuarios extends JPanel {
+public class Servicios extends JPanel {
 
     private Ventana ventana;
 
-    public Usuarios(Ventana ventana) {
+    public Servicios(Ventana ventana) {
         this.ventana = ventana;
         initUI();
     }
@@ -22,7 +22,7 @@ public class Usuarios extends JPanel {
 
         // TODO: add components here
 
-        JLabel label = new JLabel("Empleados", SwingConstants.CENTER);
+        JLabel label = new JLabel("Servicios", SwingConstants.CENTER);
         add(label, BorderLayout.CENTER);
     }
 }

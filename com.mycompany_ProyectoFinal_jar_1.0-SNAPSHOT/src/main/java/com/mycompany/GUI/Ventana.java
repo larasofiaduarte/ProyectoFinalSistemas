@@ -12,8 +12,8 @@ public class Ventana extends JFrame implements Navigator {
     private CardLayout cardLayout;
 
     public Ventana() {
-        initUI();           // our code
-        initCards();        // CardLayout
+        initUI();           
+        initCards();        // CardLayout - cambio entre pantallas
     }
 
     private void initUI() {
@@ -39,6 +39,11 @@ public class Ventana extends JFrame implements Navigator {
         // cards
         cardPanel.add(new Usuarios(this), "USUARIOS");
         cardPanel.add(new Clientes(this), "CLIENTES");
+        cardPanel.add(new Servicios(this), "SERVICIOS");
+        cardPanel.add(new Inventario(this), "INVENTARIO");
+        cardPanel.add(new Caja(this), "CAJA");
+        cardPanel.add(new Proveedores(this), "PROVEEDORES");
+        cardPanel.add(new Turnos(this), "TURNOS");
         getContentPane().add(cardPanel, BorderLayout.CENTER);
 
         cardLayout.show(cardPanel, "USUARIOS");
@@ -53,8 +58,9 @@ public class Ventana extends JFrame implements Navigator {
             CardLayout cl = (CardLayout) cardPanel.getLayout();
             cl.show(cardPanel, cardName);
         }
+    // </editor-fold>
 
-    
+    /*
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -74,8 +80,16 @@ public class Ventana extends JFrame implements Navigator {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+*/
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+public static void main(String[] args) {
+    SwingUtilities.invokeLater(() -> {
+        Ventana v = new Ventana();
+        v.setVisible(true);
+    });
 }
+
+}
+

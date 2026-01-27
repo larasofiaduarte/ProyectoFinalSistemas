@@ -3,16 +3,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.GUI.cards;
-
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 
-public class Usuarios extends JPanel {
+public class Inventario extends JPanel {
 
     private Ventana ventana;
 
-    public Usuarios(Ventana ventana) {
+    public Inventario(Ventana ventana) {
         this.ventana = ventana;
         initUI();
     }
@@ -22,7 +21,7 @@ public class Usuarios extends JPanel {
 
         // TODO: add components here
 
-        JLabel label = new JLabel("Empleados", SwingConstants.CENTER);
+        JLabel label = new JLabel("Inventario", SwingConstants.CENTER);
         add(label, BorderLayout.CENTER);
     }
 }
