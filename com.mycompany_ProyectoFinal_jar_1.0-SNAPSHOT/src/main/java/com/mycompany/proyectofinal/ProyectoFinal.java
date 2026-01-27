@@ -8,7 +8,7 @@ import com.mycompany.GUI.login.Login;
 import com.mycompany.GUI.*;
 import javax.swing.*;
 
-//import com.mycompany.GUI.Ventana;
+//import com.mycompany.GUI.Ventana3;
 
 /**
  *

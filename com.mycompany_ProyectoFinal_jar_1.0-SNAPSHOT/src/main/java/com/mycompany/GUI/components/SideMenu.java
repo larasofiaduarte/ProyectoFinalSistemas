@@ -8,6 +8,8 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Navigator;
 import com.mycompany.GUI.Styles;
+import com.mycompany.GUI.cards.*;
+
 
 public class SideMenu extends JPanel {
 
@@ -27,6 +29,24 @@ public class SideMenu extends JPanel {
         setOpaque(true);
 
         // ===== LOGO PANEL (TOP) =====
+        JPanel logoPanel = buildLogoPanel();
+
+        // ===== MENU PANEL (CENTER) =====
+        JPanel menuPanel = buildCenterPanel();
+        
+        // ==== DARK MODE SWITCH TOGGLE ===
+        JPanel togglePanel = buildBottomPanel();
+
+        // ===== ADD TO MAIN PANEL =====
+        add(logoPanel, BorderLayout.NORTH);
+        add(menuPanel, BorderLayout.CENTER);
+        add(togglePanel, BorderLayout.SOUTH);
+    }
+    
+    
+    //methods
+    
+    private JPanel buildLogoPanel(){
         JPanel logoPanel = new JPanel();
         logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
         logoPanel.setBackground(Styles.bgDark);
@@ -53,8 +73,11 @@ public class SideMenu extends JPanel {
         logoPanel.add(Box.createVerticalStrut(4));   // small gap
         logoPanel.add(subtitle);
         logoPanel.add(Box.createVerticalStrut(15));
-
-        // ===== MENU PANEL (CENTER) =====
+    
+        return logoPanel;
+    }
+    
+    private JPanel buildCenterPanel(){
         JPanel menuPanel = new JPanel(new GridLayout(0, 1, 0, 10));
         menuPanel.setBackground(Styles.bgDark);
 
@@ -81,9 +104,36 @@ public class SideMenu extends JPanel {
         menuPanel.add(btnProveedores);
         menuPanel.add(btnServicios);
         menuPanel.add(btnCaja);
-
-        // ===== ADD TO MAIN PANEL =====
-        add(logoPanel, BorderLayout.NORTH);
-        add(menuPanel, BorderLayout.CENTER);
+        
+        return menuPanel;
     }
+
+    private JPanel buildBottomPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel.setBackground(Styles.bgDark);
+
+        ThemeToggle toggle = new ThemeToggle();
+
+        toggle.addActionListener(e -> {
+            boolean dark = toggle.isSelected();
+
+            if (dark) {
+                toggle.setText("Light");
+                // Styles.applyDarkTheme();   // when you create it
+            } else {
+                toggle.setText("Dark");
+                Styles.applyLightTheme();
+            }
+
+            SwingUtilities.updateComponentTreeUI(
+                SwingUtilities.getWindowAncestor(this)
+            );
+        });
+
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 15, 5));
+        panel.add(toggle);
+
+        return panel;
+    }
+
 }

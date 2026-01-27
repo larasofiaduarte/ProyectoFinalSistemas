@@ -4,6 +4,7 @@ com\mycompany\GUI\components\TxtField.class
 com\mycompany\proyectofinal\Proveedor.class
 com\mycompany\GUI\exceptions\IllegalOrphanException.class
 com\mycompany\GUI\cards\Turnos.class
+com\mycompany\GUI\components\ThemeToggle.class
 com\mycompany\GUI\exceptions\NonexistentEntityException.class
 com\mycompany\GUI\exceptions\PreexistingEntityException.class
 com\mycompany\proyectofinal\Cliente_.class
