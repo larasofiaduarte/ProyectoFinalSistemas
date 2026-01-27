@@ -8,15 +8,16 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Navigator;
 import com.mycompany.GUI.Styles;
+import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.cards.*;
 
 
 public class SideMenu extends JPanel {
+    private Ventana ventana;
 
-    private Navigator navigator;
-
-    public SideMenu(Navigator navigator) {
-        this.navigator = navigator;
+    public SideMenu(Ventana ventana) {
+        
+        this.ventana = ventana;
         initUI();
     }
 
@@ -89,13 +90,13 @@ public class SideMenu extends JPanel {
         MenuButton btnProveedores = new MenuButton("PROVEEDORES");
         MenuButton btnCaja = new MenuButton("CAJA");
 
-        btnUsuarios.addActionListener(e -> navigator.goTo("USUARIOS"));
-        btnClientes.addActionListener(e -> navigator.goTo("CLIENTES"));
-        btnServicios.addActionListener(e -> navigator.goTo("SERVICIOS"));
-        btnInventario.addActionListener(e -> navigator.goTo("INVENTARIO"));
-        btnTurnos.addActionListener(e -> navigator.goTo("TURNOS"));
-        btnProveedores.addActionListener(e -> navigator.goTo("PROVEEDORES"));
-        btnCaja.addActionListener(e -> navigator.goTo("CAJA"));
+        btnUsuarios.addActionListener(e -> ventana.goTo("USUARIOS"));
+        btnClientes.addActionListener(e -> ventana.goTo("CLIENTES"));
+        btnServicios.addActionListener(e -> ventana.goTo("SERVICIOS"));
+        btnInventario.addActionListener(e -> ventana.goTo("INVENTARIO"));
+        btnTurnos.addActionListener(e -> ventana.goTo("TURNOS"));
+        btnProveedores.addActionListener(e -> ventana.goTo("PROVEEDORES"));
+        btnCaja.addActionListener(e -> ventana.goTo("CAJA"));
 
         menuPanel.add(btnTurnos);
         menuPanel.add(btnUsuarios);
@@ -107,6 +108,8 @@ public class SideMenu extends JPanel {
         
         return menuPanel;
     }
+    
+    //DARK MODE SWITCH
 
     private JPanel buildBottomPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -119,7 +122,7 @@ public class SideMenu extends JPanel {
 
             if (dark) {
                 toggle.setText("Light");
-                // Styles.applyDarkTheme();   // when you create it
+                Styles.applyDarkTheme();   
             } else {
                 toggle.setText("Dark");
                 Styles.applyLightTheme();
@@ -128,6 +131,9 @@ public class SideMenu extends JPanel {
             SwingUtilities.updateComponentTreeUI(
                 SwingUtilities.getWindowAncestor(this)
             );
+            Window w = SwingUtilities.getWindowAncestor(this);
+            
+            ventana.applyTheme();
         });
 
         panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 15, 5));
@@ -135,5 +141,24 @@ public class SideMenu extends JPanel {
 
         return panel;
     }
+    
+    //ACTUALIZAR TEMA DARK/LIGHT
+        public void applyTheme() {
+            setBackground(Styles.bgDark);
+
+            for (Component c : getComponents()) {
+                c.setBackground(Styles.bgDark);
+                c.setForeground(Styles.fontLight);
+
+                if (c instanceof JPanel p) {
+                    for (Component sub : p.getComponents()) {
+                        sub.setBackground(Styles.bgDark);
+                        sub.setForeground(Styles.fontLight);
+                    }
+                }
+            }
+            repaint();
+        }
+
 
 }

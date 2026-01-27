@@ -12,7 +12,6 @@ com\mycompany\proyectofinal\Controladora.class
 com\mycompany\GUI\login\Login$1.class
 com\mycompany\persistencia\exceptions\IllegalOrphanException.class
 com\mycompany\persistencia\ProductoJpaController.class
-com\mycompany\persistencia\exceptions\PreexistingEntityException.class
 com\mycompany\proyectofinal\Caja_.class
 com\mycompany\GUI\login\RecoverPass$2.class
 com\mycompany\persistencia\CajaJpaController.class

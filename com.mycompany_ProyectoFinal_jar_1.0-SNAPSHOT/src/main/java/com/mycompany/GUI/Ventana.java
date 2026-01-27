@@ -11,6 +11,7 @@ public class Ventana extends JFrame implements Navigator {
 
     private JPanel cardPanel;
     private CardLayout cardLayout;
+    private SideMenu menu;
 
     public Ventana() {
         initUI();           
@@ -22,13 +23,14 @@ public class Ventana extends JFrame implements Navigator {
         setSize(1000, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setBackground(Styles.bgLight);
 
         //change layout of content pane, not frame
         getContentPane().setLayout(new BorderLayout());
         
         
         // side menu
-        SideMenu menu = new SideMenu(this);
+        menu = new SideMenu(this);
         getContentPane().add(menu, BorderLayout.WEST);
     }
 
@@ -54,12 +56,29 @@ public class Ventana extends JFrame implements Navigator {
         cardLayout.show(cardPanel, name);
     }
     
+    public void applyTheme() {
+        getContentPane().setBackground(Styles.bgLight);
+        menu.applyTheme();
+
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Usuarios u) u.applyTheme();
+            if (c instanceof Caja u) u.applyTheme();
+            if (c instanceof Turnos u) u.applyTheme();
+            if (c instanceof Servicios u) u.applyTheme();
+            if (c instanceof Proveedores u) u.applyTheme();
+            if (c instanceof Inventario u) u.applyTheme();
+            if (c instanceof Clientes u) u.applyTheme();
+        }
+
+        repaint();
+    }
+    
     @Override
         public void goTo(String cardName) {
             CardLayout cl = (CardLayout) cardPanel.getLayout();
             cl.show(cardPanel, cardName);
         }
-
+        
         //main temporal for testing
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -69,6 +88,8 @@ public class Ventana extends JFrame implements Navigator {
             v.setVisible(true);
         });
     }
+    
+    
 
 }
 

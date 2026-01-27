@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
@@ -54,33 +55,79 @@ public class Styles {
     //background
     public static void applyLightTheme(){
     
-    bgDark = new Color(43, 43, 45);  //Petrol grey, sidebar
-    bgDarkHover = new Color(76, 76, 79);
-    bgLight = new Color(250, 250, 250); //Off White
-    bgDisabledField = new Color(189, 189, 189);
-    bgTextField = new Color(225,225,225);
-    
-    //font
-    fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
-    fontLightHover = new Color(200, 171, 255); //lilac
-    fontDisabledField = new Color(148, 148, 148); //for disabled fields?
-    fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
-    fontDark = new Color(43, 43, 45); //Petrol grey
-    
-    //accent colors
-    accent = new Color(127, 52, 201); //Dark Violet
-    accentHover = new Color(175, 119, 230); //Lilac
-    accentNotif = new Color(243, 112, 136); //Pink
-    
-    //button colors
-    btnSec = new Color(255, 255, 255); //Pure White
-    btnSecBorder = new Color(148, 148, 148); //Dark grey
-    btnSecFontCol = new Color(148,148,148);
-    btnSecHover = new Color(246, 240, 252);
-    btnSecBorHov = new Color (245,245,245);
+        bgDark = new Color(43, 43, 45);  //Petrol grey, sidebar
+        bgDarkHover = new Color(76, 76, 79);
+        bgLight = new Color(250, 250, 250); //Off White
+        bgDisabledField = new Color(189, 189, 189);
+        bgTextField = new Color(225,225,225);
+
+        //font
+        fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
+        fontLightHover = new Color(200, 171, 255); //lilac
+        fontDisabledField = new Color(148, 148, 148); //for disabled fields?
+        fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
+        fontDark = new Color(43, 43, 45); //Petrol grey
+
+        //accent colors
+        accent = new Color(127, 52, 201); //Dark Violet
+        accentHover = new Color(175, 119, 230); //Lilac
+        accentNotif = new Color(243, 112, 136); //Pink
+
+        //button colors
+        btnSec = new Color(255, 255, 255); //Pure White
+        btnSecBorder = new Color(148, 148, 148); //Dark grey
+        btnSecFontCol = new Color(148,148,148);
+        btnSecHover = new Color(246, 240, 252);
+        btnSecBorHov = new Color (245,245,245);
+        
+        UIManager.put("Panel.background", bgLight);
+        UIManager.put("Label.foreground", fontDark);
+        UIManager.put("Button.background", btnSec);
+        UIManager.put("Button.foreground", fontDark);
+        UIManager.put("ToggleButton.background", btnSec);
+        UIManager.put("ToggleButton.foreground", fontDark);
+        UIManager.put("TextField.background", bgTextField);
+        UIManager.put("TextField.foreground", fontDark);
     
     }
     
+    public static void applyDarkTheme(){
+    
+        bgDark = new Color(43, 43, 45);  //Petrol grey, sidebar
+        bgDarkHover = new Color(76, 76, 79);
+        bgLight = new Color(43, 43, 45); //Off White
+        bgDisabledField = new Color(189, 189, 189);
+        bgTextField = new Color(225,225,225);
+
+        //font
+        fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
+        fontLightHover = new Color(200, 171, 255); //lilac
+        fontDisabledField = new Color(148, 148, 148); //for disabled fields?
+        fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
+        fontDark = new Color(252, 252, 252); //Petrol grey
+
+        //accent colors
+        accent = new Color(127, 52, 201); //Dark Violet
+        accentHover = new Color(175, 119, 230); //Lilac
+        accentNotif = new Color(243, 112, 136); //Pink
+
+        //button colors
+        btnSec = new Color(255, 255, 255); //Pure White
+        btnSecBorder = new Color(148, 148, 148); //Dark grey
+        btnSecFontCol = new Color(148,148,148);
+        btnSecHover = new Color(246, 240, 252);
+        btnSecBorHov = new Color (245,245,245);
+        
+        UIManager.put("Panel.background", bgLight);
+        UIManager.put("Label.foreground", fontDark);
+        UIManager.put("Button.background", btnSec);
+        UIManager.put("Button.foreground", fontDark);
+        UIManager.put("ToggleButton.background", btnSec);
+        UIManager.put("ToggleButton.foreground", fontDark);
+        UIManager.put("TextField.background", bgTextField);
+        UIManager.put("TextField.foreground", fontDark);
+    
+    }
     
     
     

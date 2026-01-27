@@ -8,12 +8,8 @@ import com.mycompany.GUI.login.Login;
 import com.mycompany.GUI.*;
 import javax.swing.*;
 
-//import com.mycompany.GUI.Ventana3;
+import com.mycompany.GUI.Ventana;
 
-/**
- *
- * @author duart
- */
 public class ProyectoFinal {
 
     public static void main(String[] args) {
