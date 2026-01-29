@@ -14,6 +14,9 @@ import com.mycompany.GUI.cards.*;
 
 public class SideMenu extends JPanel {
     private Ventana ventana;
+    private static final Color NORMAL_BG = Styles.bgDark;
+    private static final Color SELECTED_BG = Styles.accent;
+    private MenuButton selectedButton;
 
     public SideMenu(Ventana ventana) {
         
@@ -42,6 +45,7 @@ public class SideMenu extends JPanel {
         add(logoPanel, BorderLayout.NORTH);
         add(menuPanel, BorderLayout.CENTER);
         add(togglePanel, BorderLayout.SOUTH);
+        
     }
     
     
@@ -91,14 +95,46 @@ public class SideMenu extends JPanel {
         MenuButton btnCaja = new MenuButton("CAJA");
         MenuButton btnIni = new MenuButton("INICIO");
 
-        btnUsuarios.addActionListener(e -> ventana.goTo("USUARIOS"));
-        btnClientes.addActionListener(e -> ventana.goTo("CLIENTES"));
-        btnServicios.addActionListener(e -> ventana.goTo("SERVICIOS"));
-        btnInventario.addActionListener(e -> ventana.goTo("INVENTARIO"));
-        btnTurnos.addActionListener(e -> ventana.goTo("TURNOS"));
-        btnProveedores.addActionListener(e -> ventana.goTo("PROVEEDORES"));
-        btnCaja.addActionListener(e -> ventana.goTo("CAJA"));
-        btnIni.addActionListener(e -> ventana.goTo("INICIO"));
+        btnUsuarios.addActionListener(e -> {
+            selectButton(btnUsuarios);
+            ventana.goTo("USUARIOS");
+            System.out.println("usuarios selected");
+        });
+        
+        btnClientes.addActionListener(e -> {
+            selectButton(btnClientes);
+            ventana.goTo("CLIENTES");
+        });
+        
+        btnServicios.addActionListener(e -> {
+            selectButton(btnServicios);
+            ventana.goTo("SERVICIOS");
+        });
+        
+        btnInventario.addActionListener(e -> {
+            selectButton(btnInventario);
+            ventana.goTo("INVENTARIO");
+        });
+        
+        btnTurnos.addActionListener(e -> {
+            selectButton(btnTurnos);
+            ventana.goTo("Turnos");
+        });
+        
+        btnProveedores.addActionListener(e -> {
+            selectButton(btnProveedores);
+            ventana.goTo("PROVEEDORES");
+        });
+
+        btnCaja.addActionListener(e -> {
+            selectButton(btnCaja);
+            ventana.goTo("CAJA");
+        });
+        
+        btnIni.addActionListener(e -> {
+            selectButton(btnIni);
+            ventana.goTo("INICIO");
+        });
         
         menuPanel.add(btnIni);
         menuPanel.add(btnTurnos);
@@ -108,6 +144,8 @@ public class SideMenu extends JPanel {
         menuPanel.add(btnProveedores);
         menuPanel.add(btnServicios);
         menuPanel.add(btnCaja);
+        
+        selectButton(btnIni);
         
         return menuPanel;
     }
@@ -162,6 +200,16 @@ public class SideMenu extends JPanel {
             }
             repaint();
         }
+        
+        //cambiar bgColor btn seleccionado
+        
+        private void selectButton(MenuButton btn) {
+            if (selectedButton != null) {
+                selectedButton.setSelectedStyle(false);
+            }
 
+            selectedButton = btn;
+            selectedButton.setSelectedStyle(true);
+        }
 
 }

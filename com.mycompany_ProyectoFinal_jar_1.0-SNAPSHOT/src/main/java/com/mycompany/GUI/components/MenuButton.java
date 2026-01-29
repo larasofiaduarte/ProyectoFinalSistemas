@@ -50,9 +50,20 @@ public class MenuButton extends JButton{
     // optional: selected state for active menu
     public void setSelectedStyle(boolean selected) {
         if (selected) {
-            setForeground(Styles.accent);
+            setOpaque(true);
+            setBackground(Styles.accent);
+            hoverColor = Styles.fontLight;
+        } else{
+            setOpaque(false);
+            setBackground(Styles.bgDark);
+            hoverColor = Styles.accent;
+        }
+        if (getMousePosition() != null) {
+            setForeground(hoverColor);
         } else {
             setForeground(normalColor);
         }
+
+        repaint();
     }
 }
