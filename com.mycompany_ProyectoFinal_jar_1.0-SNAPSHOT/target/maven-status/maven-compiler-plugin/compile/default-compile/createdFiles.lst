@@ -13,7 +13,6 @@ com\mycompany\GUI\login\Login$1.class
 com\mycompany\persistencia\exceptions\IllegalOrphanException.class
 com\mycompany\persistencia\ProductoJpaController.class
 com\mycompany\proyectofinal\Caja_.class
-com\mycompany\GUI\login\RecoverPass$2.class
 com\mycompany\persistencia\CajaJpaController.class
 com\mycompany\persistencia\ServicioJpaController.class
 com\mycompany\GUI\components\TxtField$1.class
@@ -24,9 +23,9 @@ com\mycompany\persistencia\TurnoJpaController.class
 com\mycompany\proyectofinal\Caja.class
 com\mycompany\GUI\cards\Clientes.class
 com\mycompany\GUI\login\RecoverPass.class
-com\mycompany\GUI\login\RecoverPass$1.class
 com\mycompany\GUI\login\Login.class
 com\mycompany\proyectofinal\Turno_.class
+com\mycompany\GUI\cards\Inicio.class
 com\mycompany\GUI\Ventana.class
 com\mycompany\persistencia\ClienteJpaController.class
 com\mycompany\GUI\login\Login$2.class

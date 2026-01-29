@@ -89,6 +89,7 @@ public class SideMenu extends JPanel {
         MenuButton btnTurnos = new MenuButton("TURNOS");
         MenuButton btnProveedores = new MenuButton("PROVEEDORES");
         MenuButton btnCaja = new MenuButton("CAJA");
+        MenuButton btnIni = new MenuButton("INICIO");
 
         btnUsuarios.addActionListener(e -> ventana.goTo("USUARIOS"));
         btnClientes.addActionListener(e -> ventana.goTo("CLIENTES"));
@@ -97,7 +98,9 @@ public class SideMenu extends JPanel {
         btnTurnos.addActionListener(e -> ventana.goTo("TURNOS"));
         btnProveedores.addActionListener(e -> ventana.goTo("PROVEEDORES"));
         btnCaja.addActionListener(e -> ventana.goTo("CAJA"));
-
+        btnIni.addActionListener(e -> ventana.goTo("INICIO"));
+        
+        menuPanel.add(btnIni);
         menuPanel.add(btnTurnos);
         menuPanel.add(btnUsuarios);
         menuPanel.add(btnClientes);

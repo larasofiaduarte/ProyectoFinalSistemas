@@ -43,6 +43,9 @@ public class ControladoraPersistencia {
         public Usuario findUsuarioByUser(String user){
             return usuJpa.findUsuarioByUsername(user);
         }
+        public boolean validarUsuarioYDni(String user, String dni){
+            return usuJpa.validarUsuarioYDni(user, dni);
+        }
         public void resetPassword(String user, String newPass) {
             Usuario u = usuJpa.findUsuarioByUsername(user);
             if (u != null) {

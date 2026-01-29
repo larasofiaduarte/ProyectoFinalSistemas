@@ -28,6 +28,8 @@ public class Usuario implements Serializable {
     private String username;
     @Column(name = "clave")
     private String password;
+    @Column(name="dni")
+    private String dni;
     private String nombre;
     private String apellido;
     private String telefono;
@@ -69,11 +71,11 @@ public class Usuario implements Serializable {
         
     }
     
-    public Usuario(int id, String username, String password){
+    public Usuario(int id, String username, String password, String dni){
         this.id = id;
         this.username = username;
         this.password = password;
-        
+        this.dni = dni;
     }
     
     public int getId(){
@@ -98,5 +100,13 @@ public class Usuario implements Serializable {
     
     public void setPassword(String password){
         this.password = password;
+    }
+    
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
+    public String getDni() {
+        return dni;
     }
 }

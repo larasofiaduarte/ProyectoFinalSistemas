@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.GUI.login;
 
 import com.mycompany.proyectofinal.Controladora;
@@ -10,75 +6,113 @@ import java.awt.*;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.*;
 import com.mycompany.GUI.components.Button;
-import com.mycompany.GUI.components.TxtField;
-import com.mycompany.GUI.components.PassField;
-import com.mycompany.proyectofinal.Usuario;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
-/**
- *
- * @author duart
- */
 public class RecoverPass extends JDialog {
-    
+
     private Controladora control;
-    private JPanel content;
+
     private TxtField txtUser;
+    private TxtField txtDni;
     private PassField txtPass;
+    private PassField txtConfirmPass;
     private JCheckBox check;
-    private Button primaryBtn;
-    private Button secondaryBtn;
-    
-    public RecoverPass(Window parent){
+
+    private Button primaryBtnStep1;
+    private Button secondaryBtnStep1;
+
+    private Button primaryBtnStep2;
+    private Button secondaryBtnStep2;
+
+    private CardLayout cardLayout;
+    private JPanel cardPanel;
+
+    private JPanel step1;
+    private JPanel step2;
+
+    public RecoverPass(Window parent) {
         super(parent, "Recuperar Contraseña", ModalityType.APPLICATION_MODAL);
         this.control = new Controladora();
-        initDialog(); //Abrir el Dialog de Login
-        AddEventListeners();
+        initDialog();
+        addEventListeners();
     }
-    
-    
-    /** Setting del Login */
+
+    // ================= DIALOG =================
+
     private void initDialog() {
         setSize(400, 550);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        
-        content = new JPanel();
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBackground(Styles.bgLight);
 
-        setContentPane(content);
-        
-        buildUI();
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+        cardPanel.setBackground(Styles.bgLight);
+
+        step1 = buildStep1();
+        step2 = buildStep2();
+
+        cardPanel.add(step1, "STEP1");
+        cardPanel.add(step2, "STEP2");
+
+        setContentPane(cardPanel);
+        cardLayout.show(cardPanel, "STEP1");
     }
-    
-    private void buildUI(){
-        // Titulo
+
+    // ================= STEP 1 =================
+
+    private JPanel buildStep1() {
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Styles.bgLight);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
         JLabel panelTitle = new JLabel("Recuperar Contraseña");
         panelTitle.setFont(Styles.fontTitle);
         panelTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        content.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        content.add(panelTitle);
-        
-        JPanel userPanel = buildUserPanel();
-        JPanel passPanel = buildPassPanel();  
-        JPanel btnPanel = buildBtnPanel();
-        
-        content.add(userPanel);
-        content.add(passPanel);
-        content.add(btnPanel);
-    
+
+        panel.add(panelTitle);
+        panel.add(buildUserPanel());
+        panel.add(buildDniPanel());
+        panel.add(Box.createVerticalStrut(15));
+        panel.add(buildBtnPanelStep1());
+
+        return panel;
     }
-    
-    private JPanel buildUserPanel(){
+
+    // ================= STEP 2 =================
+
+    private JPanel buildStep2() {
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Styles.bgLight);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel panelTitle = new JLabel("Nueva Contraseña");
+        panelTitle.setFont(Styles.fontTitle);
+        panelTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(panelTitle);
+        panel.add(buildPassPanel());
+        panel.add(buildConfirmPassPanel());
         
+        panel.add(Box.createHorizontalStrut(15));
+        panel.add(buildCheckPanel());
+        
+        panel.add(buildBtnPanelStep2());
+
+        return panel;
+    }
+
+    // ================= USER =================
+
+    private JPanel buildUserPanel() {
+
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setBackground(Styles.bgLight);
-        
-        userPanel.add(Box.createVerticalStrut(45));
+
+        userPanel.add(Box.createVerticalStrut(30));
 
         JLabel lblUser = new JLabel("Nombre de Usuario");
         lblUser.setFont(Styles.fontLbl);
@@ -90,10 +124,8 @@ public class RecoverPass extends JDialog {
         lblContainer.add(Box.createHorizontalStrut(25));
         lblContainer.add(lblUser);
         lblContainer.add(Box.createHorizontalGlue());
-        
-        lblContainer.add(Box.createVerticalStrut(10));
 
-        txtUser = new com.mycompany.GUI.components.TxtField(20, "Ingrese su nombre de usuario");
+        txtUser = new TxtField(20, "Ingrese su nombre de usuario");
         txtUser.setMaximumSize(new Dimension(300, 40));
 
         JPanel txtContainer = new JPanel();
@@ -105,10 +137,45 @@ public class RecoverPass extends JDialog {
         userPanel.add(txtContainer);
 
         return userPanel;
-        
     }
-    
+
+    // ================= DNI =================
+
+    private JPanel buildDniPanel() {
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Styles.bgLight);
+
+        JLabel lbl = new JLabel("DNI");
+        lbl.setFont(Styles.fontLbl);
+        lbl.setForeground(Styles.fontDark);
+
+        JPanel lblContainer = new JPanel();
+        lblContainer.setLayout(new BoxLayout(lblContainer, BoxLayout.X_AXIS));
+        lblContainer.setBackground(Styles.bgLight);
+        lblContainer.add(Box.createHorizontalStrut(25));
+        lblContainer.add(lbl);
+        lblContainer.add(Box.createHorizontalGlue());
+
+        txtDni = new TxtField(20, "Ingrese su DNI");
+        txtDni.setMaximumSize(new Dimension(300, 40));
+
+        JPanel txtContainer = new JPanel();
+        txtContainer.setLayout(new BoxLayout(txtContainer, BoxLayout.X_AXIS));
+        txtContainer.setBackground(Styles.bgLight);
+        txtContainer.add(txtDni);
+
+        panel.add(lblContainer);
+        panel.add(txtContainer);
+
+        return panel;
+    }
+
+    // ================= PASSWORD =================
+
     private JPanel buildPassPanel() {
+
         JPanel passPanel = new JPanel();
         passPanel.setLayout(new BoxLayout(passPanel, BoxLayout.Y_AXIS));
         passPanel.setBackground(Styles.bgLight);
@@ -121,7 +188,6 @@ public class RecoverPass extends JDialog {
         lblContainer.setLayout(new BoxLayout(lblContainer, BoxLayout.X_AXIS));
         lblContainer.setBackground(Styles.bgLight);
         lblContainer.add(Box.createHorizontalStrut(25));
-        
         lblContainer.add(lblPass);
         lblContainer.add(Box.createHorizontalGlue());
 
@@ -133,17 +199,12 @@ public class RecoverPass extends JDialog {
         txtContainer.setBackground(Styles.bgLight);
         txtContainer.add(txtPass);
         
-        //check
-        check = new JCheckBox("Mostrar Contraseña");
-        check.setBackground(Styles.bgLight);
-        check.setForeground(Styles.fontPlaceholder);
+        
 
         JPanel bottomContainer = new JPanel();
         bottomContainer.setLayout(new BoxLayout(bottomContainer, BoxLayout.X_AXIS));
         bottomContainer.setBackground(Styles.bgLight);
-        
         bottomContainer.add(Box.createHorizontalStrut(15));
-        bottomContainer.add(check);
         bottomContainer.add(Box.createHorizontalGlue());
 
         passPanel.add(lblContainer);
@@ -152,98 +213,161 @@ public class RecoverPass extends JDialog {
 
         return passPanel;
     }
-    
-    //panel botones
-    private JPanel buildBtnPanel(){
+
+    private JPanel buildConfirmPassPanel() {
+
         JPanel panel = new JPanel();
-        
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Styles.bgLight);
+
+        JLabel lbl = new JLabel("Confirmar Contraseña");
+        lbl.setFont(Styles.fontLbl);
+        lbl.setForeground(Styles.fontDark);
+
+        JPanel lblContainer = new JPanel();
+        lblContainer.setLayout(new BoxLayout(lblContainer, BoxLayout.X_AXIS));
+        lblContainer.setBackground(Styles.bgLight);
+        lblContainer.add(Box.createHorizontalStrut(25));
+        lblContainer.add(lbl);
+        lblContainer.add(Box.createHorizontalGlue());
+
+        txtConfirmPass = new PassField(20, "Repita la contraseña");
+        txtConfirmPass.setMaximumSize(new Dimension(300, 40));
+
+        JPanel txtContainer = new JPanel();
+        txtContainer.setLayout(new BoxLayout(txtContainer, BoxLayout.X_AXIS));
+        txtContainer.setBackground(Styles.bgLight);
+        txtContainer.add(txtConfirmPass);
+
+        panel.add(lblContainer);
+        panel.add(txtContainer);
+
+        return panel;
+    }
+
+    // ================= BUTTON PANELS =================
+
+    private JPanel buildBtnPanelStep1() {
+
+        JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBackground(Styles.bgLight);
-        
-        int buttonHeight = 40;
-        Dimension buttonSize = new Dimension(300, buttonHeight);
-        
-        primaryBtn = com.mycompany.GUI.components.Button.primary("Aceptar");
-        primaryBtn.setPreferredSize(buttonSize);
-        primaryBtn.setMaximumSize(buttonSize);
 
-        secondaryBtn = com.mycompany.GUI.components.Button.secondary("Cancelar");
-        secondaryBtn.setPreferredSize(buttonSize);
-        secondaryBtn.setMaximumSize(buttonSize);
+        Dimension buttonSize = new Dimension(300, 40);
+
+        secondaryBtnStep1 = Button.secondary("Cancelar");
+        secondaryBtnStep1.setPreferredSize(Styles.btnSizeSm);
+        secondaryBtnStep1.setMaximumSize(Styles.btnSizeSm);
+        secondaryBtnStep1.setMinimumSize(Styles.btnSizeSm);
         
-        panel.add(secondaryBtn);
-        panel.add(primaryBtn);
-        
+
+
+        primaryBtnStep1 = Button.primary("Continuar");
+        primaryBtnStep1.setPreferredSize(Styles.btnSizeSm);
+        primaryBtnStep1.setMaximumSize(Styles.btnSizeSm);
+        primaryBtnStep1.setMinimumSize(Styles.btnSizeSm);
+
+        panel.add(secondaryBtnStep1);
+        panel.add(Box.createHorizontalStrut(10));
+        panel.add(primaryBtnStep1);
+
         return panel;
-    
     }
     
-    private void AddEventListeners(){
-        //Reset Pass
-        primaryBtn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                String user = txtUser.getText();
-                String newPass = new String(txtPass.getPassword());
-                
-                //buscar el nombre de usuario ingresado en la variable user para ver si existe en la BD
-                //si existe, cambiar la contrasenia actual del objeto user en la BD por newPass
-                
-                // verificar si existe el user ingresado
-                if (user.isEmpty() || newPass.isEmpty()) {
-                JOptionPane.showMessageDialog(
-                    RecoverPass.this,
-                    "Complete todos los campos",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-                    );
-                    return;
-                }
+    private JPanel buildCheckPanel(){
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 0, 0));
+        check = new JCheckBox("Mostrar Contraseña");
+        check.setBackground(Styles.bgLight);
+        check.setForeground(Styles.fontPlaceholder);
+        panel.add(check);
+        return panel;
+    }
+    
+    private JPanel buildBtnPanelStep2() {
 
-                if (!control.doesUsernameExist(user)) {
-                    JOptionPane.showMessageDialog(
-                        RecoverPass.this,
-                        "El usuario no existe",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                    );
-                    return;
-                }
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.setBackground(Styles.bgLight);
 
-                control.resetPassword(user, newPass);
+        Dimension buttonSize = new Dimension(300, 40);
+        
+        
+        
+        secondaryBtnStep2 = Button.secondary("Cancelar");
+        secondaryBtnStep2.setPreferredSize(Styles.btnSizeSm);
+        secondaryBtnStep2.setMaximumSize(Styles.btnSizeSm);
+        secondaryBtnStep2.setMinimumSize(Styles.btnSizeSm);
+        
+        primaryBtnStep2 = Button.primary("Aceptar");
+        primaryBtnStep2.setPreferredSize(Styles.btnSizeSm);
+        primaryBtnStep2.setMaximumSize(Styles.btnSizeSm);
+        primaryBtnStep2.setMinimumSize(Styles.btnSizeSm);
+        
+        panel.add(secondaryBtnStep2);
+        panel.add(Box.createHorizontalStrut(10));
+        panel.add(primaryBtnStep2);
 
-                JOptionPane.showMessageDialog(
-                    RecoverPass.this,
-                    "Contraseña actualizada correctamente",
-                    "Éxito",
-                    JOptionPane.INFORMATION_MESSAGE
-                );
-                
-                dispose();
-                
+        return panel;
+    }
+
+    // ================= EVENTS =================
+
+    private void addEventListeners() {
+
+        // STEP 1 → STEP 2
+        primaryBtnStep1.addActionListener(e -> {
+
+            String user = txtUser.getText();
+            String dni = txtDni.getText();
+
+            if (user.isEmpty() || dni.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Complete todos los campos");
+                return;
             }
-        });
-        
-        
-        //Cancelar
-        secondaryBtn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                dispose();
+
+            if (!control.validarUsuarioYDni(user, dni)) {
+                JOptionPane.showMessageDialog(this, "Usuario y DNI no coinciden");
+                return;
             }
+
+            cardLayout.show(cardPanel, "STEP2");
         });
+
+        secondaryBtnStep1.addActionListener(e -> dispose());
+
+        // STEP 2 → GUARDAR PASS
+        primaryBtnStep2.addActionListener(e -> {
+
+            String pass1 = new String(txtPass.getPassword());
+            String pass2 = new String(txtConfirmPass.getPassword());
+
+            if (pass1.isEmpty() || pass2.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Complete ambos campos");
+                return;
+            }
+
+            if (!pass1.equals(pass2)) {
+                JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden");
+                return;
+            }
+
+            control.resetPassword(txtUser.getText(), pass1);
+
+            JOptionPane.showMessageDialog(this, "Contraseña actualizada");
+            dispose();
+        });
+
+        secondaryBtnStep2.addActionListener(e -> dispose());
         
-        // checkbox
+        
         check.addActionListener(e -> {
-            if (check.isSelected()) {
-                txtPass.setEchoChar((char) 0);
-            } else {
-                txtPass.setEchoChar('•');
-            }
+            txtPass.setEchoChar(check.isSelected() ? (char) 0 : '•');
+            txtConfirmPass.setEchoChar(check.isSelected() ? (char) 0 : '•');
         });
-        
+
+
     }
-    
-    
-    
 }
+

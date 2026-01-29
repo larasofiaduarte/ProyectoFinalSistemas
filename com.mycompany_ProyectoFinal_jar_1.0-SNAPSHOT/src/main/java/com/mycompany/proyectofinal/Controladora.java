@@ -52,6 +52,12 @@ public class Controladora {
         return controlPersis.checkIfUsuReferenced(id);
     }
     
+    //VALIDAR QUE USUARIO COINCIDA CON DNI PARA RECUPERAR CONTRAESÑA
+    public boolean validarUsuarioYDni(String usuario, String dni) {
+        return controlPersis.validarUsuarioYDni(usuario, dni);
+    }
+        
+    
     
     
     //LOGICA DE ALTA DE USUARIO
