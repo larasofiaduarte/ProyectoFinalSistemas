@@ -9,61 +9,84 @@ import javax.swing.*;
 import com.mycompany.GUI.Styles;
 import java.awt.event.*;
 
-public class MenuButton extends JButton{
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-    private Color normalColor = Styles.fontLight;
-    private Color hoverColor = Styles.accent;
+public class MenuButton extends JPanel {
+
+    private boolean selected = false;
+    private boolean hovered = false;
+
+    private final JLabel label;
 
     public MenuButton(String text) {
-        super(text);
-        initStyle();
-        initHover();
-    }
+        setLayout(new BorderLayout());
+        setOpaque(false); // parent owns background
+        setPreferredSize(new Dimension(180, 40));
 
-    private void initStyle() {
-        setFont(Styles.fontLblBold);
-        setForeground(normalColor);
+        label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(Styles.fontLblBold);
+        label.setForeground(Styles.fontLight);
+        add(label, BorderLayout.CENTER);
 
-        setContentAreaFilled(false);
-        setBorderPainted(false);
-        setFocusPainted(false);
-        setOpaque(false);
-
-        setHorizontalAlignment(SwingConstants.CENTER);
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-
-    private void initHover() {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                setForeground(hoverColor);
+                hovered = true;
+                updateLabelColor();
+                repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                setForeground(normalColor);
+                hovered = false;
+                updateLabelColor();
+                repaint();
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // optional: forward click if you want
             }
         });
     }
 
-    // optional: selected state for active menu
-    public void setSelectedStyle(boolean selected) {
+    private void updateLabelColor() {
         if (selected) {
-            setOpaque(true);
-            setBackground(Styles.accent);
-            hoverColor = Styles.fontLight;
-        } else{
-            setOpaque(false);
-            setBackground(Styles.bgDark);
-            hoverColor = Styles.accent;
-        }
-        if (getMousePosition() != null) {
-            setForeground(hoverColor);
+            label.setForeground(Styles.fontLight);
+        } else if (hovered) {
+            label.setForeground(Styles.accentHover);
         } else {
-            setForeground(normalColor);
+            label.setForeground(Styles.fontLight);
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // Optional subtle hover background (SAFE)
+        if (hovered && !selected) {
+            g.setColor(Styles.bgDarkHover); // make this slightly lighter/darker than bgDark
+            g.fillRect(0, 0, getWidth(), getHeight());
         }
 
+        // Selected indicator (LEFT BAR ONLY)
+        if (selected) {
+            g.setColor(Styles.accent);
+            g.fillRect(0, 0, 6, getHeight());
+        }
+    }
+
+    public void setSelected(boolean value) {
+        selected = value;
+        updateLabelColor();
         repaint();
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }

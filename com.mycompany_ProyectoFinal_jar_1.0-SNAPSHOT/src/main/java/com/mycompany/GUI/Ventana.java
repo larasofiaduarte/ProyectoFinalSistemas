@@ -71,7 +71,7 @@ public class Ventana extends JFrame implements Navigator {
             if (c instanceof Clientes u) u.applyTheme();
             if (c instanceof Inicio u) u.applyTheme();
         }
-
+        
         repaint();
     }
     

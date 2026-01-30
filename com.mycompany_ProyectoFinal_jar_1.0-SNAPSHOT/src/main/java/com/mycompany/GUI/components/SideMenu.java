@@ -10,51 +10,55 @@ import com.mycompany.GUI.Navigator;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.cards.*;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SideMenu extends JPanel {
-    private Ventana ventana;
-    private static final Color NORMAL_BG = Styles.bgDark;
-    private static final Color SELECTED_BG = Styles.accent;
+
+    private final Ventana ventana;
     private MenuButton selectedButton;
+    private final List<MenuButton> allButtons = new ArrayList<>();
+
+    private MenuButton btnIni;
+    private MenuButton btnTurnos;
+    private MenuButton btnUsuarios;
+    private MenuButton btnClientes;
+    private MenuButton btnInventario;
+    private MenuButton btnProveedores;
+    private MenuButton btnServicios;
+    private MenuButton btnCaja;
 
     public SideMenu(Ventana ventana) {
-        
         this.ventana = ventana;
         initUI();
     }
 
     private void initUI() {
-
-        // ===== MAIN PANEL =====
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(180, 0));
         setBackground(Styles.bgDark);
         setOpaque(true);
 
-        // ===== LOGO PANEL (TOP) =====
-        JPanel logoPanel = buildLogoPanel();
-
-        // ===== MENU PANEL (CENTER) =====
-        JPanel menuPanel = buildCenterPanel();
-        
-        // ==== DARK MODE SWITCH TOGGLE ===
-        JPanel togglePanel = buildBottomPanel();
-
-        // ===== ADD TO MAIN PANEL =====
-        add(logoPanel, BorderLayout.NORTH);
-        add(menuPanel, BorderLayout.CENTER);
-        add(togglePanel, BorderLayout.SOUTH);
-        
+        add(buildLogoPanel(), BorderLayout.NORTH);
+        add(buildCenterPanel(), BorderLayout.CENTER);
+        add(buildBottomPanel(), BorderLayout.SOUTH);
     }
-    
-    
-    //methods
-    
-    private JPanel buildLogoPanel(){
+
+    // ================= LOGO =================
+
+    private JPanel buildLogoPanel() {
         JPanel logoPanel = new JPanel();
         logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
         logoPanel.setBackground(Styles.bgDark);
+        logoPanel.setOpaque(true);
 
         JLabel logo = new JLabel("HECTOR");
         JLabel logo2 = new JLabel("YAGUSZ");
@@ -75,105 +79,78 @@ public class SideMenu extends JPanel {
         logoPanel.add(Box.createVerticalStrut(15));
         logoPanel.add(logo);
         logoPanel.add(logo2);
-        logoPanel.add(Box.createVerticalStrut(4));   // small gap
+        logoPanel.add(Box.createVerticalStrut(4));
         logoPanel.add(subtitle);
         logoPanel.add(Box.createVerticalStrut(15));
-    
+
         return logoPanel;
     }
-    
-    private JPanel buildCenterPanel(){
-        JPanel menuPanel = new JPanel(new GridLayout(0, 1, 0, 10));
+
+    // ================= MENU =================
+
+    private JPanel buildCenterPanel() {
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+        menuPanel.setOpaque(true);
         menuPanel.setBackground(Styles.bgDark);
 
-        MenuButton btnUsuarios = new MenuButton("EMPLEADOS");
-        MenuButton btnClientes = new MenuButton("CLIENTES");
-        MenuButton btnServicios = new MenuButton("SERVICIOS");
-        MenuButton btnInventario = new MenuButton("INVENTARIO");
-        MenuButton btnTurnos = new MenuButton("TURNOS");
-        MenuButton btnProveedores = new MenuButton("PROVEEDORES");
-        MenuButton btnCaja = new MenuButton("CAJA");
-        MenuButton btnIni = new MenuButton("INICIO");
+        btnIni         = new MenuButton("INICIO");
+        btnTurnos      = new MenuButton("TURNOS");
+        btnUsuarios    = new MenuButton("EMPLEADOS");
+        btnClientes    = new MenuButton("CLIENTES");
+        btnInventario  = new MenuButton("INVENTARIO");
+        btnProveedores = new MenuButton("PROVEEDORES");
+        btnServicios   = new MenuButton("SERVICIOS");
+        btnCaja        = new MenuButton("CAJA");
 
-        btnUsuarios.addActionListener(e -> {
-            selectButton(btnUsuarios);
-            ventana.goTo("USUARIOS");
-            System.out.println("usuarios selected");
-        });
-        
-        btnClientes.addActionListener(e -> {
-            selectButton(btnClientes);
-            ventana.goTo("CLIENTES");
-        });
-        
-        btnServicios.addActionListener(e -> {
-            selectButton(btnServicios);
-            ventana.goTo("SERVICIOS");
-        });
-        
-        btnInventario.addActionListener(e -> {
-            selectButton(btnInventario);
-            ventana.goTo("INVENTARIO");
-        });
-        
-        btnTurnos.addActionListener(e -> {
-            selectButton(btnTurnos);
-            ventana.goTo("Turnos");
-        });
-        
-        btnProveedores.addActionListener(e -> {
-            selectButton(btnProveedores);
-            ventana.goTo("PROVEEDORES");
-        });
+        Collections.addAll(
+            allButtons,
+            btnIni, btnTurnos, btnUsuarios, btnClientes,
+            btnInventario, btnProveedores, btnServicios, btnCaja
+        );
 
-        btnCaja.addActionListener(e -> {
-            selectButton(btnCaja);
-            ventana.goTo("CAJA");
-        });
-        
-        btnIni.addActionListener(e -> {
-            selectButton(btnIni);
-            ventana.goTo("INICIO");
-        });
-        
-        menuPanel.add(btnIni);
-        menuPanel.add(btnTurnos);
-        menuPanel.add(btnUsuarios);
-        menuPanel.add(btnClientes);
-        menuPanel.add(btnInventario);
-        menuPanel.add(btnProveedores);
-        menuPanel.add(btnServicios);
-        menuPanel.add(btnCaja);
-        
-        selectButton(btnIni);
-        
+        // 🔥 CORRECT click handling for JPanel
+        makeClickable(btnIni,         () -> navigate(btnIni, "INICIO"));
+        makeClickable(btnTurnos,      () -> navigate(btnTurnos, "TURNOS"));
+        makeClickable(btnUsuarios,    () -> navigate(btnUsuarios, "USUARIOS"));
+        makeClickable(btnClientes,    () -> navigate(btnClientes, "CLIENTES"));
+        makeClickable(btnInventario,  () -> navigate(btnInventario, "INVENTARIO"));
+        makeClickable(btnProveedores, () -> navigate(btnProveedores, "PROVEEDORES"));
+        makeClickable(btnServicios,   () -> navigate(btnServicios, "SERVICIOS"));
+        makeClickable(btnCaja,        () -> navigate(btnCaja, "CAJA"));
+
+        for (MenuButton b : allButtons) {
+            menuPanel.add(b);
+        }
+
+        selectButton(btnIni); // default selection
+
         return menuPanel;
     }
-    
-    //DARK MODE SWITCH
+
+    private void navigate(MenuButton button, String card) {
+        selectButton(button);
+        ventana.goTo(card);
+    }
+
+    // ================= THEME TOGGLE =================
 
     private JPanel buildBottomPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setBackground(Styles.bgDark);
+        panel.setOpaque(true);
 
         ThemeToggle toggle = new ThemeToggle();
 
         toggle.addActionListener(e -> {
-            boolean dark = toggle.isSelected();
-
-            if (dark) {
+            if (toggle.isSelected()) {
                 toggle.setText("Light");
-                Styles.applyDarkTheme();   
+                Styles.applyDarkTheme();
             } else {
                 toggle.setText("Dark");
                 Styles.applyLightTheme();
             }
 
-            SwingUtilities.updateComponentTreeUI(
-                SwingUtilities.getWindowAncestor(this)
-            );
-            Window w = SwingUtilities.getWindowAncestor(this);
-            
             ventana.applyTheme();
         });
 
@@ -182,34 +159,49 @@ public class SideMenu extends JPanel {
 
         return panel;
     }
-    
-    //ACTUALIZAR TEMA DARK/LIGHT
-        public void applyTheme() {
-            setBackground(Styles.bgDark);
 
-            for (Component c : getComponents()) {
-                c.setBackground(Styles.bgDark);
-                c.setForeground(Styles.fontLight);
+    // ================= THEME =================
 
-                if (c instanceof JPanel p) {
-                    for (Component sub : p.getComponents()) {
-                        sub.setBackground(Styles.bgDark);
-                        sub.setForeground(Styles.fontLight);
-                    }
+    public void applyTheme() {
+        setBackground(Styles.bgDark);
+
+        for (Component c : getComponents()) {
+            if (c instanceof JPanel p) {
+                p.setBackground(Styles.bgDark);
+                for (Component sub : p.getComponents()) {
+                    sub.setBackground(Styles.bgDark);
+                    sub.setForeground(Styles.fontLight);
                 }
             }
-            repaint();
+        }
+
+        // 🔑 restore selection ONCE
+        if (selectedButton != null) {
+            selectButton(selectedButton);
         }
         
-        //cambiar bgColor btn seleccionado
-        
-        private void selectButton(MenuButton btn) {
-            if (selectedButton != null) {
-                selectedButton.setSelectedStyle(false);
+        revalidate();
+        repaint();
+    }
+
+    // ================= SELECTION =================
+
+    private void selectButton(MenuButton btn) {
+    for (MenuButton b : allButtons) {
+        b.setSelected(false);
+    }
+    selectedButton = btn;
+    selectedButton.setSelected(true);
+}
+
+    // ================= CLICK SUPPORT =================
+
+    private void makeClickable(MenuButton btn, Runnable action) {
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                action.run();
             }
-
-            selectedButton = btn;
-            selectedButton.setSelectedStyle(true);
-        }
-
+        });
+    }
 }
