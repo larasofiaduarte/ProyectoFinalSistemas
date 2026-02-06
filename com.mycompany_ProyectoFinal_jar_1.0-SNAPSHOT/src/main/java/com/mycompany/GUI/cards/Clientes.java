@@ -10,29 +10,29 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 
-public class Clientes extends JPanel {
+public class Clientes extends MainPanelBase {
 
     private Ventana ventana;
 
     public Clientes(Ventana ventana) {
+        super("Clientes");
         this.ventana = ventana;
         initUI();
     }
 
     private void initUI() {
-        setLayout(new BorderLayout());
+        // Add components into panels created by MainPanelBase
 
-        // TODO: add components here
+        // --- Main content (table area) ---
+        JTable table = new JTable();
+        JScrollPane scroll = new JScrollPane(table);
 
-        JLabel label = new JLabel("Clientes", SwingConstants.CENTER);
-        add(label, BorderLayout.CENTER);
+        tablePanel.add(scroll, BorderLayout.CENTER);
+        
     }
     
+    @Override
     public void applyTheme() {
-        setBackground(Styles.bgLight);
-        for (Component c : getComponents()) {
-            c.setBackground(Styles.bgLight);
-            c.setForeground(Styles.fontDark);
-        }
+        super.applyTheme();
     }
 }

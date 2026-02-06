@@ -26,11 +26,14 @@ C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\exceptions\IllegalOrphanException.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Inventario.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\ProyectoFinal.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\TitlePanel.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\Servicio.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\exceptions\NonexistentEntityException.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Turnos.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\exceptions\PreexistingEntityException.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\Navigator.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\Theme.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\MainPanelBase.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\exceptions\PreexistingEntityException.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\SideMenu.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Clientes.java

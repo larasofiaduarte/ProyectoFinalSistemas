@@ -22,6 +22,7 @@ com\mycompany\GUI\Navigator.class
 com\mycompany\proyectofinal\Cliente.class
 com\mycompany\persistencia\TurnoJpaController.class
 com\mycompany\proyectofinal\Caja.class
+com\mycompany\GUI\components\TitlePanel.class
 com\mycompany\GUI\cards\Clientes.class
 com\mycompany\GUI\login\RecoverPass.class
 com\mycompany\GUI\login\Login.class
@@ -30,9 +31,11 @@ com\mycompany\GUI\cards\Inicio.class
 com\mycompany\GUI\Ventana.class
 com\mycompany\persistencia\ClienteJpaController.class
 com\mycompany\GUI\login\Login$2.class
+com\mycompany\GUI\cards\MainPanelBase.class
 com\mycompany\proyectofinal\Servicio.class
 com\mycompany\GUI\components\TxtField$2.class
 com\mycompany\GUI\cards\Proveedores.class
+com\mycompany\GUI\components\TitlePanel$2.class
 com\mycompany\proyectofinal\Producto.class
 com\mycompany\persistencia\UsuarioJpaController.class
 com\mycompany\GUI\Styles.class
@@ -43,8 +46,10 @@ com\mycompany\GUI\components\PassField$1.class
 com\mycompany\GUI\components\SideMenu.class
 com\mycompany\persistencia\ControladoraPersistencia.class
 com\mycompany\GUI\components\Button$1.class
+com\mycompany\GUI\Theme.class
 com\mycompany\GUI\components\ImagePanel.class
 com\mycompany\proyectofinal\Proveedor_.class
+com\mycompany\GUI\components\TitlePanel$1.class
 com\mycompany\proyectofinal\ProyectoFinal.class
 com\mycompany\GUI\cards\Inventario.class
 com\mycompany\proyectofinal\Servicio_.class
