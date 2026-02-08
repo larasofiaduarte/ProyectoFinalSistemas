@@ -16,6 +16,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.UIManager;
@@ -29,6 +30,7 @@ public class Styles {
     public static Color bgLight; //Off White
     public static Color bgDisabledField;
     public static Color bgTextField;
+    public static Color bgSearch;
     
     //font
     public static Color fontLight;  //for dark bg, sidebar, button
@@ -49,7 +51,7 @@ public class Styles {
     public static Color btnSecHover;
     public static Color btnSecBorHov;
     
-    
+    public static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     
     
     //background
@@ -60,6 +62,7 @@ public class Styles {
         bgLight = new Color(250, 250, 250); //Off White
         bgDisabledField = new Color(189, 189, 189);
         bgTextField = new Color(225,225,225);
+        bgSearch = new Color(245,245,245);
 
         //font
         fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
@@ -98,6 +101,7 @@ public class Styles {
         bgLight = new Color(43, 43, 45); //Off White
         bgDisabledField = new Color(189, 189, 189);
         bgTextField = new Color(225,225,225);
+        bgSearch = new Color(245,245,245);
 
         //font
         fontLight = new Color(252, 252, 252);  //for dark bg, sidebar, button
@@ -135,9 +139,10 @@ public class Styles {
     public static final Dimension btnSizeSm = new Dimension(150,35);
     public static final Dimension btnSizeWide = new Dimension(250,35);
     
-    //padding
+    //padding  (top, left, bottom, right)
     public static final EmptyBorder padding = new EmptyBorder(50, 20, 0, 0);
-
+    public static final EmptyBorder btnPanelPadding = new EmptyBorder(30, 0, 30, 0);
+    public static final EmptyBorder searchPadding = new EmptyBorder(10, 0, 10, 0);
 
     //font
     public static Font customFontMd;

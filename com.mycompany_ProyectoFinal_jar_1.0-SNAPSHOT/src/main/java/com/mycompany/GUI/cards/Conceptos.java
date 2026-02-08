@@ -4,22 +4,23 @@
  */
 package com.mycompany.GUI.cards;
 
+import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
-import com.mycompany.GUI.Styles;
 import com.mycompany.proyectofinal.*;
+import com.mycompany.proyectofinal.Controladora;
 import java.util.function.Function;
 
-public class Usuarios extends MainPanelBase {
+public class Conceptos extends MainPanelBase {
 
     private Ventana ventana;
     private Controladora control;
 
-    public Usuarios(Ventana ventana) {
-        super("Empleados");
+    public Conceptos(Ventana ventana) {
+        super("Caja");
         this.ventana = ventana;
-        this.control = new Controladora();
+        this.control = new Controladora(); 
         initUI();
     }
 
@@ -27,31 +28,27 @@ public class Usuarios extends MainPanelBase {
         // Add components into panels created by MainPanelBase
 
         // data from DB
-        java.util.List<Usuario> usuarios = control.traerUsuarios();
+        java.util.List<Caja> conceptos = control.traerConceptos();
 
         String[] columns = {
             "ID",
-            "Nombre de Usuario",
-            "Dni",
-            "Nombre",
-            "Apellido",
-            "Teléfono",
-            "Rol"
+            "Tipo",
+            "Monto",
+            "Medio",
+            "Detalle"  
         };
 
-        java.util.List<Function<Usuario, Object>> getters = java.util.List.of(
+        java.util.List<Function<Caja, Object>> getters = java.util.List.of(
             c -> c.getId(),
-            c -> c.getUsername(),
-            c -> c.getDni(),
-            c -> c.getNombre(),
-            c -> c.getApellido(),
-            c -> c.getTelefono(),
-            c -> c.getRol()
+            c -> c.getTipo(),
+            c -> c.getMonto(),
+            c -> c.getMedio(),
+            c -> c.getDetalle()
         );
 
 
 
-        setTableData(usuarios, columns, getters);
+        setTableData(conceptos, columns, getters);
         
         //buttons
     }

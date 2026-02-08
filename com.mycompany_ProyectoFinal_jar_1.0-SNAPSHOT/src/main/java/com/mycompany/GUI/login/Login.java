@@ -8,7 +8,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.TxtField;
 import com.mycompany.GUI.components.PassField;
 import com.mycompany.GUI.components.ImagePanel;
-import com.mycompany.GUI.components.Button;
+import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Controladora;
 import javax.swing.*;
 import java.awt.*;
@@ -121,12 +121,12 @@ import javax.swing.border.EmptyBorder;
         int buttonHeight = 40;
         Dimension buttonSize = new Dimension(300, buttonHeight);
 
-        Button primaryBtn = Button.primary("Ingresar");
+        Btn primaryBtn = Btn.primary("Ingresar");
         primaryBtn.setPreferredSize(buttonSize);
         primaryBtn.setMaximumSize(buttonSize);
         primaryBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        Button secondaryBtn = Button.secondary("Registrarse");
+        Btn secondaryBtn = Btn.secondary("Registrarse");
         secondaryBtn.setPreferredSize(buttonSize);
         secondaryBtn.setMaximumSize(buttonSize);
         secondaryBtn.setAlignmentX(Component.CENTER_ALIGNMENT);

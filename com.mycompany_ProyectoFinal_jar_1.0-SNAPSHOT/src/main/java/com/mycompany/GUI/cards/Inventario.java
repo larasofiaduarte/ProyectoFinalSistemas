@@ -7,30 +7,56 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Producto;
+import java.util.function.Function;
 
-public class Inventario extends JPanel {
+public class Inventario extends MainPanelBase {
 
     private Ventana ventana;
+    private Controladora control;
 
     public Inventario(Ventana ventana) {
+        super("Inventario");
         this.ventana = ventana;
+        this.control = new Controladora(); 
         initUI();
     }
 
     private void initUI() {
-        setLayout(new BorderLayout());
+        // Add components into panels created by MainPanelBase
 
-        // TODO: add components here
+        // data from DB
+        java.util.List<Producto> productos = control.traerProductos();
 
-        JLabel label = new JLabel("Inventario", SwingConstants.CENTER);
-        add(label, BorderLayout.CENTER);
+        String[] columns = {
+            "ID",
+            "Nombre",
+            "Stock",
+            "Minimo",
+            "Proveedor"  
+        };
+
+        java.util.List<Function<Producto, Object>> getters = java.util.List.of(
+            c -> c.getId(),
+            c -> c.getNombre(),
+            c -> c.getStock(),
+            c -> c.getMinimo(),
+            c -> c.getProveedor() != null  //que no aparezca null
+                ? c.getProveedor().getNombre()
+                : ""
+        );
+
+
+
+        setTableData(productos, columns, getters);
+        
+        //buttons
     }
     
+    @Override
     public void applyTheme() {
-        setBackground(Styles.bgLight);
-        for (Component c : getComponents()) {
-            c.setBackground(Styles.bgLight);
-            c.setForeground(Styles.fontDark);
-        }
+        super.applyTheme();
     }
 }

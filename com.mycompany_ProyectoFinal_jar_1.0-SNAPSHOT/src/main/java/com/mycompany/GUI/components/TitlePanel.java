@@ -16,7 +16,7 @@ import javax.swing.table.TableRowSorter;
 import com.mycompany.GUI.*;
 public class TitlePanel extends JPanel implements Theme {
 
-    private JTextField search;
+    private SearchBar search;
     private TableRowSorter<?> sorter;
 
     private JPanel topPanel;
@@ -42,10 +42,11 @@ public class TitlePanel extends JPanel implements Theme {
         // Filters panel
         filterPanel = new JPanel();
         bottomPanel.add(filterPanel, BorderLayout.WEST);
+        bottomPanel.setBorder(Styles.searchPadding);
 
         // Search field
-        search = new JTextField("Buscar");
-        search.setPreferredSize(new Dimension(220, 40));
+        search = new SearchBar("Buscar");
+        search.setPreferredSize(new Dimension(260, 40));
         bottomPanel.add(search, BorderLayout.EAST);
 
         search.addFocusListener(new FocusAdapter() {
@@ -100,10 +101,12 @@ public class TitlePanel extends JPanel implements Theme {
 
         lblTitle.setForeground(Styles.fontDark);
 
-        search.setBackground(Styles.bgTextField);
+        search.setBackground(Styles.bgSearch);
         search.setForeground(Styles.bgDark);
         search.setCaretColor(Styles.bgDark);
 
         repaint();
     }
+    
+    
 }

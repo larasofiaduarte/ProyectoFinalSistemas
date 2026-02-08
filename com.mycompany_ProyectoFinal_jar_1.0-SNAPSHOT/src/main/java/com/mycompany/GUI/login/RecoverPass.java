@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.*;
-import com.mycompany.GUI.components.Button;
+import com.mycompany.GUI.components.Btn;
 
 public class RecoverPass extends JDialog {
 
@@ -17,11 +17,11 @@ public class RecoverPass extends JDialog {
     private PassField txtConfirmPass;
     private JCheckBox check;
 
-    private Button primaryBtnStep1;
-    private Button secondaryBtnStep1;
+    private Btn primaryBtnStep1;
+    private Btn secondaryBtnStep1;
 
-    private Button primaryBtnStep2;
-    private Button secondaryBtnStep2;
+    private Btn primaryBtnStep2;
+    private Btn secondaryBtnStep2;
 
     private CardLayout cardLayout;
     private JPanel cardPanel;
@@ -255,14 +255,14 @@ public class RecoverPass extends JDialog {
 
         Dimension buttonSize = new Dimension(300, 40);
 
-        secondaryBtnStep1 = Button.secondary("Cancelar");
+        secondaryBtnStep1 = Btn.secondary("Cancelar");
         secondaryBtnStep1.setPreferredSize(Styles.btnSizeSm);
         secondaryBtnStep1.setMaximumSize(Styles.btnSizeSm);
         secondaryBtnStep1.setMinimumSize(Styles.btnSizeSm);
         
 
 
-        primaryBtnStep1 = Button.primary("Continuar");
+        primaryBtnStep1 = Btn.primary("Continuar");
         primaryBtnStep1.setPreferredSize(Styles.btnSizeSm);
         primaryBtnStep1.setMaximumSize(Styles.btnSizeSm);
         primaryBtnStep1.setMinimumSize(Styles.btnSizeSm);
@@ -295,12 +295,12 @@ public class RecoverPass extends JDialog {
         
         
         
-        secondaryBtnStep2 = Button.secondary("Cancelar");
+        secondaryBtnStep2 = Btn.secondary("Cancelar");
         secondaryBtnStep2.setPreferredSize(Styles.btnSizeSm);
         secondaryBtnStep2.setMaximumSize(Styles.btnSizeSm);
         secondaryBtnStep2.setMinimumSize(Styles.btnSizeSm);
         
-        primaryBtnStep2 = Button.primary("Aceptar");
+        primaryBtnStep2 = Btn.primary("Aceptar");
         primaryBtnStep2.setPreferredSize(Styles.btnSizeSm);
         primaryBtnStep2.setMaximumSize(Styles.btnSizeSm);
         primaryBtnStep2.setMinimumSize(Styles.btnSizeSm);

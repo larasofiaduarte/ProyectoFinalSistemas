@@ -8,30 +8,59 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Servicio;
+import java.util.function.Function;
 
-public class Servicios extends JPanel {
+public class Servicios extends MainPanelBase {
 
     private Ventana ventana;
+    private Controladora control;
 
     public Servicios(Ventana ventana) {
+        super("Servicios");
         this.ventana = ventana;
+        this.control = new Controladora(); 
         initUI();
     }
 
     private void initUI() {
-        setLayout(new BorderLayout());
+        // Add components into panels created by MainPanelBase
 
-        // TODO: add components here
+        // data from DB
+        java.util.List<Servicio> servicios = control.traerServicios();
 
-        JLabel label = new JLabel("Servicios", SwingConstants.CENTER);
-        add(label, BorderLayout.CENTER);
+        String[] columns = {
+            "ID",
+            "Nombre",
+            "Precio",
+            "Empleado"
+        };
+
+        java.util.List<Function<Servicio, Object>> getters = java.util.List.of(
+            c -> c.getId(),
+            c -> c.getNombre(),
+            c -> c.getPrecio(),
+            c -> {
+                if (c.getEmpleado() == null) return "";
+                String nombre = c.getEmpleado().getNombre();
+                String apellido = c.getEmpleado().getApellido();
+                return (nombre != null ? nombre : "") +
+                       " " +
+                       (apellido != null ? apellido : "");
+            }
+        );
+
+
+
+        setTableData(servicios, columns, getters);
+        
+        //buttons
     }
     
+    @Override
     public void applyTheme() {
-        setBackground(Styles.bgLight);
-        for (Component c : getComponents()) {
-            c.setBackground(Styles.bgLight);
-            c.setForeground(Styles.fontDark);
-        }
+        super.applyTheme();
     }
 }

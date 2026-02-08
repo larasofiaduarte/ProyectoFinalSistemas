@@ -44,7 +44,7 @@ public class Ventana extends JFrame implements Navigator {
         cardPanel.add(new Clientes(this), "CLIENTES");
         cardPanel.add(new Servicios(this), "SERVICIOS");
         cardPanel.add(new Inventario(this), "INVENTARIO");
-        cardPanel.add(new Caja(this), "CAJA");
+        cardPanel.add(new Conceptos(this), "CAJA");
         cardPanel.add(new Proveedores(this), "PROVEEDORES");
         cardPanel.add(new Turnos(this), "TURNOS");
         cardPanel.add(new Inicio(this), "INICIO");
@@ -63,7 +63,7 @@ public class Ventana extends JFrame implements Navigator {
 
         for (Component c : cardPanel.getComponents()) {
             if (c instanceof Usuarios u) u.applyTheme();
-            if (c instanceof Caja u) u.applyTheme();
+            if (c instanceof Conceptos u) u.applyTheme();
             if (c instanceof Turnos u) u.applyTheme();
             if (c instanceof Servicios u) u.applyTheme();
             if (c instanceof Proveedores u) u.applyTheme();

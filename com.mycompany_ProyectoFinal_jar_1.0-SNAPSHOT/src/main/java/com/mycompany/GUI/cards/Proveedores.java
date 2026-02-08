@@ -8,30 +8,52 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Proveedor;
+import java.util.List;
+import java.util.function.Function;
 
-public class Proveedores extends JPanel {
+public class Proveedores extends MainPanelBase {
 
     private Ventana ventana;
+    private Controladora control;
 
     public Proveedores(Ventana ventana) {
+        super("Proveedores");
         this.ventana = ventana;
+        this.control = new Controladora(); 
         initUI();
     }
 
     private void initUI() {
-        setLayout(new BorderLayout());
+        // Add components into panels created by MainPanelBase
 
-        // TODO: add components here
+        // data from DB
+        List<Proveedor> proveedores = control.traerProveedores();
 
-        JLabel label = new JLabel("Proveedores", SwingConstants.CENTER);
-        add(label, BorderLayout.CENTER);
+        String[] columns = {
+            "ID",
+            "Nombre",
+            "Teléfono",
+            "Género"  
+        };
+
+        List<Function<Proveedor, Object>> getters = List.of(
+            c -> c.getId(),
+            c -> c.getNombre(),
+            c -> c.getTelefono(),
+            c -> c.getEmail()
+        );
+
+
+
+        setTableData(proveedores, columns, getters);
+        
+        //buttons
     }
     
+    @Override
     public void applyTheme() {
-        setBackground(Styles.bgLight);
-        for (Component c : getComponents()) {
-            c.setBackground(Styles.bgLight);
-            c.setForeground(Styles.fontDark);
-        }
+        super.applyTheme();
     }
 }

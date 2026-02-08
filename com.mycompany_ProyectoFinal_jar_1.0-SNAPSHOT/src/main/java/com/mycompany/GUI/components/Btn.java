@@ -10,7 +10,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class Button extends JButton{
+public class Btn extends JButton{
       
       private int cornerRadius = 45;
       private boolean hasBorder = false;
@@ -25,7 +25,7 @@ public class Button extends JButton{
       
       
       
-      public Button(String text) {
+      public Btn(String text) {
         super(text); // set button text
 
         // Default style
@@ -60,8 +60,8 @@ public class Button extends JButton{
     }
     
         // Factory method for Primary button
-    public static Button primary(String text) {
-        Button b = new Button(text);
+    public static Btn primary(String text) {
+        Btn b = new Btn(text);
         b.setBackground(Styles.accent);
         b.setForeground(Styles.fontLight);
         b.setHasBorder(false);
@@ -72,8 +72,8 @@ public class Button extends JButton{
     }
 
     // Factory method for Secondary button
-    public static Button secondary(String text) {
-        Button b = new Button(text);
+    public static Btn secondary(String text) {
+        Btn b = new Btn(text);
         b.setBackground(Styles.btnSec);
         b.setForeground(Styles.btnSecFontCol);
         b.setHasBorder(true);
