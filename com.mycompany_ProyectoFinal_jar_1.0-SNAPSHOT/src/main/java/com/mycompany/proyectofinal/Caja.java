@@ -5,6 +5,7 @@
 package com.mycompany.proyectofinal;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import javax.persistence.*;
 
 /**
@@ -23,6 +24,15 @@ public class Caja implements Serializable {
     private String monto;
     private String medio;
     private String detalle;
+    private LocalDateTime fecha;
+
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
+    }
 
     public int getId() {
         return id;

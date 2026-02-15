@@ -9,12 +9,25 @@
     <class>com.mycompany.proyectofinal.Producto</class>
     <class>com.mycompany.proyectofinal.Turno</class>
     <class>com.mycompany.proyectofinal.Caja</class>
+    <class>com.mycompany.proyectofinal.ServicioProducto</class>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/peluqueria?serverTimezone=UTC"/>
-      <property name="javax.persistence.jdbc.user" value="root"/>
-      <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
-      <property name="javax.persistence.jdbc.password" value=""/>
-      <property name="javax.persistence.schema-generation.database.action" value="create"/>
+            <property name="javax.persistence.jdbc.url"
+                      value="jdbc:mysql://localhost:3306/peluqueria?serverTimezone=UTC"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.driver"
+                      value="com.mysql.cj.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+
+            <!-- Schema generation -->
+            <property name="javax.persistence.schema-generation.database.action"
+                      value="drop-and-create"/>
+
+            <!-- EclipseLink SQL logging -->
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.level.sql" value="FINE"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+
+
     </properties>
   </persistence-unit>
 </persistence>

@@ -21,7 +21,7 @@ public class Producto implements Serializable {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
     private String nombre;
-    private String stock;
+    private double stock;
     private String minimo;
     @JoinColumn(name="idProveedor")
     private Proveedor Proveedor;
@@ -42,11 +42,11 @@ public class Producto implements Serializable {
         this.nombre = nombre;
     }
 
-    public String getStock() {
+    public double getStock() {
         return stock;
     }
 
-    public void setStock(String stock) {
+    public void setStock(double stock) {
         this.stock = stock;
     }
 

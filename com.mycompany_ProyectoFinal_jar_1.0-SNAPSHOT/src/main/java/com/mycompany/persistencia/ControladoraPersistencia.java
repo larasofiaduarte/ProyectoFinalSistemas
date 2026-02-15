@@ -53,7 +53,10 @@ public class ControladoraPersistencia {
                 usuJpa.edit(u);     // MERGE
             }
         }
-    
+        public void modificarUsuario(Usuario usu) {
+                usuJpa.edit(usu);
+        }
+        
     //CLIENTE
     ClienteJpaController cliJpa = new ClienteJpaController();
 
@@ -100,6 +103,16 @@ public class ControladoraPersistencia {
             return provJpa.findProveedor(id);
         }
         
+        public List<Proveedor> traerProveedores() {
+            return provJpa.findProveedorEntities();
+        }
+        public void borrarProveedor(int numProv) {
+            provJpa.destroy(numProv);
+        }
+
+        public void modificarProveedor(Proveedor prov) {
+            provJpa.edit(prov);
+        }
         
     //PRODUCTO
     
@@ -125,6 +138,13 @@ public class ControladoraPersistencia {
                 prodJpa.destroy(numProductos);
         }
         
+        public List<Producto> traerProductos() {
+            return prodJpa.findProductoEntities();
+        }
+        
+        public void modificarProducto(Producto prod) {
+               prodJpa.edit(prod);
+        }
         
    //SERVICIO
         
@@ -149,6 +169,14 @@ public class ControladoraPersistencia {
             return serJpa.checkIfReferenced(servicioId);
         }
         
+        public Servicio findServicio(int numServicio) {
+            return serJpa.findServicio(numServicio);
+        }
+
+        public void modificarServicio(Servicio ser) {
+            serJpa.edit(ser);
+        }
+
         
     //TURNO
         
@@ -190,33 +218,8 @@ public class ControladoraPersistencia {
             return turJpa.turnoYaExiste2(servicio,fechahora,id);
         }
 
-    public void modificarUsuario(Usuario usu) {
-            usuJpa.edit(usu);
-    }
-
-    public Servicio findServicio(int numServicio) {
-        return serJpa.findServicio(numServicio);
-    }
-
-    public void modificarServicio(Servicio ser) {
-        serJpa.edit(ser);
-    }
-
-    public List<Producto> traerProductos() {
-        return prodJpa.findProductoEntities();
-    }
-
-    public List<Proveedor> traerProveedores() {
-        return provJpa.findProveedorEntities();
-    }
-
-    public void borrarProveedor(int numProv) {
-        provJpa.destroy(numProv);
-    }
-
-    public void modificarProveedor(Proveedor prov) {
-        provJpa.edit(prov);
-    }
+    
+    
     
     //CAJA
     
@@ -249,9 +252,7 @@ public class ControladoraPersistencia {
             cajaJpa.edit(concepto);
         }
 
-    public void modificarProducto(Producto prod) {
-        prodJpa.edit(prod);
-    }
+   
 
     
 

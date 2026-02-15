@@ -15,11 +15,13 @@ com\mycompany\persistencia\exceptions\IllegalOrphanException.class
 com\mycompany\GUI\cards\Conceptos.class
 com\mycompany\GUI\components\TopMenu.class
 com\mycompany\persistencia\ProductoJpaController.class
+com\mycompany\persistencia\exceptions\PreexistingEntityException.class
 com\mycompany\proyectofinal\Caja_.class
 com\mycompany\persistencia\CajaJpaController.class
 com\mycompany\persistencia\ServicioJpaController.class
 com\mycompany\GUI\components\TxtField$1.class
 com\mycompany\GUI\components\MenuButton.class
+com\mycompany\proyectofinal\ServicioProducto_.class
 com\mycompany\GUI\Navigator.class
 com\mycompany\proyectofinal\Cliente.class
 com\mycompany\persistencia\TurnoJpaController.class
@@ -36,6 +38,7 @@ com\mycompany\persistencia\ClienteJpaController.class
 com\mycompany\GUI\login\Login$2.class
 com\mycompany\GUI\cards\MainPanelBase.class
 com\mycompany\proyectofinal\Servicio.class
+com\mycompany\proyectofinal\ServicioProducto.class
 com\mycompany\GUI\components\TxtField$2.class
 com\mycompany\GUI\cards\Proveedores.class
 com\mycompany\GUI\components\TitlePanel$2.class

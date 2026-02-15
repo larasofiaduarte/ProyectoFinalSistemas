@@ -5,14 +5,14 @@ import javax.annotation.processing.Generated;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
 
-@Generated(value="org.eclipse.persistence.internal.jpa.modelgen.CanonicalModelProcessor", date="2026-02-07T15:52:51", comments="EclipseLink-2.7.12.v20230209-rNA")
+@Generated(value="org.eclipse.persistence.internal.jpa.modelgen.CanonicalModelProcessor", date="2026-02-13T15:18:05", comments="EclipseLink-2.7.12.v20230209-rNA")
 @StaticMetamodel(Producto.class)
 public class Producto_ { 
 
     public static volatile SingularAttribute<Producto, String> minimo;
     public static volatile SingularAttribute<Producto, Proveedor> Proveedor;
     public static volatile SingularAttribute<Producto, Integer> id;
-    public static volatile SingularAttribute<Producto, String> stock;
+    public static volatile SingularAttribute<Producto, Double> stock;
     public static volatile SingularAttribute<Producto, String> nombre;
 
 }

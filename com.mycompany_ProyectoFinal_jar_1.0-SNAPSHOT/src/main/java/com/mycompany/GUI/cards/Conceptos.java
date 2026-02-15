@@ -35,6 +35,7 @@ public class Conceptos extends MainPanelBase {
             "Tipo",
             "Monto",
             "Medio",
+            "Fecha",
             "Detalle"  
         };
 
@@ -43,6 +44,9 @@ public class Conceptos extends MainPanelBase {
             c -> c.getTipo(),
             c -> c.getMonto(),
             c -> c.getMedio(),
+            c -> c.getFecha() != null
+            ? c.getFecha().format(Styles.DATE_TIME)
+            : "",
             c -> c.getDetalle()
         );
 

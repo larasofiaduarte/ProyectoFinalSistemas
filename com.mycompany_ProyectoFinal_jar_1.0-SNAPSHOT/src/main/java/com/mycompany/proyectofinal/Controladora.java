@@ -190,7 +190,7 @@ public class Controladora {
     }
     //PRODUCTO
     //ALTA
-    public void guardarProducto(String nombre, String stock, String minimo, Proveedor proveedor){
+    public void guardarProducto(String nombre, double stock, String minimo, Proveedor proveedor){
         Producto nuevoProducto = new Producto();
         
         nuevoProducto.setNombre(nombre);
@@ -341,7 +341,7 @@ public class Controladora {
         return controlPersis.findProducto(numProducto);
     }
 
-    public void modificarProducto(Producto prod, String nombre, String stock, String minimo, Proveedor proveedor) {
+    public void modificarProducto(Producto prod, String nombre, double stock, String minimo, Proveedor proveedor) {
         prod.setMinimo(minimo);
         prod.setStock(stock);
         prod.setNombre(nombre);
@@ -358,10 +358,11 @@ public class Controladora {
         controlPersis.borrarProveedor(numProv);
     }
 
-    public void modificarProveedor(Proveedor prov, String nombre, String telefono, String email) {
+    public void modificarProveedor(Proveedor prov, String nombre, String telefono, String email, String web) {
         prov.setEmail(email);
         prov.setNombre(nombre);
         prov.setTelefono(telefono);
+        prov.setWebsite(web);
         
         controlPersis.modificarProveedor(prov);
     
@@ -369,13 +370,14 @@ public class Controladora {
 
     //CAJA
         //ALTA
-        public void guardarConcepto(String tipo, String monto, String medio, String detalle){
+        public void guardarConcepto(String tipo, String monto, String medio,LocalDateTime fecha, String detalle){
         Caja nuevoConcepto = new Caja();
         
         nuevoConcepto.setTipo(tipo);
         nuevoConcepto.setDetalle(detalle);
         nuevoConcepto.setMedio(medio);
         nuevoConcepto.setMonto(monto);
+        nuevoConcepto.setFecha(fecha);
         
         controlPersis.guardarCaja(nuevoConcepto);
         

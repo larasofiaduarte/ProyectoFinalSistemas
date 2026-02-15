@@ -14,6 +14,15 @@ public class Proveedor implements Serializable {
     private String nombre;
     private String telefono;
     private String email;
+    private String website;
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
     
     public int getId() {
         return id;

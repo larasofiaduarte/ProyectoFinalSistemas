@@ -35,14 +35,16 @@ public class Proveedores extends MainPanelBase {
             "ID",
             "Nombre",
             "Teléfono",
-            "Género"  
+            "Email",
+            "Web"
         };
 
         List<Function<Proveedor, Object>> getters = List.of(
             c -> c.getId(),
             c -> c.getNombre(),
             c -> c.getTelefono(),
-            c -> c.getEmail()
+            c -> c.getEmail(),
+            c -> c.getWebsite()
         );
 
 
