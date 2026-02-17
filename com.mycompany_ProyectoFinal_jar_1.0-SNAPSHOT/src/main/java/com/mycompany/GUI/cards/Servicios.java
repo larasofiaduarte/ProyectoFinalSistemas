@@ -35,7 +35,8 @@ public class Servicios extends MainPanelBase {
             "ID",
             "Nombre",
             "Precio",
-            "Empleado"
+            "Empleado",
+            "Productos"
         };
 
         java.util.List<Function<Servicio, Object>> getters = java.util.List.of(
@@ -49,7 +50,8 @@ public class Servicios extends MainPanelBase {
                 return (nombre != null ? nombre : "") +
                        " " +
                        (apellido != null ? apellido : "");
-            }
+            },
+            c -> c.getProductos()
         );
 
 

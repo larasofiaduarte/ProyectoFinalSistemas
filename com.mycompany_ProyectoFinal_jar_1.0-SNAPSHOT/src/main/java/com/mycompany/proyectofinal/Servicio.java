@@ -24,6 +24,16 @@ public class Servicio implements Serializable {
     private Usuario empleado; //idUsuario
     @OneToMany(mappedBy = "servicio")
     private List<Turno> turnos = new ArrayList<>();
+    @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL)
+    private List<ServicioProducto> productos;
+
+    public List<ServicioProducto> getProductos() {
+        return productos;
+    }
+
+    public void setProductos(List<ServicioProducto> productos) {
+        this.productos = productos;
+    }
 
     public int getId() {
         return id;

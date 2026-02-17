@@ -18,14 +18,8 @@
                       value="com.mysql.cj.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.password" value=""/>
 
-            <!-- Schema generation -->
-            <property name="javax.persistence.schema-generation.database.action"
-                      value="drop-and-create"/>
-
-            <!-- EclipseLink SQL logging -->
-            <property name="eclipselink.logging.level" value="FINE"/>
-            <property name="eclipselink.logging.level.sql" value="FINE"/>
-            <property name="eclipselink.logging.parameters" value="true"/>
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
 
 
     </properties>
