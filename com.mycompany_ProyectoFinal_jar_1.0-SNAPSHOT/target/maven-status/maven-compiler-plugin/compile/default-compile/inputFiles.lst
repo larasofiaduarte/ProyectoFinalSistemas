@@ -22,11 +22,17 @@ C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Conceptos.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\Btn.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\exceptions\NonexistentEntityException.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaTurnos.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaProductos.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaServicios.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Servicios.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaCaja.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\ImagePanel.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\ServicioJpaController.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaClientes.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Inicio.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Proveedores.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaProveedores.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\ProductoJpaController.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\exceptions\IllegalOrphanException.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Usuarios.java
@@ -48,3 +54,4 @@ C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Clientes.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\Ventana.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\ThemeToggle.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaEmpleados.java

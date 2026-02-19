@@ -9,6 +9,7 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.AltaClientes;
 import com.mycompany.proyectofinal.*;
 import java.util.List;
 import java.util.function.Function;
@@ -23,14 +24,23 @@ public class Clientes extends MainPanelBase {
     public Clientes(Ventana ventana) {
         super("Clientes");
         this.ventana = ventana;
-        this.control = new Controladora(); 
+        this.control = new Controladora();
         initUI();
     }
 
     private void initUI() {
-        // Add components into panels created by MainPanelBase
+        // load table data
+        cargarTabla();
 
-        // data from DB
+        // buttons
+        btnAlta.addActionListener(e -> abrirAltaCliente());
+    }
+
+    /**
+     * Loads or reloads table data
+     */
+    private void cargarTabla() {
+
         List<Cliente> clientes = control.traerClientes();
 
         String[] columns = {
@@ -38,7 +48,7 @@ public class Clientes extends MainPanelBase {
             "Nombre",
             "Apellido",
             "Teléfono",
-            "Género"  
+            "Género"
         };
 
         List<Function<Cliente, Object>> getters = List.of(
@@ -49,14 +59,19 @@ public class Clientes extends MainPanelBase {
             c -> c.getGenero()
         );
 
-
-
         setTableData(clientes, columns, getters);
-        
-        //buttons
-        
     }
-    
+
+    /**
+     * Opens dialog and refreshes table after closing
+     */
+    private void abrirAltaCliente() {
+        AltaClientes dialog =
+        new AltaClientes(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     @Override
     public void applyTheme() {
         super.applyTheme();
