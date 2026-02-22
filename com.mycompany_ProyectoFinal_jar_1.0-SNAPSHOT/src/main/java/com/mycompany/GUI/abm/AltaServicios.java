@@ -4,6 +4,7 @@
  */
 package com.mycompany.GUI.abm;
 
+import com.mycompany.GUI.Styles;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Usuario;
 import java.awt.FlowLayout;
@@ -13,49 +14,60 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.ServicioProducto;
+import java.awt.Frame;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
 
 /**
  *
  * @author duart
  */
-public class AltaServicios extends javax.swing.JFrame {
+public class AltaServicios extends JDialog {
 
     Controladora control = new Controladora();
+    private Runnable onSave;
+    Usuario empleadoSelec;
     
-    /**
-     * Creates new form AltaServicios
-     */
-    public AltaServicios() {
+  
+    public AltaServicios(Frame parent, boolean modal, Runnable onSave) {
+        super(parent, modal);
+        this.onSave = onSave;
+        
         initComponents();
         
-        //btnPanel.setBorder(Styles.paddingFull);
+        obtenerUsuarios(); //carga cbo
+        obtenerProductos();
+        
         
         Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
         btnPanel.add(btnAlta);
         
         Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         btnPanel.add(btnLimpiar);
         
         Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
         btnPanel.add(btnCerrar);
         
-        txtEmpleado.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
         
+        jPanel2.setBackground(Styles.bgLight);
+        jPanel3.setBackground(Styles.bgLight);
+        btnPanel.setBackground(Styles.bgLight);
+
         
         btnLimpiar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     txtNombre.setText("");
                     txtPrecio.setText("");
-                    txtEmpleado.setText("");
+                    cboEmpleados.setSelectedIndex(-1);
+                    cboProductos.setSelectedIndex(-1);
                 }
         });
         
@@ -71,26 +83,41 @@ public class AltaServicios extends javax.swing.JFrame {
                 public void actionPerformed(ActionEvent e) {
                     String nombre = txtNombre.getText();
                     String precio = txtPrecio.getText();
-                    int emp = Integer.parseInt(txtEmpleado.getText());
                     
-                    Usuario user = control.findUsuario(emp);
-                    if (user == null) {
-                        JOptionPane.showMessageDialog(null, "Empleado no encontrado. Por favor, ingrese un ID de empleado válido.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return; // Exit the action if client does not exist
-                    }else{
+                    //Guardar user seleccionado
+                    String empleado = (String) cboEmpleados.getSelectedItem();
+                    empleadoSelec = guardarEmpleado(empleado);
                     
-                        if (validarCampos()){
-                            control.guardarServicio(nombre, precio, user);
-                            JOptionPane.showMessageDialog(null, "Servicio guardado correctamente.", "Servicio guardado.", JOptionPane.INFORMATION_MESSAGE);
+                    String nombreProducto = (String) cboProductos.getSelectedItem();
+                    Producto productoSeleccionado = guardarProducto(nombreProducto);
+
+                    
+                    if (validarCampos()){
+                        // 🔥 Create list of ServicioProducto
+                            List<ServicioProducto> lista = new ArrayList<>();
+
+                            ServicioProducto sp = new ServicioProducto();
+                            sp.setProducto(productoSeleccionado);
+
+                            lista.add(sp);
+
+                            // ✅ Send everything to Controladora
+                            control.guardarServicio(nombre, precio, empleadoSelec, lista);
+
+                            JOptionPane.showMessageDialog(
+                                    null,
+                                    "Servicio guardado correctamente.",
+                                    "Servicio guardado.",
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
+
+                            if (onSave != null) {
+                                onSave.run();
+                            }
+
                             dispose();
 
                         }
-                    
-                    }
-                    
-                    
-                    
-                    
                 }
         });
         
@@ -116,7 +143,9 @@ public class AltaServicios extends javax.swing.JFrame {
         txtPrecio = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        txtEmpleado = new javax.swing.JTextField();
+        cboProductos = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        cboEmpleados = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -172,13 +201,9 @@ public class AltaServicios extends javax.swing.JFrame {
             }
         });
 
-        jLabel6.setText("ID Empleado*");
+        jLabel6.setText("Empleado");
 
-        txtEmpleado.setBackground(new java.awt.Color(242, 242, 242));
-        txtEmpleado.setForeground(new java.awt.Color(102, 102, 102));
-        txtEmpleado.setText("1");
-        txtEmpleado.setBorder(null);
-        txtEmpleado.setPreferredSize(new java.awt.Dimension(73, 30));
+        jLabel7.setText("Productos");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -189,12 +214,15 @@ public class AltaServicios extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtEmpleado, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                        .addComponent(txtPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboEmpleados, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cboProductos, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(127, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -208,11 +236,15 @@ public class AltaServicios extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
+                .addGap(30, 30, 30)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(txtEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(258, Short.MAX_VALUE))
+                    .addComponent(cboEmpleados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(28, 28, 28)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(cboProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(212, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3, java.awt.BorderLayout.CENTER);
@@ -235,44 +267,9 @@ public class AltaServicios extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AltaServicios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AltaServicios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AltaServicios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AltaServicios.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AltaServicios().setVisible(true);
-            }
-        });
-    }
     
     private boolean validarCampos() {
-        if (txtEmpleado.getText().isEmpty() || 
+        if (cboEmpleados.getSelectedItem()== null || 
             txtNombre.getText().isEmpty() || 
             txtPrecio.getText().isEmpty()) {
 
@@ -281,17 +278,81 @@ public class AltaServicios extends javax.swing.JFrame {
         }
         return true; // Indicate validation success
     }
+    
+    //cargar servicios a cbo
+    public void obtenerUsuarios(){
+        List<Usuario> usuarios = control.traerUsuarios();
+        for (Usuario usu : usuarios) {
+            String apellido = usu.getApellido();
+            String nombre = usu.getNombre();
+            String nombreComp;
+            nombreComp = nombre + " " + apellido;
+            cboEmpleados.addItem(nombreComp);  
+        }
+    }
+    //encontrar servicio por nombre y guardar
+    public Usuario guardarEmpleado(String emp){
+        List<Usuario> usuarios = control.traerUsuarios();
+        Usuario usuarioSeleccionado = null;
+
+        for (Usuario usu : usuarios) {
+            String nombreComp = usu.getNombre() + " " + usu.getApellido();
+
+                if (nombreComp.equals(emp)) {
+                    usuarioSeleccionado = usu;
+                    break;
+                }
+        }
+
+        
+        if (usuarioSeleccionado != null) {
+            return usuarioSeleccionado;
+        } else {
+            return null;
+        }
+    }
+    //cargar servicios a cbo
+    public void obtenerProductos(){
+        List<Producto> productos = control.traerProductos();
+        for (Producto prod : productos) {
+            String nombre = prod.getNombre();
+            cboProductos.addItem(nombre);  
+        }
+    }
+    //encontrar servicio por nombre y guardar
+    public Producto guardarProducto(String pro){
+        List<Producto> productos = control.traerProductos();
+        Producto prodSeleccionado = null;
+
+        for (Producto prod : productos) {
+            String nombre = prod.getNombre();
+
+                if (nombre.equals(pro)) {
+                    prodSeleccionado = prod;
+                    break;
+                }
+        }
+
+        
+        if (prodSeleccionado != null) {
+            return prodSeleccionado;
+        } else {
+            return null;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel btnPanel;
+    private javax.swing.JComboBox<String> cboEmpleados;
+    private javax.swing.JComboBox<String> cboProductos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel lblCargaEmp;
-    private javax.swing.JTextField txtEmpleado;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtPrecio;
     // End of variables declaration//GEN-END:variables

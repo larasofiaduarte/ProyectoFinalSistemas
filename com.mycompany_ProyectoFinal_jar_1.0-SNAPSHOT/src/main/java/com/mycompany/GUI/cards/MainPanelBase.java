@@ -32,13 +32,15 @@ public abstract class MainPanelBase extends JPanel {
     private void initBaseUI(String title) {
         setLayout(new BorderLayout());
         
+        //USER MENU
         topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 
         navPanel = new JPanel(new BorderLayout());
-        TopMenu nav = new TopMenu();
-        navPanel.add(nav, BorderLayout.CENTER);
+        TopMenu nav = new TopMenu(); //crear menu
+        navPanel.add(nav, BorderLayout.CENTER); //agregar a navpanel que a su hez esta en toppanel
 
+        //TITULO
         titlePanel = new TitlePanel(title);
 
         // stretch horizontally

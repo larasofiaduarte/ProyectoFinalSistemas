@@ -1,28 +1,46 @@
 
 package com.mycompany.GUI.abm;
+import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Proveedor;
+import com.mycompany.proyectofinal.Usuario;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 import javax.swing.JOptionPane;
 
 
-public class AltaProductos extends javax.swing.JFrame {
+public class AltaProductos extends JDialog{
     
     Controladora control = new Controladora();
+    private Runnable onSave;
+    Proveedor provSelec;
 
-    public AltaProductos() {
+    public AltaProductos(Frame parent, boolean modal, Runnable onSave) {
+        super(parent, modal);
+        this.onSave = onSave;
+        
         initComponents();
         
+        obtenerProveedores(); // carga cbo
+        
+        //UI
         Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
         Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnLimpiar);
         
         Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnCerrar);
+        
+        jPanel2.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelBtns.setBackground(Styles.bgLight);
         
         txtStock.addKeyListener(new KeyAdapter() {
             @Override
@@ -50,7 +68,6 @@ public class AltaProductos extends javax.swing.JFrame {
                     txtNombre.setText("");
                     txtStock.setText("");
                     txtMinimo.setText("");
-                    txtProveedor.setText("");
                 }
         });
         
@@ -61,15 +78,7 @@ public class AltaProductos extends javax.swing.JFrame {
                 }
         });
         
-        txtProveedor.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
+        
         
         
         btnAlta.addActionListener(new ActionListener() {
@@ -78,19 +87,22 @@ public class AltaProductos extends javax.swing.JFrame {
                     String nombre = txtNombre.getText();
                     Double stock = Double.parseDouble(txtStock.getText());;
                     String minimo = txtMinimo.getText();
-                    String prov = txtProveedor.getText();
-                    int idProveedor = Integer.parseInt(txtProveedor.getText()); 
                     
-                    Proveedor proveedor = control.findProveedor(idProveedor);
+                    String prov = (String) cboProv.getSelectedItem();
+                    provSelec = guardarProveedor(prov);
+                    
                     
                     
                     if (validarCampos()){
-                        if (proveedor == null) {
-                            JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, ingrese un ID de proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
+                        if (provSelec == null) {
+                            JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, seleccione un proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
                             return; // Exit the action if prov does not exist
                         }else{
-                            control.guardarProducto(nombre, stock, minimo, proveedor);
+                            control.guardarProducto(nombre, stock, minimo, provSelec);
                             JOptionPane.showMessageDialog(null, "Producto guardado correctamente.", "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
+                            if (onSave != null) {
+                            onSave.run();   // 👈 refresh table
+                        }
                             dispose();
                         }
                         
@@ -115,7 +127,7 @@ public class AltaProductos extends javax.swing.JFrame {
         txtStock = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
         txtMinimo = new javax.swing.JTextField();
-        txtProveedor = new javax.swing.JTextField();
+        cboProv = new javax.swing.JComboBox<>();
         panelBtns = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -133,7 +145,7 @@ public class AltaProductos extends javax.swing.JFrame {
 
         jLabel3.setText("Stock Minimo*");
 
-        jLabel4.setText("ID Proveedor*");
+        jLabel4.setText("Proveedor*");
 
         txtStock.setBackground(new java.awt.Color(242, 242, 242));
         txtStock.setForeground(new java.awt.Color(102, 102, 102));
@@ -153,11 +165,7 @@ public class AltaProductos extends javax.swing.JFrame {
         txtMinimo.setBorder(null);
         txtMinimo.setPreferredSize(new java.awt.Dimension(73, 30));
 
-        txtProveedor.setBackground(new java.awt.Color(242, 242, 242));
-        txtProveedor.setForeground(new java.awt.Color(102, 102, 102));
-        txtProveedor.setText("1");
-        txtProveedor.setBorder(null);
-        txtProveedor.setPreferredSize(new java.awt.Dimension(73, 30));
+        cboProv.setToolTipText("");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -171,12 +179,13 @@ public class AltaProductos extends javax.swing.JFrame {
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
-                    .addComponent(txtStock, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtProveedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                        .addComponent(txtStock, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,11 +202,14 @@ public class AltaProductos extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(txtMinimo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(23, 23, 23)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(txtProveedor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(jLabel4))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
 
         panelBtns.setBackground(new java.awt.Color(250, 250, 250));
@@ -211,7 +223,7 @@ public class AltaProductos extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(196, 196, 196)
                 .addComponent(lblCargaEmp)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(205, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -221,7 +233,7 @@ public class AltaProductos extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelBtns, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE))
+                .addComponent(panelBtns, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -238,43 +250,9 @@ public class AltaProductos extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AltaProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AltaProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AltaProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AltaProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AltaProductos().setVisible(true);
-            }
-        });
-    }
     
     private boolean validarCampos() {
-        if (txtProveedor.getText().isEmpty() ||
+        if (cboProv.getSelectedItem()== null  ||
                 txtMinimo.getText().isEmpty() ||
                 txtStock.getText().isEmpty()||
                 txtNombre.getText().isEmpty()) {
@@ -284,8 +262,39 @@ public class AltaProductos extends javax.swing.JFrame {
         }
         return true; // Indicate validation success
     }
+    
+    //cargar servicios a cbo
+    public void obtenerProveedores(){
+        java.util.List<Proveedor> proveedores = control.traerProveedores();
+        for (Proveedor prov : proveedores) {
+            String nombreProv = prov.getNombre();
+            cboProv.addItem(nombreProv);  
+        }
+    }
+    //encontrar servicio por nombre y guardar el seleccionado
+    public Proveedor guardarProveedor(String proveedor){
+        java.util.List<Proveedor> proveedores = control.traerProveedores();
+        Proveedor proveedorSeleccionado = null;
+
+        for (Proveedor prov : proveedores) {
+            String nombre = prov.getNombre();
+
+                if (nombre.equals(proveedor)) {
+                    proveedorSeleccionado = prov;
+                    break;
+                }
+        }
+
+        
+        if (proveedorSeleccionado != null) {
+            return proveedorSeleccionado;
+        } else {
+            return null;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> cboProv;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -296,7 +305,6 @@ public class AltaProductos extends javax.swing.JFrame {
     private javax.swing.JPanel panelBtns;
     private javax.swing.JTextField txtMinimo;
     private javax.swing.JTextField txtNombre;
-    private javax.swing.JTextField txtProveedor;
     private javax.swing.JTextField txtStock;
     // End of variables declaration//GEN-END:variables
 }

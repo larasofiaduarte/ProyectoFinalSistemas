@@ -66,5 +66,10 @@ public class Producto implements Serializable {
         this.Proveedor = Proveedor;
     }
     
+    @Override
+    public String toString() {
+        return nombre;
+    }
+    
     
 }

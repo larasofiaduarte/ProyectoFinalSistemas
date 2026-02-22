@@ -10,14 +10,19 @@ import java.awt.*;
         
 
 
-public class AltaProveedores extends javax.swing.JFrame {
+public class AltaProveedores extends JDialog {
     
     Controladora control = new Controladora();
-
-    public AltaProveedores() {
+    private Runnable onSave;
+    
+    public AltaProveedores(Frame parent, boolean modal, Runnable onSave) {
+        super(parent, modal);
+        this.onSave = onSave;
+        
         initComponents();
         //panelNorth.setBorder(Styles.paddingTop);
         //panelSouth.setBorder(Styles.paddingBottom);
+        panelCenter.setBackground(Styles.bgLight);
         
         JLabel lblTitle = new JLabel("Carga de Proveedores");
         lblTitle.setFont(Styles.fontTitle);
@@ -25,13 +30,20 @@ public class AltaProveedores extends javax.swing.JFrame {
         panelNorth.add(lblTitle);
         
         Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelSouth.add(btnAlta);
         
         Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelSouth.add(btnLimpiar);
         
         Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
         panelSouth.add(btnCerrar);
+        
+        panelNorth.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelSouth.setBackground(Styles.bgLight);
         
         //txtCorreo.setInputVerifier(new EmailVerifier());
         
@@ -58,6 +70,7 @@ public class AltaProveedores extends javax.swing.JFrame {
                     txtNombre.setText("");
                     txtTelefono.setText("");
                     txtCorreo.setText("");
+                    txtWeb.setText("");
                 }
         });
         
@@ -67,9 +80,14 @@ public class AltaProveedores extends javax.swing.JFrame {
                     String nombre = txtNombre.getText();
                     String telefono = txtTelefono.getText();
                     String email = txtCorreo.getText();
+                    String web = txtWeb.getText();
+                    
                     if(txtNombre.getText() != null && !txtNombre.getText().isEmpty()){
-                        control.guardarProveedor(nombre, telefono, email);
+                        control.guardarProveedor(nombre, telefono, email, web);
                         JOptionPane.showMessageDialog(null, "Proveedor guardado correctamente.", "Proveedor guardado.", JOptionPane.INFORMATION_MESSAGE);
+                        if (onSave != null) {
+                            onSave.run();   // 👈 refresh table
+                        }
                         dispose();
                     
                     }else{
@@ -97,6 +115,8 @@ public class AltaProveedores extends javax.swing.JFrame {
         txtNombre = new javax.swing.JTextField();
         txtTelefono = new javax.swing.JTextField();
         txtCorreo = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        txtWeb = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(250, 250, 250));
@@ -138,21 +158,36 @@ public class AltaProveedores extends javax.swing.JFrame {
         txtCorreo.setPreferredSize(new java.awt.Dimension(220, 30));
         txtCorreo.setSelectionColor(new java.awt.Color(204, 204, 255));
 
+        jLabel4.setText("Sitio Web");
+
+        txtWeb.setBackground(new java.awt.Color(240, 240, 240));
+        txtWeb.setForeground(new java.awt.Color(102, 102, 102));
+        txtWeb.setText("www.Web.com");
+        txtWeb.setBorder(null);
+        txtWeb.setPreferredSize(new java.awt.Dimension(220, 30));
+        txtWeb.setSelectionColor(new java.awt.Color(204, 204, 255));
+
         javax.swing.GroupLayout panelCenterLayout = new javax.swing.GroupLayout(panelCenter);
         panelCenter.setLayout(panelCenterLayout);
         panelCenterLayout.setHorizontalGroup(
             panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelCenterLayout.createSequentialGroup()
                 .addGap(57, 57, 57)
-                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
-                .addGap(42, 42, 42)
                 .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
+                        .addGap(42, 42, 42)
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtWeb, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(129, Short.MAX_VALUE))
         );
         panelCenterLayout.setVerticalGroup(
@@ -170,7 +205,11 @@ public class AltaProveedores extends javax.swing.JFrame {
                 .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
-                .addContainerGap(294, Short.MAX_VALUE))
+                .addGap(25, 25, 25)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtWeb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(239, Short.MAX_VALUE))
         );
 
         jPanel1.add(panelCenter, java.awt.BorderLayout.CENTER);
@@ -189,43 +228,12 @@ public class AltaProveedores extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AltaProveedores.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AltaProveedores.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AltaProveedores.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AltaProveedores.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AltaProveedores().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel panelCenter;
     private javax.swing.JPanel panelNorth;
@@ -233,5 +241,6 @@ public class AltaProveedores extends javax.swing.JFrame {
     private javax.swing.JTextField txtCorreo;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtTelefono;
+    private javax.swing.JTextField txtWeb;
     // End of variables declaration//GEN-END:variables
 }

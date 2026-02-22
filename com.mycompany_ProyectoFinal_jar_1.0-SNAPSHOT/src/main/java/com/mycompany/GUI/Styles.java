@@ -38,6 +38,7 @@ public class Styles {
     public static Color fontDisabledField; //for disabled fields?
     public static Color fontPlaceholder; //for textfield placeholder text
     public static Color fontDark; //Petrol grey
+    public static Color fontDarkGrey;
     
     //accent colors
     public static Color accent; //Dark Violet
@@ -69,7 +70,8 @@ public class Styles {
         fontLightHover = new Color(200, 171, 255); //lilac
         fontDisabledField = new Color(148, 148, 148); //for disabled fields?
         fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
-        fontDark = new Color(43, 43, 45); //Petrol grey
+        fontDark = new Color(43, 43, 45);
+        fontDarkGrey = new Color(50, 50, 50);//Petrol grey
 
         //accent colors
         accent = new Color(127, 52, 201); //Dark Violet
@@ -91,6 +93,10 @@ public class Styles {
         UIManager.put("ToggleButton.foreground", fontDark);
         UIManager.put("TextField.background", bgTextField);
         UIManager.put("TextField.foreground", fontDark);
+        UIManager.put("OptionPane.background", bgLight);
+        UIManager.put("OptionPane.messageForeground", fontDark);
+        UIManager.put("Button.background", bgLight);
+        UIManager.put("Button.foreground", fontDark);
     
     }
     
@@ -130,7 +136,10 @@ public class Styles {
         UIManager.put("ToggleButton.foreground", fontDark);
         UIManager.put("TextField.background", bgTextField);
         UIManager.put("TextField.foreground", fontDark);
-    
+        UIManager.put("OptionPane.background", bgDark);
+        UIManager.put("OptionPane.messageForeground", fontLight);
+        UIManager.put("Button.background", bgLight);
+        UIManager.put("Button.foreground", fontDark);
     }
     
     

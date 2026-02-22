@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Servicio;
+import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -22,25 +23,37 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import javax.swing.JOptionPane;
 import java.util.*;
+import javax.swing.*;
 
 
-public class AltaTurnos extends javax.swing.JFrame {
+public class AltaTurnos extends JDialog {
 
     Controladora control = new Controladora();
     Servicio servicioSeleccionado;
+    private Runnable onSave;
     
-    public AltaTurnos() {
+    public AltaTurnos(Frame parent, boolean modal, Runnable onSave) {
+        super(parent, modal);
+        this.onSave = onSave;
         initComponents();
+        
+        jLabel1.setForeground(Styles.fontDark);
+        jPanel3.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelBtns.setBackground(Styles.bgLight);
         
         //panelBtns.setBorder(Styles.paddingBottom);
         
         Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
         Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnLimpiar);
         
         Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnCerrar);
         
         obtenerServicios();
@@ -78,7 +91,9 @@ public class AltaTurnos extends javax.swing.JFrame {
                     txtCliente.setText("");
                     cboServicio.setSelectedIndex(-1);
                     cboHora.setSelectedIndex(-1);
-                    
+                    calendar.setDate(new java.util.Date());
+                    cboEstado.setSelectedIndex(-1);
+                    txtDetalle.setText("");
                 }
         });
         
@@ -102,9 +117,10 @@ public class AltaTurnos extends javax.swing.JFrame {
                     Cliente clienteEnt = control.findCliente(idCliente);
                     
 
-                    // Gather other details for the Turno
+                    //Guardar servicio seleccionado
                     String servicio = (String) cboServicio.getSelectedItem();
                     servicioSeleccionado = guardarServicio(servicio);
+                    
                     String hora = (String) cboHora.getSelectedItem();
                     String estado = (String) cboEstado.getSelectedItem();
                     String detalle = txtDetalle.getText();
@@ -128,6 +144,9 @@ public class AltaTurnos extends javax.swing.JFrame {
                         }else{
                             control.guardarTurno(servicioSeleccionado, fechafinal, clienteEnt, estado, detalle);
                             JOptionPane.showMessageDialog(null, "Turno guardado correctamente.", "Turno guardado.", JOptionPane.INFORMATION_MESSAGE);
+                            if (onSave != null) {
+                                onSave.run();   // 👈 refresh table
+                            }
                             dispose();
                         }
                     }
@@ -296,38 +315,6 @@ public class AltaTurnos extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AltaTurnos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AltaTurnos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AltaTurnos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AltaTurnos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AltaTurnos().setVisible(true);
-            }
-        });
-    }
     
     public LocalDateTime obtenerFecha(String hora, Date fecha){
         
@@ -360,7 +347,7 @@ public class AltaTurnos extends javax.swing.JFrame {
         }
         return true; // Indicate validation success
     }
-    
+    //cargar servicios a cbo
     public void obtenerServicios(){
         List<Servicio> servicios = control.traerServicios();
         for (Servicio servicio : servicios) {
@@ -368,6 +355,7 @@ public class AltaTurnos extends javax.swing.JFrame {
             cboServicio.addItem(nombreServicio);  // Assuming the toString method is implemented in Servicio
         }
     }
+    //encontrar servicio por nombre y guardar
     public Servicio guardarServicio(String ser){
         List<Servicio> servicios = control.traerServicios();
         Servicio servicioSeleccionado = null;

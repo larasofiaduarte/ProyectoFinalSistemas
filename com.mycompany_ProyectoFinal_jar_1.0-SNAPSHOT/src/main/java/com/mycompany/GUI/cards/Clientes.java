@@ -62,9 +62,7 @@ public class Clientes extends MainPanelBase {
         setTableData(clientes, columns, getters);
     }
 
-    /**
-     * Opens dialog and refreshes table after closing
-     */
+    
     private void abrirAltaCliente() {
         AltaClientes dialog =
         new AltaClientes(ventana, true, this::cargarTabla);

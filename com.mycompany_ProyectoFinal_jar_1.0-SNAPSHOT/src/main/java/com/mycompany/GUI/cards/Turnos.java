@@ -7,6 +7,7 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Turno;
 import java.util.List;
@@ -29,7 +30,14 @@ public class Turnos extends MainPanelBase{
     
     private void initUI(){
         // Add components into panels created by MainPanelBase
-
+        cargarTabla();
+        
+        
+        //buttons
+        btnAlta.addActionListener(e -> abrirAltaTurnos());
+    }
+    
+    private void cargarTabla(){
         // data from DB
         List<Turno> turnos = control.traerTurnos();
 
@@ -63,8 +71,13 @@ public class Turnos extends MainPanelBase{
 
 
         setTableData(turnos, columns, getters);
-        
-        //buttons
+    }
+    
+    private void abrirAltaTurnos() {
+        AltaTurnos dialog =
+        new AltaTurnos(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     @Override

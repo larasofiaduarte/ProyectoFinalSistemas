@@ -7,6 +7,7 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
@@ -26,8 +27,18 @@ public class Inventario extends MainPanelBase {
 
     private void initUI() {
         // Add components into panels created by MainPanelBase
+        
+        cargarTabla();
 
-        // data from DB
+        
+        
+        //buttons
+        
+        btnAlta.addActionListener(e -> abrirAltaProducto());
+    }
+    
+    private void cargarTabla(){
+    // data from DB
         java.util.List<Producto> productos = control.traerProductos();
 
         String[] columns = {
@@ -51,8 +62,13 @@ public class Inventario extends MainPanelBase {
 
 
         setTableData(productos, columns, getters);
-        
-        //buttons
+    }
+    
+    private void abrirAltaProducto() {
+        AltaProductos dialog =
+        new AltaProductos(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     @Override

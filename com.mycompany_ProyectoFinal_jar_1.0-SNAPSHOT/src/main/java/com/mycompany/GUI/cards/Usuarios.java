@@ -8,6 +8,8 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.Styles;
+import com.mycompany.GUI.abm.AltaClientes;
+import com.mycompany.GUI.abm.AltaEmpleados;
 import com.mycompany.proyectofinal.*;
 import java.util.function.Function;
 
@@ -25,7 +27,17 @@ public class Usuarios extends MainPanelBase {
 
     private void initUI() {
         // Add components into panels created by MainPanelBase
-
+        
+        cargarTabla();
+        
+        
+        //buttons
+        
+        btnAlta.addActionListener(e -> abrirAltaCliente());
+    }
+    
+    private void cargarTabla(){
+        
         // data from DB
         java.util.List<Usuario> usuarios = control.traerUsuarios();
 
@@ -52,8 +64,13 @@ public class Usuarios extends MainPanelBase {
 
 
         setTableData(usuarios, columns, getters);
-        
-        //buttons
+    }
+    
+    private void abrirAltaCliente() {
+        AltaEmpleados dialog =
+        new AltaEmpleados(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     @Override

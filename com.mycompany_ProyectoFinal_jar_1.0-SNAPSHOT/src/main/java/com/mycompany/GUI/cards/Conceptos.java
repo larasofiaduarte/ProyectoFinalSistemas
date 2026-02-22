@@ -8,6 +8,7 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.*;
 import com.mycompany.proyectofinal.Controladora;
 import java.util.function.Function;
@@ -25,8 +26,14 @@ public class Conceptos extends MainPanelBase {
     }
 
     private void initUI() {
-        // Add components into panels created by MainPanelBase
+        cargarTabla();
 
+        
+        //buttons
+        btnAlta.addActionListener(e -> abrirAltaCaja());
+    }
+    
+    private void cargarTabla(){
         // data from DB
         java.util.List<Caja> conceptos = control.traerConceptos();
 
@@ -50,12 +57,15 @@ public class Conceptos extends MainPanelBase {
             c -> c.getDetalle()
         );
 
-
-
         setTableData(conceptos, columns, getters);
-        
-        //buttons
     }
+    
+    private void abrirAltaCaja(){
+        AltaCaja dialog = new AltaCaja(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
     
     @Override
     public void applyTheme() {

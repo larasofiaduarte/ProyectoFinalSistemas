@@ -8,9 +8,12 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.ServicioProducto;
 import java.util.function.Function;
 
 public class Servicios extends MainPanelBase {
@@ -26,8 +29,14 @@ public class Servicios extends MainPanelBase {
     }
 
     private void initUI() {
-        // Add components into panels created by MainPanelBase
-
+        
+        cargarTabla();
+        
+        //buttons
+        btnAlta.addActionListener(e -> abrirAltaServicio());
+    }
+    
+    private void cargarTabla(){
         // data from DB
         java.util.List<Servicio> servicios = control.traerServicios();
 
@@ -51,18 +60,40 @@ public class Servicios extends MainPanelBase {
                        " " +
                        (apellido != null ? apellido : "");
             },
-            c -> c.getProductos()
+            c -> {
+                if (c.getProductos() == null || c.getProductos().isEmpty()) {
+                    return "";
+                }
+
+                StringBuilder sb = new StringBuilder();
+
+                for (ServicioProducto sp : c.getProductos()) {
+                    Producto p = sp.getProducto();
+                    if (p != null) {
+                        sb.append(p.getNombre());
+                    }
+                }
+
+                return sb.toString();
+            }
         );
 
 
 
         setTableData(servicios, columns, getters);
-        
-        //buttons
+    }
+    
+    private void abrirAltaServicio() {
+        AltaServicios dialog =
+        new AltaServicios(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     @Override
     public void applyTheme() {
         super.applyTheme();
     }
+    
+    
 }

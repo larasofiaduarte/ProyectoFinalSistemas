@@ -8,6 +8,7 @@ import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Proveedor;
 import java.util.List;
@@ -27,7 +28,14 @@ public class Proveedores extends MainPanelBase {
 
     private void initUI() {
         // Add components into panels created by MainPanelBase
-
+        cargarTabla();
+        
+        
+        //buttons
+        btnAlta.addActionListener(e -> abrirAltaProveedor());
+    }
+    
+    private void cargarTabla(){
         // data from DB
         List<Proveedor> proveedores = control.traerProveedores();
 
@@ -50,8 +58,13 @@ public class Proveedores extends MainPanelBase {
 
 
         setTableData(proveedores, columns, getters);
-        
-        //buttons
+    }
+    
+    private void abrirAltaProveedor() {
+        AltaProveedores dialog =
+        new AltaProveedores(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     @Override

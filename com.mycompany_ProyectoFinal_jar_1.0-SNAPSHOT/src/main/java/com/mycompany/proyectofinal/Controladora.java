@@ -61,7 +61,7 @@ public class Controladora {
     
     
     //LOGICA DE ALTA DE USUARIO
-    public void guardar(String user, String pass, String nombre, String apellido, String tel, String rol) {
+    public void guardarUser(String user, String pass, String nombre, String apellido, String tel, String rol, String dni) {
         // Crear una nueva instancia de Usuario
         Usuario nuevoUsuario = new Usuario();
         
@@ -72,7 +72,7 @@ public class Controladora {
         nuevoUsuario.setApellido(apellido);
         nuevoUsuario.setTelefono(tel);
         nuevoUsuario.setRol(rol);
-
+        nuevoUsuario.setDni(dni);
         // Llamar al método para guardar el usuario en la base de datos
         controlPersis.guardar(nuevoUsuario);
     }
@@ -175,12 +175,13 @@ public class Controladora {
     
     //PROVEEDOR
     //ALTA
-    public void guardarProveedor(String nombre, String telefono, String email){
+    public void guardarProveedor(String nombre, String telefono, String email, String web){
         Proveedor nuevoProveedor = new Proveedor();
         
         nuevoProveedor.setNombre(nombre);
         nuevoProveedor.setTelefono(telefono);
         nuevoProveedor.setEmail(email);
+        nuevoProveedor.setWebsite(web);
         
         controlPersis.guardarProveedor(nuevoProveedor);
     }
@@ -205,13 +206,16 @@ public class Controladora {
     
     //SERVICIO
     //ALTA
-        public void guardarServicio(String nombre, String precio, Usuario empleado){
+        public void guardarServicio(String nombre, String precio, Usuario empleado, List <ServicioProducto> productos){
         Servicio nuevoServicio = new Servicio();
         
         nuevoServicio.setNombre(nombre);
         nuevoServicio.setPrecio(precio);
         nuevoServicio.setEmpleado(empleado);
         
+        for (ServicioProducto sp : productos) {
+            nuevoServicio.addProducto(sp);
+        }
         controlPersis.guardarServicio(nuevoServicio);
         
     }

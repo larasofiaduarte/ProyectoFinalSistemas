@@ -1,5 +1,6 @@
 
 package com.mycompany.GUI.abm;
+import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Controladora;
 import java.awt.*;
@@ -23,13 +24,20 @@ public class AltaClientes extends JDialog {
         //UI
         
         Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
         Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnLimpiar);
         
         Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnCerrar);
+        
+        jPanel2.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelBtns.setBackground(Styles.bgLight);
         
         txtTelCli.addKeyListener(new KeyAdapter() {
             @Override
@@ -47,6 +55,8 @@ public class AltaClientes extends JDialog {
                     txtNombreCli.setText("");
                     txtApellidoCli.setText("");
                     txtTelCli.setText("");
+                    RadioBtnF.setSelected(false);
+                    RadioBtnM.setSelected(false);
                 }
         });
         
