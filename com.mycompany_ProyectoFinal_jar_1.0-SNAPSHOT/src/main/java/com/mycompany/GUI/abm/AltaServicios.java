@@ -21,6 +21,7 @@ import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.table.*;
 
 /**
  *
@@ -31,6 +32,9 @@ public class AltaServicios extends JDialog {
     Controladora control = new Controladora();
     private Runnable onSave;
     Usuario empleadoSelec;
+    private JTable tablaProductos;
+    private DefaultTableModel modeloProductos;
+
     
   
     public AltaServicios(Frame parent, boolean modal, Runnable onSave) {
@@ -39,8 +43,13 @@ public class AltaServicios extends JDialog {
         
         initComponents();
         
+        
+
+        
         obtenerUsuarios(); //carga cbo
-        obtenerProductos();
+        //obtenerProductos();
+        inicializarTablaProductos();
+        cargarProductos();
         
         
         Btn btnAlta = Btn.primary("Guardar");
@@ -67,7 +76,7 @@ public class AltaServicios extends JDialog {
                     txtNombre.setText("");
                     txtPrecio.setText("");
                     cboEmpleados.setSelectedIndex(-1);
-                    cboProductos.setSelectedIndex(-1);
+                    //cboProductos.setSelectedIndex(-1);
                 }
         });
         
@@ -88,36 +97,28 @@ public class AltaServicios extends JDialog {
                     String empleado = (String) cboEmpleados.getSelectedItem();
                     empleadoSelec = guardarEmpleado(empleado);
                     
-                    String nombreProducto = (String) cboProductos.getSelectedItem();
-                    Producto productoSeleccionado = guardarProducto(nombreProducto);
+                    //String nombreProducto = (String) cboProductos.getSelectedItem();
+                    //Producto productoSeleccionado = guardarProducto(nombreProducto);
 
                     
-                    if (validarCampos()){
-                        // 🔥 Create list of ServicioProducto
-                            List<ServicioProducto> lista = new ArrayList<>();
+                    if (validarCampos() && validarProductos()) {
 
-                            ServicioProducto sp = new ServicioProducto();
-                            sp.setProducto(productoSeleccionado);
+                        guardarServicio();   // 🔥 CALL IT
 
-                            lista.add(sp);
+                        JOptionPane.showMessageDialog(
+                            null,
+                            "Servicio guardado correctamente.",
+                            "Servicio guardado.",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
 
-                            // ✅ Send everything to Controladora
-                            control.guardarServicio(nombre, precio, empleadoSelec, lista);
-
-                            JOptionPane.showMessageDialog(
-                                    null,
-                                    "Servicio guardado correctamente.",
-                                    "Servicio guardado.",
-                                    JOptionPane.INFORMATION_MESSAGE
-                            );
-
-                            if (onSave != null) {
-                                onSave.run();
-                            }
-
-                            dispose();
-
+                        if (onSave != null) {
+                            onSave.run();
                         }
+
+                        dispose();
+                    }
+
                 }
         });
         
@@ -143,9 +144,9 @@ public class AltaServicios extends JDialog {
         txtPrecio = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        cboProductos = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
         cboEmpleados = new javax.swing.JComboBox<>();
+        scrollProd = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -210,25 +211,25 @@ public class AltaServicios extends JDialog {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(137, 137, 137)
+                .addGap(74, 74, 74)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-                        .addComponent(txtPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboEmpleados, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboProductos, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(127, Short.MAX_VALUE))
+                        .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cboEmpleados, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(scrollProd, javax.swing.GroupLayout.PREFERRED_SIZE, 363, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(77, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(51, 51, 51)
+                .addGap(45, 45, 45)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
@@ -240,11 +241,11 @@ public class AltaServicios extends JDialog {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(cboEmpleados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 28, 28)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGap(31, 31, 31)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
-                    .addComponent(cboProductos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(212, Short.MAX_VALUE))
+                    .addComponent(scrollProd, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(122, Short.MAX_VALUE))
         );
 
         jPanel1.add(jPanel3, java.awt.BorderLayout.CENTER);
@@ -267,7 +268,32 @@ public class AltaServicios extends JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreActionPerformed
 
-    
+    private void inicializarTablaProductos() {
+
+    modeloProductos = new DefaultTableModel(
+        new Object[]{"Seleccionar", "Producto", "Cantidad"}, 0
+    ) {
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            switch (columnIndex) {
+                case 0: return Boolean.class; // checkbox
+                case 2: return Integer.class; // cantidad
+                default: return String.class;
+            }
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column == 0 || column == 2; // only checkbox + cantidad editable
+        }
+    };
+
+    tablaProductos = new JTable(modeloProductos);
+    tablaProductos.setRowHeight(25);
+
+    scrollProd.setViewportView(tablaProductos);
+}
+
     private boolean validarCampos() {
         if (cboEmpleados.getSelectedItem()== null || 
             txtNombre.getText().isEmpty() || 
@@ -297,7 +323,7 @@ public class AltaServicios extends JDialog {
 
         for (Usuario usu : usuarios) {
             String nombreComp = usu.getNombre() + " " + usu.getApellido();
-
+            
                 if (nombreComp.equals(emp)) {
                     usuarioSeleccionado = usu;
                     break;
@@ -311,40 +337,100 @@ public class AltaServicios extends JDialog {
             return null;
         }
     }
-    //cargar servicios a cbo
-    public void obtenerProductos(){
-        List<Producto> productos = control.traerProductos();
-        for (Producto prod : productos) {
-            String nombre = prod.getNombre();
-            cboProductos.addItem(nombre);  
+    
+    
+    
+    private void cargarProductos() {
+
+    modeloProductos.setRowCount(0);
+
+    List<Producto> lista = control.traerProductos();
+
+    for (Producto p : lista) {
+        modeloProductos.addRow(new Object[]{
+            false,
+            p,      // 🔥 store entire object
+            0
+        });
+
+    }
+}
+    
+   private boolean validarProductos() {
+
+    if (tablaProductos.isEditing()) {
+        tablaProductos.getCellEditor().stopCellEditing();
+    }
+
+    for (int i = 0; i < modeloProductos.getRowCount(); i++) {
+
+        Boolean seleccionado = (Boolean) modeloProductos.getValueAt(i, 0);
+        Object cantidadObj = modeloProductos.getValueAt(i, 2);
+
+        double cantidad = 0;
+
+        if (cantidadObj instanceof Number) {
+            cantidad = ((Number) cantidadObj).doubleValue();
+        }
+
+        if (seleccionado != null && seleccionado) {
+
+            if (cantidad <= 0) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Si selecciona un producto, la cantidad debe ser mayor a 0.",
+                    "Cantidad inválida",
+                    JOptionPane.WARNING_MESSAGE
+                );
+
+                return false;
+            }
         }
     }
-    //encontrar servicio por nombre y guardar
-    public Producto guardarProducto(String pro){
-        List<Producto> productos = control.traerProductos();
-        Producto prodSeleccionado = null;
 
-        for (Producto prod : productos) {
-            String nombre = prod.getNombre();
+    return true;
+}
 
-                if (nombre.equals(pro)) {
-                    prodSeleccionado = prod;
-                    break;
-                }
-        }
 
-        
-        if (prodSeleccionado != null) {
-            return prodSeleccionado;
-        } else {
-            return null;
+    
+    private void guardarServicio() {
+
+    if (tablaProductos.isEditing()) {
+        tablaProductos.getCellEditor().stopCellEditing();
+    }
+
+    Servicio servicio = new Servicio();
+    servicio.setNombre(txtNombre.getText());
+    servicio.setPrecio(txtPrecio.getText());
+    servicio.setEmpleado(empleadoSelec);
+
+    for (int i = 0; i < modeloProductos.getRowCount(); i++) {
+
+        Boolean seleccionado = (Boolean) modeloProductos.getValueAt(i, 0);
+        Producto producto = (Producto) modeloProductos.getValueAt(i, 1);
+        Integer cantidad = (Integer) modeloProductos.getValueAt(i, 2);
+
+        if (seleccionado != null && seleccionado && cantidad != null && cantidad > 0) {
+
+            ServicioProducto sp = new ServicioProducto();
+            sp.setProducto(producto);
+            sp.setCantidadUsada(cantidad);
+
+            servicio.addProducto(sp);
         }
     }
+
+    control.guardarServicio(servicio);
+}
+
+
+
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel btnPanel;
     private javax.swing.JComboBox<String> cboEmpleados;
-    private javax.swing.JComboBox<String> cboProductos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel6;
@@ -353,6 +439,7 @@ public class AltaServicios extends JDialog {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel lblCargaEmp;
+    private javax.swing.JScrollPane scrollProd;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtPrecio;
     // End of variables declaration//GEN-END:variables

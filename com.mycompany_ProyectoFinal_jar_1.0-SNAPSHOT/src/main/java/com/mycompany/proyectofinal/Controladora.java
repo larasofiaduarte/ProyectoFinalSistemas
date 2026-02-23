@@ -189,6 +189,23 @@ public class Controladora {
        
         return controlPersis.findProveedor(idProveedor);
     }
+    public List<Proveedor> traerProveedores() {
+        return controlPersis.traerProveedores();
+    }
+
+    public void borrarProveedor(int numProv) {
+        controlPersis.borrarProveedor(numProv);
+    }
+
+    public void modificarProveedor(Proveedor prov, String nombre, String telefono, String email, String web) {
+        prov.setEmail(email);
+        prov.setNombre(nombre);
+        prov.setTelefono(telefono);
+        prov.setWebsite(web);
+        
+        controlPersis.modificarProveedor(prov);
+    
+    }
     //PRODUCTO
     //ALTA
     public void guardarProducto(String nombre, double stock, String minimo, Proveedor proveedor){
@@ -206,9 +223,9 @@ public class Controladora {
     
     //SERVICIO
     //ALTA
-        public void guardarServicio(String nombre, String precio, Usuario empleado, List <ServicioProducto> productos){
-        Servicio nuevoServicio = new Servicio();
-        
+        public void guardarServicio(Servicio servicio){
+        //Servicio nuevoServicio = new Servicio();
+        /*
         nuevoServicio.setNombre(nombre);
         nuevoServicio.setPrecio(precio);
         nuevoServicio.setEmpleado(empleado);
@@ -216,8 +233,32 @@ public class Controladora {
         for (ServicioProducto sp : productos) {
             nuevoServicio.addProducto(sp);
         }
-        controlPersis.guardarServicio(nuevoServicio);
+        */
+        controlPersis.guardarServicio(servicio);
         
+    }
+      //  
+         public List<Producto> traerProductos() {
+        
+            return controlPersis.traerProductos();
+
+        }
+         //ELIM
+    public void borrarProducto(int numProducto) {
+        controlPersis.borrarProducto(numProducto);
+    }
+    //BUSCAR X ID
+    public Producto findProducto(int numProducto) {
+        return controlPersis.findProducto(numProducto);
+    }
+    //MODIF
+    public void modificarProducto(Producto prod, String nombre, double stock, String minimo, Proveedor proveedor) {
+        prod.setMinimo(minimo);
+        prod.setStock(stock);
+        prod.setNombre(nombre);
+        prod.setProveedor(proveedor);
+        controlPersis.modificarProducto(prod);
+                
     }
     //READ
         public List <Servicio> traerServicios(){
@@ -308,7 +349,7 @@ public class Controladora {
         return controlPersis.checkIfReferenced(id);
     }
     
-    //usuario
+    //usuario LOGUEADO
 
      public void setLoggedInUserId(int userId) {
         this.loggedInUserId = userId;
@@ -331,46 +372,9 @@ public class Controladora {
         return userRole;
     }
 
-    public List<Producto> traerProductos() {
-        
-        return controlPersis.traerProductos();
+   
+
     
-    }
-
-    public void borrarProducto(int numProducto) {
-        controlPersis.borrarProducto(numProducto);
-    }
-
-    public Producto findProducto(int numProducto) {
-        return controlPersis.findProducto(numProducto);
-    }
-
-    public void modificarProducto(Producto prod, String nombre, double stock, String minimo, Proveedor proveedor) {
-        prod.setMinimo(minimo);
-        prod.setStock(stock);
-        prod.setNombre(nombre);
-        prod.setProveedor(proveedor);
-        controlPersis.modificarProducto(prod);
-                
-    }
-
-    public List<Proveedor> traerProveedores() {
-        return controlPersis.traerProveedores();
-    }
-
-    public void borrarProveedor(int numProv) {
-        controlPersis.borrarProveedor(numProv);
-    }
-
-    public void modificarProveedor(Proveedor prov, String nombre, String telefono, String email, String web) {
-        prov.setEmail(email);
-        prov.setNombre(nombre);
-        prov.setTelefono(telefono);
-        prov.setWebsite(web);
-        
-        controlPersis.modificarProveedor(prov);
-    
-    }
 
     //CAJA
         //ALTA

@@ -70,6 +70,11 @@ public class Servicios extends MainPanelBase {
                 for (ServicioProducto sp : c.getProductos()) {
                     Producto p = sp.getProducto();
                     if (p != null) {
+
+                        if (sb.length() > 0) {
+                            sb.append(", ");
+                        }
+
                         sb.append(p.getNombre());
                     }
                 }

@@ -45,6 +45,7 @@ com\mycompany\GUI\cards\Inventario.class
 com\mycompany\proyectofinal\Servicio_.class
 com\mycompany\persistencia\ProveedorJpaController.class
 com\mycompany\GUI\components\PassField.class
+com\mycompany\GUI\abm\AltaServicios$5.class
 com\mycompany\GUI\components\PassField$2.class
 com\mycompany\GUI\components\TxtField.class
 com\mycompany\proyectofinal\Proveedor.class
