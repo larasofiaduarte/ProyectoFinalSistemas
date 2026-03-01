@@ -6,12 +6,14 @@ package com.mycompany.GUI.abm;
 
 import com.mycompany.GUI.*;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Cliente;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.Turno;
 import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -31,16 +33,14 @@ public class AltaTurnos extends JDialog {
     Controladora control = new Controladora();
     Servicio servicioSeleccionado;
     private Runnable onSave;
+    private Turno turnoEditar;
     
+    //MODO ALTA
     public AltaTurnos(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
         initComponents();
         
-        jLabel1.setForeground(Styles.fontDark);
-        jPanel3.setBackground(Styles.bgLight);
-        jPanel1.setBackground(Styles.bgLight);
-        panelBtns.setBackground(Styles.bgLight);
         
         //panelBtns.setBorder(Styles.paddingBottom);
         
@@ -48,124 +48,107 @@ public class AltaTurnos extends JDialog {
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
-        Btn btnLimpiar = Btn.secondary("Limpiar");
-        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
-        panelBtns.add(btnLimpiar);
+        initUI();
         
-        Btn btnCerrar = Btn.secondary("Cerrar");
-        btnCerrar.setPreferredSize(Styles.btnSizeSm);
-        panelBtns.add(btnCerrar);
+        btnAlta.addActionListener(e -> guardarTurno());
         
-        obtenerServicios();
-        
-        txtCliente.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
-        
-        calendar.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if ("date".equals(evt.getPropertyName())) {
-                    Calendar selectedDate = Calendar.getInstance();
-                    selectedDate.setTime(calendar.getDate());
-                    
-                    // Check if the selected day is a Sunday (Sunday = 7)
-                    if (selectedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                        JOptionPane.showMessageDialog(null, "No se pueden seleccionar los domingos. Por favor, elija otro día.", "Error", JOptionPane.ERROR_MESSAGE);
-                        calendar.setDate(null); // Reset the selected date
-                    }
-                }
-            }
-        });
-        
-        
-        btnLimpiar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    txtCliente.setText("");
-                    cboServicio.setSelectedIndex(-1);
-                    cboHora.setSelectedIndex(-1);
-                    calendar.setDate(new java.util.Date());
-                    cboEstado.setSelectedIndex(-1);
-                    txtDetalle.setText("");
-                }
-        });
-        
-        btnCerrar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-        });
-        
-        
-        btnAlta.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                try {
-                    // Get the client ID from the input field
-                    int idCliente = Integer.parseInt(txtCliente.getText()); 
-
-                    // Check if client exists in the database
-                    Cliente clienteEnt = control.findCliente(idCliente);
-                    
-
-                    //Guardar servicio seleccionado
-                    String servicio = (String) cboServicio.getSelectedItem();
-                    servicioSeleccionado = guardarServicio(servicio);
-                    
-                    String hora = (String) cboHora.getSelectedItem();
-                    String estado = (String) cboEstado.getSelectedItem();
-                    String detalle = txtDetalle.getText();
-                    
-                    Date fecha = calendar.getDate();
-                    
-                    
-                    if (validarCampos()){
-                        LocalDateTime fechafinal = obtenerFecha(hora,fecha);
-                        Boolean turnoYaExiste = control.turnoYaExiste(servicioSeleccionado, fechafinal);
-                        
-                        if (clienteEnt == null) {
-                        JOptionPane.showMessageDialog(null, "Cliente no encontrado. Por favor, ingrese un ID de cliente válido.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return; // Exit the action if client does not exist
-                        }
-                        
-                        
-                        if(turnoYaExiste){
-                            JOptionPane.showMessageDialog(null, "Ya existe un turno para el servicio seleccionado en esa fecha y horario.", "No se puede guardar el turno.", JOptionPane.ERROR_MESSAGE);
-                        
-                        }else{
-                            control.guardarTurno(servicioSeleccionado, fechafinal, clienteEnt, estado, detalle);
-                            JOptionPane.showMessageDialog(null, "Turno guardado correctamente.", "Turno guardado.", JOptionPane.INFORMATION_MESSAGE);
-                            if (onSave != null) {
-                                onSave.run();   // 👈 refresh table
-                            }
-                            dispose();
-                        }
-                    }
-                    
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Error de entrada", JOptionPane.WARNING_MESSAGE);
-                } catch (DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(null, "Error al procesar la fecha. Por favor, revise la entrada.", "Error de fecha", JOptionPane.ERROR_MESSAGE);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Ocurrió un error al guardar el turno. Por favor, intente nuevamente.", "Error", JOptionPane.ERROR_MESSAGE);
-                    ex.printStackTrace();
-                }
-            }
-        });
-        
-        
-        
-       
     }
+    //MODO MODIFICAR
+    public AltaTurnos(Frame parent, boolean modal, Turno turno, Runnable onSave) {
+        super(parent, modal);
+        initComponents();
+        this.turnoEditar = turno;
+        this.onSave = onSave;
+        
+        Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnAlta);
+        
+        initUI();
+
+        //cargarDatosTurno(); // cargar datos en los campos
+        btnAlta.addActionListener(e -> guardarTurno());
+    }
+    
+    private void cargarDatosTurno(){
+        //cargar combobox
+    
+    
+    }
+    
+  private void guardarTurno() {
+
+    try {
+
+        int idCliente = Integer.parseInt(txtCliente.getText());
+        Cliente clienteEnt = control.findCliente(idCliente);
+        String servicioStr = (String) cboServicio.getSelectedItem();
+        servicioSeleccionado = guardarServicio(servicioStr);
+        if (clienteEnt == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Cliente no encontrado.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (!validarCampos()) {
+            return;
+        }
+
+        String hora = (String) cboHora.getSelectedItem();
+        String estado = (String) cboEstado.getSelectedItem();
+        String detalle = txtDetalle.getText();
+
+        Date fecha = calendar.getDate();
+        LocalDateTime fechaFinal = obtenerFecha(hora, fecha);
+
+        boolean turnoYaExiste = control.turnoYaExiste(servicioSeleccionado, fechaFinal);
+
+        if (turnoEditar == null && turnoYaExiste) {
+            JOptionPane.showMessageDialog(this,
+                    "Ya existe un turno para ese servicio en esa fecha y horario.",
+                    "No se puede guardar",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (turnoEditar == null) {
+            // 🔹 ALTA
+            control.guardarTurno(servicioSeleccionado, fechaFinal, clienteEnt, estado, detalle);
+            JOptionPane.showMessageDialog(this,
+                    "Turno guardado correctamente.",
+                    "Alta exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            // 🔹 MODIFICAR
+            control.modificarTurno(turnoEditar, servicioSeleccionado, fechaFinal, clienteEnt, estado, detalle);
+            JOptionPane.showMessageDialog(this,
+                    "Turno modificado correctamente.",
+                    "Modificación exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        if (onSave != null) {
+            onSave.run();
+        }
+
+        dispose();
+
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this,
+                "ID de cliente inválido.",
+                "Error",
+                JOptionPane.WARNING_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar el turno.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    }
+}
+
 
     
     @SuppressWarnings("unchecked")
@@ -314,7 +297,73 @@ public class AltaTurnos extends JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //UI
+    private void initUI(){
+        
+        jLabel1.setForeground(Styles.fontDark);
+        jPanel3.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelBtns.setBackground(Styles.bgLight);
+        
+        Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnLimpiar);
+        
+        Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnCerrar);
+        
+        obtenerServicios();
+        
+        txtCliente.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c)) {
+                    e.consume(); // Consume the event if the character is not a digit
+                }
+            }
+        });
+        
+        calendar.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("date".equals(evt.getPropertyName())) {
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.setTime(calendar.getDate());
+                    
+                    // Check if the selected day is a Sunday (Sunday = 7)
+                    if (selectedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                        JOptionPane.showMessageDialog(null, "No se pueden seleccionar los domingos. Por favor, elija otro día.", "Error", JOptionPane.ERROR_MESSAGE);
+                        calendar.setDate(null); // Reset the selected date
+                    }
+                }
+            }
+        });
+        
+        
+        btnLimpiar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    txtCliente.setText("");
+                    cboServicio.setSelectedIndex(-1);
+                    cboHora.setSelectedIndex(-1);
+                    calendar.setDate(new java.util.Date());
+                    cboEstado.setSelectedIndex(-1);
+                    txtDetalle.setText("");
+                }
+        });
+        
+        btnCerrar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+        });
+        
     
+    
+    }
     
     public LocalDateTime obtenerFecha(String hora, Date fecha){
         
@@ -336,17 +385,21 @@ public class AltaTurnos extends JDialog {
     }
     
     private boolean validarCampos() {
-        if (txtCliente.getText().isEmpty() || 
-            servicioSeleccionado == null || 
-            cboHora.getSelectedItem() == null || 
-            cboEstado.getSelectedItem() == null || 
-            calendar.getDate() == null ) {
+    if (txtCliente.getText().isEmpty() || 
+        cboServicio.getSelectedItem() == null || 
+        cboHora.getSelectedItem() == null || 
+        cboEstado.getSelectedItem() == null || 
+        calendar.getDate() == null ) {
 
-            JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-            return false; // Indicate validation failure
-        }
-        return true; // Indicate validation success
+        JOptionPane.showMessageDialog(this, 
+            "Por favor, complete todos los campos obligatorios.", 
+            "Campos vacíos", 
+            JOptionPane.WARNING_MESSAGE);
+        return false;
     }
+    return true;
+}
+
     //cargar servicios a cbo
     public void obtenerServicios(){
         List<Servicio> servicios = control.traerServicios();

@@ -13,11 +13,12 @@ public class Controladora {
     ControladoraPersistencia controlPersis = new ControladoraPersistencia();
     private int loggedInUserId = -1;
     public String userRole;
+    private Usuario loggedUser;
     
     //USUARIO
     //LOGICA DE VALIDAR USUARIO PARA LOGIN
     public boolean validarUsuario(String user, String pass){
-        
+        loggedUser = null; 
         
         List<Usuario> listaUsuarios = controlPersis.traerUsuarios();
 
@@ -25,7 +26,7 @@ public class Controladora {
         for (Usuario usu : listaUsuarios) {
             if (usu.getUsername().equals(user) &&
                 usu.getPassword().equals(pass)) {
-
+                loggedUser = usu; 
                 return true; // Termina el Loop al encontrar un usuario en la BD que coincide con el user y pass ingresados en login form
             }
         }
@@ -107,7 +108,7 @@ public class Controladora {
     }
     
     //edit
-    public void modificarUsuario(Usuario usu, String user, String pass, String nombre, String apellido, String tel, String rol) {
+    public void modificarUsuario(Usuario usu, String user, String pass, String nombre, String apellido, String tel, String rol, String dni) {
         
         usu.setUsername(user);
         usu.setPassword(pass);
@@ -115,6 +116,7 @@ public class Controladora {
         usu.setApellido(apellido);
         usu.setRol(rol);
         usu.setTelefono(tel);
+        usu.setDni(dni);
         
         controlPersis.modificarUsuario(usu);
     }
@@ -335,11 +337,8 @@ public class Controladora {
             return controlPersis.findServicio(numServicio);
     }
 
-    public void modificarServicio(Servicio ser, String nombre, String precio, Usuario emp) {
-        
-        ser.setEmpleado(emp);
-        ser.setNombre(nombre);
-        ser.setPrecio(precio);
+    public void modificarServicio(Servicio ser) {
+       
         
         controlPersis.modificarServicio(ser);
     
@@ -373,6 +372,9 @@ public class Controladora {
     }
 
    
+    public Usuario getLoggedUser() {
+        return loggedUser;
+    }
 
     
 

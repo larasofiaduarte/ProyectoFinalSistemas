@@ -34,11 +34,10 @@ public class Clientes extends MainPanelBase {
 
         // buttons
         btnAlta.addActionListener(e -> abrirAltaCliente());
+        btnElim.addActionListener(e -> eliminarCliente());
+        btnEdit.addActionListener(e -> modificarCliente());
     }
 
-    /**
-     * Loads or reloads table data
-     */
     private void cargarTabla() {
 
         List<Cliente> clientes = control.traerClientes();
@@ -69,6 +68,67 @@ public class Clientes extends MainPanelBase {
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
+    
+    private void eliminarCliente() {
+
+        int filaSeleccionada = table.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un cliente para eliminar.",
+                "Ninguna selección",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea eliminar este cliente?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
+        int id = idNum.intValue();
+
+        control.borrarCliente(id);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Cliente borrado correctamente.",
+                "Eliminación exitosa",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        cargarTabla();
+    }
+
+    private void modificarCliente() {
+
+        int fila = table.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+            return;
+        }
+
+        int id = ((Number) table.getValueAt(fila, 0)).intValue();
+
+        Cliente cliente = control.findCliente(id);
+
+        AltaClientes dialog =
+            new AltaClientes(ventana, true, cliente, this::cargarTabla);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
 
     @Override
     public void applyTheme() {

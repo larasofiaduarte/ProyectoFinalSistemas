@@ -35,6 +35,8 @@ public class Inventario extends MainPanelBase {
         //buttons
         
         btnAlta.addActionListener(e -> abrirAltaProducto());
+        btnElim.addActionListener(e -> eliminarProducto());
+        btnEdit.addActionListener(e -> modificarProducto());
     }
     
     private void cargarTabla(){
@@ -67,6 +69,66 @@ public class Inventario extends MainPanelBase {
     private void abrirAltaProducto() {
         AltaProductos dialog =
         new AltaProductos(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    private void eliminarProducto() {
+
+        int filaSeleccionada = table.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un producto para eliminar.",
+                "Ninguna selección",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea eliminar este producto?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
+        int id = idNum.intValue();
+
+        control.borrarProducto(id);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Producto borrado correctamente.",
+                "Eliminación exitosa",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        cargarTabla();
+    }
+    
+    private void modificarProducto() {
+
+        int fila = table.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+            return;
+        }
+
+        int id = ((Number) table.getValueAt(fila, 0)).intValue();
+
+        Producto prod = control.findProducto(id);
+
+        AltaProductos dialog =
+            new AltaProductos(ventana, true, prod, this::cargarTabla);
+
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }

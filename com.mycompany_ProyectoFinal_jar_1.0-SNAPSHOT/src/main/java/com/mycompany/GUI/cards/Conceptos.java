@@ -17,6 +17,7 @@ public class Conceptos extends MainPanelBase {
 
     private Ventana ventana;
     private Controladora control;
+    
 
     public Conceptos(Ventana ventana) {
         super("Caja");
@@ -31,6 +32,8 @@ public class Conceptos extends MainPanelBase {
         
         //buttons
         btnAlta.addActionListener(e -> abrirAltaCaja());
+        btnElim.addActionListener(e -> eliminarConcepto());
+        btnEdit.addActionListener(e-> modificarConcepto());
     }
     
     private void cargarTabla(){
@@ -66,6 +69,66 @@ public class Conceptos extends MainPanelBase {
         dialog.setVisible(true);
     }
     
+    private void eliminarConcepto() {
+
+        int filaSeleccionada = table.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un registro para eliminar.",
+                "Ninguna selección",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea eliminar este registro?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
+        int id = idNum.intValue();
+
+        control.borrarConcepto(id);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Registro borrado correctamente.",
+                "Eliminación exitosa",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        cargarTabla();
+    }
+    
+    private void modificarConcepto() {
+
+        int fila = table.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un registro para modificar.");
+            return;
+        }
+
+        int id = ((Number) table.getValueAt(fila, 0)).intValue();
+
+        Caja caja = control.findConcepto(id);
+
+        AltaCaja dialog =
+            new AltaCaja(ventana, true, caja, this::cargarTabla);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     
     @Override
     public void applyTheme() {

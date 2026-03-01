@@ -2,8 +2,6 @@ com\mycompany\GUI\abm\AltaProductos$2.class
 com\mycompany\GUI\exceptions\IllegalOrphanException.class
 com\mycompany\GUI\abm\AltaCaja$4.class
 com\mycompany\GUI\components\SideMenu$1.class
-com\mycompany\GUI\abm\AltaClientes$4.class
-com\mycompany\GUI\abm\AltaProductos$5.class
 com\mycompany\proyectofinal\Controladora.class
 com\mycompany\persistencia\exceptions\IllegalOrphanException.class
 com\mycompany\GUI\components\TopMenu.class
@@ -38,14 +36,12 @@ com\mycompany\GUI\components\SideMenu.class
 com\mycompany\persistencia\ControladoraPersistencia.class
 com\mycompany\GUI\abm\AltaClientes$1.class
 com\mycompany\GUI\Theme.class
-com\mycompany\GUI\abm\AltaCaja$5.class
 com\mycompany\proyectofinal\Proveedor_.class
 com\mycompany\GUI\abm\AltaEmpleados$1.class
 com\mycompany\GUI\cards\Inventario.class
 com\mycompany\proyectofinal\Servicio_.class
 com\mycompany\persistencia\ProveedorJpaController.class
 com\mycompany\GUI\components\PassField.class
-com\mycompany\GUI\abm\AltaServicios$5.class
 com\mycompany\GUI\components\PassField$2.class
 com\mycompany\GUI\components\TxtField.class
 com\mycompany\proyectofinal\Proveedor.class
@@ -78,7 +74,6 @@ com\mycompany\GUI\abm\AltaCaja.class
 com\mycompany\GUI\abm\AltaProductos$4.class
 com\mycompany\persistencia\ClienteJpaController.class
 com\mycompany\GUI\abm\AltaTurnos.class
-com\mycompany\GUI\abm\AltaEmpleados$5.class
 com\mycompany\proyectofinal\Servicio.class
 com\mycompany\proyectofinal\ServicioProducto.class
 com\mycompany\GUI\components\TxtField$2.class
@@ -99,7 +94,6 @@ com\mycompany\GUI\components\TitlePanel$1.class
 com\mycompany\proyectofinal\ProyectoFinal.class
 com\mycompany\GUI\abm\AltaServicios.class
 com\mycompany\GUI\abm\AltaEmpleados.class
-com\mycompany\GUI\abm\AltaTurnos$5.class
 com\mycompany\proyectofinal\Usuario_.class
 com\mycompany\persistencia\exceptions\NonexistentEntityException.class
 com\mycompany\proyectofinal\Producto_.class

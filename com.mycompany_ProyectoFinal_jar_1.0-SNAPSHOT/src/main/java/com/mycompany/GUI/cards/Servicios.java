@@ -34,6 +34,9 @@ public class Servicios extends MainPanelBase {
         
         //buttons
         btnAlta.addActionListener(e -> abrirAltaServicio());
+        btnElim.addActionListener(e -> eliminarServicio());
+        btnEdit.addActionListener(e -> modificarServicio());
+
     }
     
     private void cargarTabla(){
@@ -91,6 +94,67 @@ public class Servicios extends MainPanelBase {
     private void abrirAltaServicio() {
         AltaServicios dialog =
         new AltaServicios(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    
+    private void eliminarServicio() {
+
+        int filaSeleccionada = table.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un servicio para eliminar.",
+                "Ninguna selección",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea eliminar este servicio?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
+        int id = idNum.intValue();
+
+        control.borrarServicio(id);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Servicio borrado correctamente.",
+                "Eliminación exitosa",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        cargarTabla();
+    }
+    
+    private void modificarServicio() {
+
+        int fila = table.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+            return;
+        }
+
+        int id = ((Number) table.getValueAt(fila, 0)).intValue();
+
+        Servicio serv = control.findServicio(id);
+
+        AltaServicios dialog =
+            new AltaServicios(ventana, true, serv, this::cargarTabla);
+
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }

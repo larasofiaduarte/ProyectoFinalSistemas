@@ -5,6 +5,8 @@ import com.mycompany.proyectofinal.Controladora;
 import java.awt.Font;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.Usuario;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -15,12 +17,15 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.JOptionPane;
+import javax.swing.border.EmptyBorder;
 
 public class AltaEmpleados extends JDialog {
 
     Controladora control = new Controladora();
     private Runnable onSave;
+    private Usuario userEditar;
     
+    //MODO ALTA
     public AltaEmpleados(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
@@ -41,7 +46,43 @@ public class AltaEmpleados extends JDialog {
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
+        initUI();
         
+        btnAlta.addActionListener(e -> guardarUsuario());
+    }
+    
+    // MODO MODIFICAR
+    public AltaEmpleados(Frame parent, boolean modal, Usuario usuario, Runnable onSave) {
+        super(parent, modal);
+        initComponents();
+        this.userEditar = usuario;
+        this.onSave = onSave;
+        
+        //UI
+        jLabel8.setForeground(Styles.fontDark);
+        jLabel3.setForeground(Styles.fontDark);
+        
+        panelAltaEmp.setBackground(Styles.bgLight);
+        panelDataEmp.setBackground(Styles.bgLight);
+        
+        cboEmpRol.addItem("Empleado");
+        cboEmpRol.addItem("Administrador");
+
+        
+        panelBtns.setLayout(new FlowLayout(FlowLayout.CENTER));
+        Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnAlta);
+        
+        initUI();
+        cargarDatosUsuario();
+        btnAlta.addActionListener(e -> guardarUsuario());
+        
+        
+    }
+
+    private void initUI(){
+        panelBtns.setBorder(new EmptyBorder(0,70,15,0));
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnLimpiar);
@@ -82,11 +123,21 @@ public class AltaEmpleados extends JDialog {
                     dispose();
                 }
         });
-        
-        
-        btnAlta.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
+         
+    }
+    
+    private void cargarDatosUsuario() {
+        txtEmpUser.setText(userEditar.getUsername());
+        txtEmpPass.setText(userEditar.getPassword());
+        cboEmpRol.setSelectedItem(userEditar.getRol());
+        txtEmpNombre.setText(userEditar.getNombre());
+        txtEmpApe.setText(userEditar.getApellido());
+        txtDni.setText(userEditar.getDni());
+        txtEmpTel.setText(userEditar.getTelefono());
+    }
+    
+    private void guardarUsuario() {
+
                     String user = txtEmpUser.getText();
                     String pass = txtEmpPass.getText();
                     String rol = (String) cboEmpRol.getSelectedItem();
@@ -94,23 +145,20 @@ public class AltaEmpleados extends JDialog {
                     String apellido = txtEmpApe.getText();
                     String dni = txtDni.getText();
                     String tel = txtEmpTel.getText();
-                    
-                    if (validarCampos()){
-                        control.guardarUser(user, pass, nombre, apellido,tel,rol,dni);
-                        JOptionPane.showMessageDialog(null, "Usuario creado correctamente.", "Concepto guardado.", JOptionPane.INFORMATION_MESSAGE);
-                        if (onSave != null) {
-                            onSave.run();   // 👈 refresh table
-                        }
-                        dispose();
-                    }
-                    
-                }
-        });
-        
-    }
 
-    
-    
+        if (userEditar == null) {
+            // MODO ALTA
+            control.guardarUser(user, pass, nombre, apellido, tel, rol, dni);
+            JOptionPane.showMessageDialog(this, "Usuario creado correctamente.");
+        } else {
+            //MODO MODIFICAR
+            control.modificarUsuario(userEditar, user, pass, nombre, apellido, tel, rol, dni);
+            JOptionPane.showMessageDialog(this, "Usuario modificado correctamente.");
+        }
+
+        onSave.run();
+        dispose();
+    }
     
     
     @SuppressWarnings("unchecked")

@@ -2,10 +2,12 @@
 package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Controladora;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.*;
@@ -15,7 +17,9 @@ public class AltaCaja extends JDialog {
     
     Controladora control = new Controladora();
     private Runnable onSave;
+    private Caja cajaEditar;
 
+//MODO ALTA
     public AltaCaja(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
@@ -23,79 +27,35 @@ public class AltaCaja extends JDialog {
         initComponents();
         
         //UI 
+        
+        Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnAlta);
+
+        
+        initUI();
+        
+        btnAlta.addActionListener(e -> guardarCaja());
+        
+    }
+    
+    // MODO MODIFICAR
+    public AltaCaja(Frame parent, boolean modal, Caja caja, Runnable onSave) {
+        super(parent, modal);
+        initComponents();
+        this.cajaEditar = caja;
+        this.onSave = onSave;
+        
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
-        
-        Btn btnLimpiar = Btn.secondary("Limpiar");
-        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
-        panelBtns.add(btnLimpiar);
-        
-        Btn btnCerrar = Btn.secondary("Cerrar");
-        btnCerrar.setPreferredSize(Styles.btnSizeSm);
-        panelBtns.add(btnCerrar);
-        
-        jPanel2.setBackground(Styles.bgLight);
-        jPanel1.setBackground(Styles.bgLight);
-        panelBtns.setBackground(Styles.bgLight);
-        
-        txtMonto.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
-        
-        btnLimpiar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    txtDetalle.setText("");
-                    txtMonto.setText("");
-                    cboTipo.setSelectedIndex(-1);
-                    cboMedio.setSelectedIndex(-1);
-                    cboHora.setSelectedIndex(-1);
-                    dateChooser.setDate(new java.util.Date());
-                }
-        });
-        
-        btnCerrar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-        });
-        
-        
-        btnAlta.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String detalle = txtDetalle.getText();
-                    String monto = txtMonto.getText();
-                    String tipo = (String) cboTipo.getSelectedItem();
-                    String medio = (String) cboMedio.getSelectedItem();
-                    
-                    String hora = (String) cboHora.getSelectedItem();
-                    Date fecha = dateChooser.getDate();
-                    
-                    LocalDateTime fechafinal = obtenerFecha(hora,fecha);
-                    
-                    if (validarCampos()){
-                        control.guardarConcepto(tipo, monto, medio,fechafinal, detalle);
-                        JOptionPane.showMessageDialog(null, "Concepto guardado correctamente.", "Concepto guardado.", JOptionPane.INFORMATION_MESSAGE);
-                        if (onSave != null) {
-                            onSave.run();   // 👈 refresh table
-                        }
-                        dispose();
-                    }
-                    
-                }
-        });
-        
+        initUI();
+
+        cargarDatosCaja(); // cargar datos en los campos
+        btnAlta.addActionListener(e -> guardarCaja());
     }
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -124,7 +84,7 @@ public class AltaCaja extends JDialog {
         jPanel1.setBackground(new java.awt.Color(250, 250, 250));
 
         lblCargaEmp.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblCargaEmp.setText("Carga de Clientes");
+        lblCargaEmp.setText("Cargar Movimiento de Caja");
 
         jPanel2.setBackground(new java.awt.Color(250, 250, 250));
 
@@ -196,7 +156,7 @@ public class AltaCaja extends JDialog {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(dateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(54, 54, 54)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(46, 46, 46))))
@@ -245,10 +205,10 @@ public class AltaCaja extends JDialog {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(panelBtns, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(204, 204, 204)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblCargaEmp)
-                .addContainerGap(200, Short.MAX_VALUE))
+                .addGap(150, 150, 150))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -279,7 +239,50 @@ public class AltaCaja extends JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_cboMedioActionPerformed
 
+    private void initUI(){
     
+        Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnLimpiar);
+        
+        Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnCerrar);
+        
+        jPanel2.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelBtns.setBackground(Styles.bgLight);
+        
+        txtMonto.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c)) {
+                    e.consume(); // Consume the event if the character is not a digit
+                }
+            }
+        });
+        
+        btnLimpiar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    txtDetalle.setText("");
+                    txtMonto.setText("");
+                    cboTipo.setSelectedIndex(-1);
+                    cboMedio.setSelectedIndex(-1);
+                    cboHora.setSelectedIndex(-1);
+                    dateChooser.setDate(new java.util.Date());
+                }
+        });
+        
+        btnCerrar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+        });
+    
+    }
     private boolean validarCampos() {
         if (txtMonto.getText().isEmpty() || cboTipo.getSelectedItem() == null || cboMedio.getSelectedItem() == null) {
 
@@ -307,6 +310,62 @@ public class AltaCaja extends JDialog {
         return combinedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     
     }
+    
+    private void cargarDatosCaja() {
+        txtMonto.setText(cajaEditar.getMonto());
+        txtDetalle.setText(cajaEditar.getDetalle());
+        
+        cboTipo.setSelectedItem(cajaEditar.getTipo());
+        cboMedio.setSelectedItem(cajaEditar.getMedio());
+        
+        if (cajaEditar != null && cajaEditar.getFecha() != null) {
+
+            LocalDateTime fechaHora = cajaEditar.getFecha();
+
+            Date fecha = Date.from(
+                    fechaHora.atZone(ZoneId.systemDefault()).toInstant()
+            );
+
+            dateChooser.setDate(fecha);
+
+            String horaStr = fechaHora.toLocalTime()
+                    .format(DateTimeFormatter.ofPattern("HH:mm"));
+
+            cboHora.setSelectedItem(horaStr);
+        }
+
+    }
+    
+    private void guardarCaja() {
+
+        String monto = txtMonto.getText();
+        String detalle = txtDetalle.getText();
+        String tipo = (String) cboTipo.getSelectedItem();
+        String medio = (String) cboMedio.getSelectedItem();
+                    
+        String hora = (String) cboHora.getSelectedItem();
+        Date fecha = dateChooser.getDate();
+                    
+        LocalDateTime fechafinal = obtenerFecha(hora,fecha);
+                    
+
+        if (cajaEditar == null) {
+            // MODO ALTA
+            control.guardarConcepto(tipo, monto, medio,fechafinal, detalle);
+            JOptionPane.showMessageDialog(this, "Concepto creado correctamente.");
+        } else {
+            // MODO MODIFICAR
+            cajaEditar.setFecha(fechafinal);
+
+            control.modificarConcepto(cajaEditar,tipo,monto,medio,detalle);
+            JOptionPane.showMessageDialog(this, "Concepto modificado correctamente.");
+        }
+
+        onSave.run();
+        dispose();
+    }
+
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> cboHora;

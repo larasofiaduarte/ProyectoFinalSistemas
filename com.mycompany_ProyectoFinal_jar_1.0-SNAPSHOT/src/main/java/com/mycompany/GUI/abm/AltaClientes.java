@@ -2,6 +2,7 @@
 package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,90 +14,71 @@ public class AltaClientes extends JDialog {
     
     Controladora control = new Controladora();
     private Runnable onSave;
+    private Cliente clienteEditar;
 
-
+    //MODO ALTA
     public AltaClientes(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
 
         initComponents();
         
-        //UI
-        
+        //ALTA
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
-        Btn btnLimpiar = Btn.secondary("Limpiar");
-        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
-        panelBtns.add(btnLimpiar);
-        
-        Btn btnCerrar = Btn.secondary("Cerrar");
-        btnCerrar.setPreferredSize(Styles.btnSizeSm);
-        panelBtns.add(btnCerrar);
-        
-        jPanel2.setBackground(Styles.bgLight);
-        jPanel1.setBackground(Styles.bgLight);
-        panelBtns.setBackground(Styles.bgLight);
-        
-        txtTelCli.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
-        
-        btnLimpiar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    txtNombreCli.setText("");
-                    txtApellidoCli.setText("");
-                    txtTelCli.setText("");
-                    RadioBtnF.setSelected(false);
-                    RadioBtnM.setSelected(false);
-                }
-        });
-        
-        btnCerrar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-        });
-        
-        
-        btnAlta.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String nombre = txtNombreCli.getText();
-                    String apellido = txtApellidoCli.getText();
-                    String tel = txtTelCli.getText();
-                    String genero = "";
-                    
-                    if (RadioBtnF.isSelected()){
-                        genero = "F";
-                    }else if(RadioBtnM.isSelected()){
-                        genero = "M";
-                    }
-                    
-                    if (validarCampos()){
-                        control.guardarCliente(nombre, apellido, tel, genero);
-                        JOptionPane.showMessageDialog(null, "Cliente guardado correctamente.", "Cliente guardado.", JOptionPane.INFORMATION_MESSAGE);
-                        if (onSave != null) {
-                            onSave.run();   // 👈 refresh table
-                        }
-                        dispose();
-                    }
-                    
-                    
-                }
-        });
+        initUI();
+        btnAlta.addActionListener(e -> guardarCliente());
         
     }
+    
+    
+    // MODO MODIFICAR
+    public AltaClientes(Frame parent, boolean modal, Cliente cliente, Runnable onSave) {
+        super(parent, modal);
+        initComponents();
+        this.clienteEditar = cliente;
+        this.onSave = onSave;
 
+        cargarDatosCliente(); // cargar datos en los campos
+        
+        Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnAlta);
+        btnAlta.addActionListener(e -> guardarCliente());
+        
+        initUI();
+    }
+    
+    private void guardarCliente() {
+
+        String nombre = txtNombreCli.getText();
+        String apellido = txtApellidoCli.getText();
+        String telefono = txtTelCli.getText();
+        String genero= "";
+        if (RadioBtnF.isSelected()){
+            genero = "F";
+        }else if(RadioBtnM.isSelected()){
+            genero = "M";
+        }
+
+        if (clienteEditar == null) {
+            // MODO ALTA
+            control.guardarCliente(nombre, apellido, telefono, genero);
+            JOptionPane.showMessageDialog(this, "Cliente creado correctamente.");
+        } else {
+            //MODO MODIFICAR
+            control.modificarCliente(clienteEditar, nombre, apellido, telefono, genero);
+            JOptionPane.showMessageDialog(this, "Cliente modificado correctamente.");
+        }
+
+        onSave.run();
+        dispose();
+    }
+
+    
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -238,8 +220,65 @@ public class AltaClientes extends JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    
+    private void cargarDatosCliente() {
+        txtNombreCli.setText(clienteEditar.getNombre());
+        txtApellidoCli.setText(clienteEditar.getApellido());
+        txtTelCli.setText(clienteEditar.getTelefono());
+        if (clienteEditar.getGenero()=="F"){
+            RadioBtnF.setSelected(true);
+            RadioBtnM.setSelected(false);
+        }else{
+            RadioBtnM.setSelected(true);
+            RadioBtnF.setSelected(false);
+        }
+    }
 
     
+    private void initUI(){
+       
+        Btn btnLimpiar = Btn.secondary("Limpiar");
+        btnLimpiar.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnLimpiar);
+        
+        Btn btnCerrar = Btn.secondary("Cerrar");
+        btnCerrar.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnCerrar);
+        
+        jPanel2.setBackground(Styles.bgLight);
+        jPanel1.setBackground(Styles.bgLight);
+        panelBtns.setBackground(Styles.bgLight);
+        
+        txtTelCli.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c)) {
+                    e.consume(); // Consume the event if the character is not a digit
+                }
+            }
+        });
+        
+        btnLimpiar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    txtNombreCli.setText("");
+                    txtApellidoCli.setText("");
+                    txtTelCli.setText("");
+                    RadioBtnF.setSelected(false);
+                    RadioBtnM.setSelected(false);
+                }
+        });
+        
+        btnCerrar.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+        });
+    
+    }
     
     private boolean validarCampos() {
         if (txtNombreCli.getText().isEmpty() || 

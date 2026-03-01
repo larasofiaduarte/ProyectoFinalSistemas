@@ -8,6 +8,7 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
+import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Turno;
 import java.util.List;
@@ -35,7 +36,12 @@ public class Turnos extends MainPanelBase{
         
         //buttons
         btnAlta.addActionListener(e -> abrirAltaTurnos());
+        btnElim.addActionListener(e -> eliminarTurno());
+        btnEdit.addActionListener(e -> modificarTurno());
+
     }
+    
+    
     
     private void cargarTabla(){
         // data from DB
@@ -76,6 +82,68 @@ public class Turnos extends MainPanelBase{
     private void abrirAltaTurnos() {
         AltaTurnos dialog =
         new AltaTurnos(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    
+    
+    private void eliminarTurno() {
+
+        int filaSeleccionada = table.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un turno para eliminar.",
+                "Ninguna selección",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea eliminar este turno?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
+        int id = idNum.intValue();
+
+        control.borrarTurno(id);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Turno borrado correctamente.",
+                "Eliminación exitosa",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        cargarTabla();
+    }
+    
+    private void modificarTurno() {
+
+        int fila = table.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un registro para modificar.");
+            return;
+        }
+
+        int id = ((Number) table.getValueAt(fila, 0)).intValue();
+
+        Turno turno = control.findTurno(id);
+
+        AltaTurnos dialog =
+            new AltaTurnos(ventana, true, turno, this::cargarTabla);
+
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }

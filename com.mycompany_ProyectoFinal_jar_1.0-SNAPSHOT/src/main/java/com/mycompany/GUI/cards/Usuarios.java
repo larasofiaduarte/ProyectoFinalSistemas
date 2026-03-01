@@ -17,6 +17,7 @@ public class Usuarios extends MainPanelBase {
 
     private Ventana ventana;
     private Controladora control;
+    private Usuario currentUser;
 
     public Usuarios(Ventana ventana) {
         super("Empleados");
@@ -33,7 +34,10 @@ public class Usuarios extends MainPanelBase {
         
         //buttons
         
-        btnAlta.addActionListener(e -> abrirAltaCliente());
+        btnAlta.addActionListener(e -> abrirAltaUser());
+        btnElim.addActionListener(e -> eliminarUser());
+        btnEdit.addActionListener(e -> modificarUser());
+
     }
     
     private void cargarTabla(){
@@ -66,9 +70,72 @@ public class Usuarios extends MainPanelBase {
         setTableData(usuarios, columns, getters);
     }
     
-    private void abrirAltaCliente() {
+    private void abrirAltaUser() {
+        
         AltaEmpleados dialog =
         new AltaEmpleados(ventana, true, this::cargarTabla);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+    
+    
+    private void eliminarUser() {
+
+        int filaSeleccionada = table.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Seleccione un usuario para eliminar.",
+                "Ninguna selección",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro que desea eliminar este usuario?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
+        int id = idNum.intValue();
+
+        control.borrarUsuario(id);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Usuario borrado correctamente.",
+                "Eliminación exitosa",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+
+        cargarTabla();
+    }
+    
+    
+    private void modificarUser() {
+
+        int fila = table.getSelectedRow();
+
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un usuario.");
+            return;
+        }
+
+        int id = ((Number) table.getValueAt(fila, 0)).intValue();
+
+        Usuario user = control.findUsuario(id);
+
+        AltaEmpleados dialog =
+            new AltaEmpleados(ventana, true, user, this::cargarTabla);
+
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }

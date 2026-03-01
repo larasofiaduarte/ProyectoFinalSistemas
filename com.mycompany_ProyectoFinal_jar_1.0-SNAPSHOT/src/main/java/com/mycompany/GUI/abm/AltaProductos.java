@@ -2,7 +2,9 @@
 package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Proveedor;
 import com.mycompany.proyectofinal.Usuario;
 import java.awt.*;
@@ -16,7 +18,9 @@ public class AltaProductos extends JDialog{
     Controladora control = new Controladora();
     private Runnable onSave;
     Proveedor provSelec;
+    private Producto prodEditar;
 
+    //MODO ALTA
     public AltaProductos(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
@@ -25,11 +29,40 @@ public class AltaProductos extends JDialog{
         
         obtenerProveedores(); // carga cbo
         
+        
         //UI
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
         
+        initUI();
+        
+        btnAlta.addActionListener(e -> guardarProducto());
+        
+    }
+    
+    // MODO MODIFICAR
+    public AltaProductos(Frame parent, boolean modal, Producto prod, Runnable onSave) {
+        super(parent, modal);
+        initComponents();
+        this.prodEditar = prod;
+        this.onSave = onSave;
+        obtenerProveedores();
+        cargarDatosProducto(); // cargar datos en los campos
+        
+        //UI
+        Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
+        panelBtns.add(btnAlta);
+        
+        initUI();
+        
+        btnAlta.addActionListener(e -> guardarProducto());
+    }
+    
+    //BOTONES
+    private void initUI(){
+    
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnLimpiar);
@@ -77,40 +110,42 @@ public class AltaProductos extends JDialog{
                     dispose();
                 }
         });
-        
-        
-        
-        
-        btnAlta.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String nombre = txtNombre.getText();
-                    Double stock = Double.parseDouble(txtStock.getText());;
-                    String minimo = txtMinimo.getText();
-                    
-                    String prov = (String) cboProv.getSelectedItem();
-                    provSelec = guardarProveedor(prov);
-                    
-                    
-                    
-                    if (validarCampos()){
-                        if (provSelec == null) {
-                            JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, seleccione un proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return; // Exit the action if prov does not exist
-                        }else{
-                            control.guardarProducto(nombre, stock, minimo, provSelec);
-                            JOptionPane.showMessageDialog(null, "Producto guardado correctamente.", "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
-                            if (onSave != null) {
-                            onSave.run();   // 👈 refresh table
-                        }
-                            dispose();
-                        }
-                        
-                    }
+    }
+    
+    private void guardarProducto() {
 
+        String nombre = txtNombre.getText();
+        Double stock = Double.parseDouble(txtStock.getText());;
+        String minimo = txtMinimo.getText();
+                    
+        String prov = (String) cboProv.getSelectedItem();
+        provSelec = guardarProveedor(prov);
+                    
+                    
+                    
+        if (validarCampos()){
+            if (provSelec == null) {
+                JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, seleccione un proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit the action if prov does not exist
+            }else{
+                control.guardarProducto(nombre, stock, minimo, provSelec);
+                JOptionPane.showMessageDialog(null, "Producto guardado correctamente.", "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
+                if (onSave != null) {
+                    onSave.run();   // 👈 refresh table
                 }
-        });
-        
+                dispose();
+            }
+                        
+        }
+
+    }
+    
+    private void cargarDatosProducto() {
+        txtNombre.setText(prodEditar.getNombre());
+        String stock = Double.toString(prodEditar.getStock());
+        txtStock.setText(stock);
+        txtMinimo.setText(prodEditar.getMinimo());
+        cboProv.setSelectedItem(prodEditar.getProveedor()); // trae obj Proveedor, usar metodo de crontrol para buscar prov por nombre
     }
 
     @SuppressWarnings("unchecked")

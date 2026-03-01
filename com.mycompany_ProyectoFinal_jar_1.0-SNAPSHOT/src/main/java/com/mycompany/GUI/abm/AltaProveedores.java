@@ -3,7 +3,9 @@ package com.mycompany.GUI.abm;
 
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Proveedor;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
@@ -14,7 +16,9 @@ public class AltaProveedores extends JDialog {
     
     Controladora control = new Controladora();
     private Runnable onSave;
+    private Proveedor provEditar;
     
+    //MODO ALTA 
     public AltaProveedores(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
@@ -32,6 +36,55 @@ public class AltaProveedores extends JDialog {
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelSouth.add(btnAlta);
+        
+        initUI();
+        
+        btnAlta.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String nombre = txtNombre.getText();
+                    String telefono = txtTelefono.getText();
+                    String email = txtCorreo.getText();
+                    String web = txtWeb.getText();
+                    
+                    if(txtNombre.getText() != null && !txtNombre.getText().isEmpty()){
+                        control.guardarProveedor(nombre, telefono, email, web);
+                        JOptionPane.showMessageDialog(null, "Proveedor guardado correctamente.", "Proveedor guardado.", JOptionPane.INFORMATION_MESSAGE);
+                        if (onSave != null) {
+                            onSave.run();   // 👈 refresh table
+                        }
+                        dispose();
+                    
+                    }else{
+                    JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+                        
+                    }
+                    
+                    
+                }
+        });
+        
+    }
+    
+    // MODO MODIFICAR
+    public AltaProveedores(Frame parent, boolean modal, Proveedor prov, Runnable onSave) {
+        super(parent, modal);
+        initComponents();
+        this.provEditar = prov;
+        this.onSave = onSave;
+
+        cargarDatosProveedor(); // cargar datos en los campos
+        
+        Btn btnAlta = Btn.primary("Guardar");
+        btnAlta.setPreferredSize(Styles.btnSizeSm);
+        panelSouth.add(btnAlta);
+        btnAlta.addActionListener(e -> guardarProveedor());
+        
+        initUI();
+    }
+
+    //BOTONES UI 
+    private void initUI(){
         
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
@@ -74,33 +127,40 @@ public class AltaProveedores extends JDialog {
                 }
         });
         
-        btnAlta.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String nombre = txtNombre.getText();
+       
+    }
+    
+    //btn Alta event
+     private void guardarProveedor() {
+
+        String nombre = txtNombre.getText();
                     String telefono = txtTelefono.getText();
                     String email = txtCorreo.getText();
                     String web = txtWeb.getText();
-                    
-                    if(txtNombre.getText() != null && !txtNombre.getText().isEmpty()){
-                        control.guardarProveedor(nombre, telefono, email, web);
-                        JOptionPane.showMessageDialog(null, "Proveedor guardado correctamente.", "Proveedor guardado.", JOptionPane.INFORMATION_MESSAGE);
-                        if (onSave != null) {
-                            onSave.run();   // 👈 refresh table
-                        }
-                        dispose();
-                    
-                    }else{
-                    JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-                        
-                    }
-                    
-                    
-                }
-        });
+
+        if (provEditar == null) {
+            // MODO ALTA
+            control.guardarProveedor(nombre, telefono, email, web);
+            JOptionPane.showMessageDialog(this, "Proveedor guardado correctamente.");
+        } else {
+            //MODO MODIFICAR
+            control.modificarProveedor(provEditar, nombre, telefono, email, web);
+            JOptionPane.showMessageDialog(this, "Proveedor modificado correctamente.");
+        }
+
+        onSave.run();
+        dispose();
+    }
+     
+     private void cargarDatosProveedor() {
+        txtNombre.setText(provEditar.getNombre());
+        txtTelefono.setText(provEditar.getTelefono());
+        txtCorreo.setText(provEditar.getEmail());
+        txtWeb.setText(provEditar.getWebsite());
         
     }
-
+     
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -173,20 +233,21 @@ public class AltaProveedores extends JDialog {
             panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelCenterLayout.createSequentialGroup()
                 .addGap(57, 57, 57)
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                    .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)))
                 .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelCenterLayout.createSequentialGroup()
-                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
                         .addGap(42, 42, 42)
                         .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtCorreo, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(panelCenterLayout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCenterLayout.createSequentialGroup()
+                        .addGap(41, 41, 41)
                         .addComponent(txtWeb, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(129, Short.MAX_VALUE))
         );
