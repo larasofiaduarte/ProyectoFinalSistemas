@@ -31,7 +31,7 @@ public class TitlePanel extends JPanel implements Theme {
         setBorder(Styles.padding);
 
         topPanel = new JPanel(new BorderLayout());
-        bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
 
         add(topPanel, BorderLayout.NORTH);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -43,21 +43,26 @@ public class TitlePanel extends JPanel implements Theme {
 
         // Filters panel
         filterPanel = new JPanel();
-        bottomPanel.add(filterPanel, BorderLayout.WEST);
+        //bottomPanel.add(filterPanel);
         bottomPanel.setBorder(Styles.searchPadding);
         
         //report btn
         btnReport = new ReportBtn();
 
-        reportPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
-        bottomPanel.add(reportPanel);
-        reportPanel.add(btnReport);
+        //reportPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        
+        
+        btnReport.setPreferredSize(new Dimension(40, 40));
+        btnReport.setMinimumSize(new Dimension(40, 40));
+        btnReport.setMaximumSize(new Dimension(40, 40));
+        //reportPanel.add(btnReport);
+        
+        bottomPanel.add(btnReport);
         
         // Search field
         search = new SearchBar("Buscar");
         search.setPreferredSize(new Dimension(260, 40));
-        bottomPanel.add(search, BorderLayout.EAST);
+        bottomPanel.add(search);
 
         search.addFocusListener(new FocusAdapter() {
             @Override
@@ -118,5 +123,7 @@ public class TitlePanel extends JPanel implements Theme {
         repaint();
     }
     
-    
+    public void addReportButtonListener(ActionListener listener) {
+        btnReport.addActionListener(listener);
+    }
 }

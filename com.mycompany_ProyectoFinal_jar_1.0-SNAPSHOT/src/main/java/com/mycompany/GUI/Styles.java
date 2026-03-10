@@ -81,7 +81,7 @@ public class Styles {
         //button colors
         btnSec = new Color(255, 255, 255); //Pure White
         btnSecBorder = new Color(148, 148, 148); //Dark grey
-        btnSecFontCol = new Color(148,148,148);
+        btnSecFontCol = new Color(105,10,148);
         btnSecHover = new Color(246, 240, 252);
         btnSecBorHov = new Color (245,245,245);
         
@@ -97,6 +97,9 @@ public class Styles {
         UIManager.put("OptionPane.messageForeground", fontDark);
         UIManager.put("Button.background", bgLight);
         UIManager.put("Button.foreground", fontDark);
+        UIManager.put("ReportBtn.background", bgDark);
+        UIManager.put("ReportBtn.backgroundHover", bgDarkHover);
+        UIManager.put("ReportBtn.iconColor", fontLight);
     
     }
     
@@ -140,6 +143,9 @@ public class Styles {
         UIManager.put("OptionPane.messageForeground", fontLight);
         UIManager.put("Button.background", bgLight);
         UIManager.put("Button.foreground", fontDark);
+        UIManager.put("ReportBtn.background", bgLight);
+        UIManager.put("ReportBtn.backgroundHover", bgDisabledField);
+        UIManager.put("ReportBtn.iconColor", fontDark);
     }
     
     
@@ -151,7 +157,7 @@ public class Styles {
     //padding  (top, left, bottom, right)
     public static final EmptyBorder padding = new EmptyBorder(50, 20, 0, 0);
     public static final EmptyBorder btnPanelPadding = new EmptyBorder(30, 0, 30, 0);
-    public static final EmptyBorder searchPadding = new EmptyBorder(10, 0, 10, 0);
+    public static final EmptyBorder searchPadding = new EmptyBorder(10, 10, 10, 0);
 
     //font
     public static Font customFontMd;

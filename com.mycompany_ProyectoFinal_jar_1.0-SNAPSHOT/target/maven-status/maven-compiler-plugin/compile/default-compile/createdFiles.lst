@@ -77,6 +77,7 @@ com\mycompany\GUI\abm\AltaCaja.class
 com\mycompany\GUI\abm\AltaProductos$4.class
 com\mycompany\persistencia\ClienteJpaController.class
 com\mycompany\GUI\abm\AltaTurnos.class
+com\mycompany\proyectofinal\ReportManager.class
 com\mycompany\proyectofinal\Servicio.class
 com\mycompany\proyectofinal\ServicioProducto.class
 com\mycompany\proyectofinal\EmailVerifier.class

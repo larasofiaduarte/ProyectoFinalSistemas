@@ -37,6 +37,7 @@ public class AltaCaja extends JDialog {
         
         btnAlta.addActionListener(e -> guardarCaja());
         
+        
     }
     
     // MODO MODIFICAR
@@ -398,6 +399,7 @@ public class AltaCaja extends JDialog {
         onSave.run();
         dispose();
     }
+    
 
 
 

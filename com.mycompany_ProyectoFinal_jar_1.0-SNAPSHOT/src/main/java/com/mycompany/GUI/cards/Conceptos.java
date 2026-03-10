@@ -11,7 +11,27 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.*;
 import com.mycompany.proyectofinal.Controladora;
+import java.io.File;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
+import javax.persistence.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import java.io.File;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 public class Conceptos extends MainPanelBase {
 
@@ -34,6 +54,9 @@ public class Conceptos extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaCaja());
         btnElim.addActionListener(e -> eliminarConcepto());
         btnEdit.addActionListener(e-> modificarConcepto());
+        
+        titlePanel.addReportButtonListener(e -> generarReport());
+        
     }
     
     private void cargarTabla(){
@@ -134,4 +157,11 @@ public class Conceptos extends MainPanelBase {
     public void applyTheme() {
         super.applyTheme();
     }
-}
+    
+
+    private void generarReport() {
+        ReportManager.generateReport(this, "clientes.jrxml", null, "ListaClientes.pdf");
+    }
+}  
+ 
+

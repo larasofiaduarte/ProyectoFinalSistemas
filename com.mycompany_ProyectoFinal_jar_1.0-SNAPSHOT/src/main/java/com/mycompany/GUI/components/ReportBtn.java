@@ -19,44 +19,48 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import javax.swing.JButton;
+import javax.swing.UIManager;
 
 public class ReportBtn extends JButton {
 
     private int cornerRadius = 25;
-    private boolean hasBorder = false;
+    private boolean hasBorder = true;
+    
 
     public ReportBtn() {
         setToolTipText("Generar reporte");
         
-        FlatSVGIcon icon = new FlatSVGIcon("images/report.svg", 20, 20);
-        icon.setColorFilter(new FlatSVGIcon.ColorFilter(color -> Color.WHITE));
-        setIcon(icon);
 
         setFocusPainted(false);
 
         // important for custom painting
         setContentAreaFilled(false);
-        setBorderPainted(false);
+        //setBorderPainted(false);
         setOpaque(false);
 
-        setBackground(Styles.bgDark);
 
         setPreferredSize(new Dimension(40, 40));
         setMinimumSize(new Dimension(40, 40));
         setMaximumSize(new Dimension(40, 40));
+        
+        
+
+        
+        applyTheme();
+        updateUI();
+        
+
 
         // hover
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                setBackground(Styles.bgDarkHover);
-                repaint();
+               setBackground(UIManager.getColor("ReportBtn.backgroundHover"));
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                setBackground(Styles.bgDark);
-                repaint();
+                setBackground(UIManager.getColor("ReportBtn.background"));
             }
         });
     }
@@ -85,19 +89,42 @@ public class ReportBtn extends JButton {
     }
 
     @Override
-    protected void paintBorder(Graphics g) {
+protected void paintBorder(Graphics g) {
 
-        if (hasBorder) {
-            Graphics2D g2 = (Graphics2D) g.create();
+    if (hasBorder) {
+        Graphics2D g2 = (Graphics2D) g.create();
 
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2.setColor(getForeground());
-            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1,
-                    cornerRadius, cornerRadius);
+        g2.setColor(Color.WHITE); // borde blanco
+        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1,
+                cornerRadius, cornerRadius);
 
-            g2.dispose();
+        g2.dispose();
+    }
+}
+    private void applyTheme() {
+
+        Color bg = UIManager.getColor("ReportBtn.background");
+        Color iconColor = UIManager.getColor("ReportBtn.iconColor");
+
+        setBackground(bg);
+
+        FlatSVGIcon icon = new FlatSVGIcon("images/report.svg", 20, 20);
+        icon.setColorFilter(new FlatSVGIcon.ColorFilter(c -> iconColor));
+        setIcon(icon);
+        System.out.println(UIManager.getColor("ReportBtn.background"));
+        
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+
+        if (UIManager.getLookAndFeel() != null) {
+            applyTheme();
         }
     }
+    
 }
