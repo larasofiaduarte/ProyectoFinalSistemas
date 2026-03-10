@@ -23,6 +23,8 @@ public class TitlePanel extends JPanel implements Theme {
     private JPanel bottomPanel;
     private JPanel filterPanel;
     private JLabel lblTitle;
+    private JPanel reportPanel;
+    private ReportBtn btnReport;
 
     public TitlePanel(String title) {
         setLayout(new BorderLayout());
@@ -43,7 +45,15 @@ public class TitlePanel extends JPanel implements Theme {
         filterPanel = new JPanel();
         bottomPanel.add(filterPanel, BorderLayout.WEST);
         bottomPanel.setBorder(Styles.searchPadding);
+        
+        //report btn
+        btnReport = new ReportBtn();
 
+        reportPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        bottomPanel.add(reportPanel);
+        reportPanel.add(btnReport);
+        
         // Search field
         search = new SearchBar("Buscar");
         search.setPreferredSize(new Dimension(260, 40));

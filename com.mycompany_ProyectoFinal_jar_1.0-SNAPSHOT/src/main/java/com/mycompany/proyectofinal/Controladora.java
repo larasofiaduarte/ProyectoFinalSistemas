@@ -26,7 +26,7 @@ public class Controladora {
         for (Usuario usu : listaUsuarios) {
             if (usu.getUsername().equals(user) &&
                 usu.getPassword().equals(pass)) {
-                loggedUser = usu; 
+                Session.setCurrentUser(usu);
                 return true; // Termina el Loop al encontrar un usuario en la BD que coincide con el user y pass ingresados en login form
             }
         }
@@ -97,6 +97,7 @@ public class Controladora {
             return controlPersis.doesUsernameExist(username);
     }
     
+ 
     public void resetPassword(String user, String newPass) {
         controlPersis.resetPassword(user, newPass);
     }
@@ -210,7 +211,7 @@ public class Controladora {
     }
     //PRODUCTO
     //ALTA
-    public void guardarProducto(String nombre, double stock, String minimo, Proveedor proveedor){
+    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor){
         Producto nuevoProducto = new Producto();
         
         nuevoProducto.setNombre(nombre);
@@ -254,7 +255,7 @@ public class Controladora {
         return controlPersis.findProducto(numProducto);
     }
     //MODIF
-    public void modificarProducto(Producto prod, String nombre, double stock, String minimo, Proveedor proveedor) {
+    public void modificarProducto(Producto prod, String nombre, double stock, double minimo, Proveedor proveedor) {
         prod.setMinimo(minimo);
         prod.setStock(stock);
         prod.setNombre(nombre);
@@ -380,7 +381,7 @@ public class Controladora {
 
     //CAJA
         //ALTA
-        public void guardarConcepto(String tipo, String monto, String medio,LocalDateTime fecha, String detalle){
+        public void guardarConcepto(String tipo, Double monto, String medio,LocalDateTime fecha, String detalle){
         Caja nuevoConcepto = new Caja();
         
         nuevoConcepto.setTipo(tipo);
@@ -413,7 +414,7 @@ public class Controladora {
         }
         
         //EDIT
-        public void modificarConcepto(Caja concepto, String tipo, String monto, String medio, String detalle) {
+        public void modificarConcepto(Caja concepto, String tipo, double monto, String medio, String detalle) {
             concepto.setDetalle(detalle);
             concepto.setMedio(medio);
             concepto.setMonto(monto);

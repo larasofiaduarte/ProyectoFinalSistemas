@@ -5,6 +5,8 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.EmailVerifier;
+import com.mycompany.proyectofinal.NumberVerifier;
 import com.mycompany.proyectofinal.Proveedor;
 import javax.swing.*;
 import java.awt.event.*;
@@ -86,6 +88,9 @@ public class AltaProveedores extends JDialog {
     //BOTONES UI 
     private void initUI(){
         
+        
+        txtCorreo.setInputVerifier(new EmailVerifier());
+
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelSouth.add(btnLimpiar);
@@ -98,17 +103,8 @@ public class AltaProveedores extends JDialog {
         jPanel1.setBackground(Styles.bgLight);
         panelSouth.setBackground(Styles.bgLight);
         
-        //txtCorreo.setInputVerifier(new EmailVerifier());
         
-        txtTelefono.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
+        txtTelefono.addKeyListener(new NumberVerifier());
         
         btnCerrar.addActionListener(new ActionListener() {
                 @Override
@@ -132,6 +128,13 @@ public class AltaProveedores extends JDialog {
     
     //btn Alta event
      private void guardarProveedor() {
+         if (txtNombre.getText().trim().isEmpty()){
+             JOptionPane.showMessageDialog(this, "Debe asignar un nombre al Proveedor.");
+             return;
+         }
+         if (!txtCorreo.getInputVerifier().verify(txtCorreo)) {
+            return;
+        }
 
         String nombre = txtNombre.getText();
                     String telefono = txtTelefono.getText();
@@ -151,6 +154,8 @@ public class AltaProveedores extends JDialog {
         onSave.run();
         dispose();
     }
+     
+     
      
      private void cargarDatosProveedor() {
         txtNombre.setText(provEditar.getNombre());

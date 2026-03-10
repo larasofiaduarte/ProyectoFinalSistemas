@@ -116,6 +116,17 @@ public class AltaServicios extends JDialog {
                 }
         });
         
+        txtPrecio.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+
+                if (!Character.isDigit(c) && c != '.' && c != ',' && c != '\b') {
+                    e.consume();
+                }
+            }
+        });
+        
     }
     
     
@@ -284,13 +295,15 @@ public class AltaServicios extends JDialog {
 }
 
     private boolean validarCampos() {
-        if (cboEmpleados.getSelectedItem()== null || 
+        if (
             txtNombre.getText().isEmpty() || 
             txtPrecio.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return false; // Indicate validation failure
         }
+        
+        
         return true; // Indicate validation success
     }
     
@@ -318,6 +331,7 @@ public class AltaServicios extends JDialog {
                     break;
                 }
         }
+        
 
         
         if (usuarioSeleccionado != null) {
@@ -344,6 +358,7 @@ public class AltaServicios extends JDialog {
 
     }
 }
+    
     
    private boolean validarProductos() {
 
@@ -401,13 +416,24 @@ public class AltaServicios extends JDialog {
         servicio = servEditar;
         servicio.getProductos().clear(); // importante en edición
     }
-
-    servicio.setNombre(txtNombre.getText());
-    servicio.setPrecio(txtPrecio.getText());
-
-    String empleado = (String) cboEmpleados.getSelectedItem();
-    empleadoSelec = guardarEmpleado(empleado);
-    servicio.setEmpleado(empleadoSelec);
+    
+    //validar precio
+    double precio;
+    
+        try {
+            precio = Double.parseDouble(txtPrecio.getText().replace(",", "."));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Ingrese un número válido.");
+            return; // ← aquí estaba el problema
+        }
+        servicio.setNombre(txtNombre.getText());
+        servicio.setPrecio(precio);
+        if (cboEmpleados.getSelectedItem() != null) {
+            String empleado = (String) cboEmpleados.getSelectedItem();
+            empleadoSelec = guardarEmpleado(empleado);
+            servicio.setEmpleado(empleadoSelec);
+        }
+        
 
     for (int i = 0; i < modeloProductos.getRowCount(); i++) {
 
@@ -448,9 +474,38 @@ public class AltaServicios extends JDialog {
     
     private void cargarDatosServicio() {
         txtNombre.setText(servEditar.getNombre());
-        txtPrecio.setText(servEditar.getPrecio());
-        //cbo empleado
+        String precio = String.valueOf(servEditar.getPrecio());
+        txtPrecio.setText(precio);
+        /// seleccionar empleado en el combo
+        if (servEditar.getEmpleado() != null) {
+            String nombreEmpleado = servEditar.getEmpleado().getNombre();
+
+            for (int i = 0; i < cboEmpleados.getItemCount(); i++) {
+                String item = cboEmpleados.getItemAt(i);
+
+                if (item.equals(nombreEmpleado)) {
+                    cboEmpleados.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
         //tabla productos
+        List<ServicioProducto> lista = servEditar.getProductos();
+
+        for (ServicioProducto sp : lista) {
+
+            for (int i = 0; i < modeloProductos.getRowCount(); i++) {
+
+                Producto prodTabla = (Producto) modeloProductos.getValueAt(i, 1);
+
+                if (prodTabla.getId() == sp.getProducto().getId()) {
+
+                    modeloProductos.setValueAt(true, i, 0); // checkbox
+                    //modeloProductos.setValueAt(sp.getCantidad(), i, 2); // cantidad, actualmente se resetea a 0, implementar fix
+                    break;
+                }
+            }
+        }
         
     }
 

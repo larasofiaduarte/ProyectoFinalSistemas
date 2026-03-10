@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import com.mycompany.GUI.Styles;
 import java.util.List;
-
+import com.mycompany.GUI.components.ReportBtn;
 import com.mycompany.GUI.components.*;
 import java.util.function.Function;
 
@@ -20,6 +20,7 @@ public abstract class MainPanelBase extends JPanel {
     protected Btn btnAlta;
     protected Btn btnEdit;
     protected Btn btnElim;
+    protected ReportBtn btnReport;
     
     // Table elements
     protected JTable table;

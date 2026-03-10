@@ -8,10 +8,12 @@ C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\MenuButton.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\Styles.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\ClienteJpaController.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\Session.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\Producto.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\Controladora.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\CajaJpaController.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\exceptions\IllegalOrphanException.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\EmailVerifier.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Inventario.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\ProyectoFinal.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\Servicio.java
@@ -45,6 +47,7 @@ C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\persistencia\ControladoraPersistencia.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\CustomTableModel.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\TitlePanel.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\ReportBtn.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\cards\Turnos.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\SearchBar.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\TopMenu.java
@@ -55,3 +58,4 @@ C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\Ventana.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\components\ThemeToggle.java
 C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\GUI\abm\AltaEmpleados.java
+C:\Users\duart\OneDrive\Desktop\ProyectoFinal\com.mycompany_ProyectoFinal_jar_1.0-SNAPSHOT\src\main\java\com\mycompany\proyectofinal\NumberVerifier.java

@@ -272,6 +272,7 @@ import javax.swing.border.EmptyBorder;
 
 
         if (control != null && control.validarUsuario(user, pass)) {
+            
             loginExitoso = true; 
             dispose();
         } else {

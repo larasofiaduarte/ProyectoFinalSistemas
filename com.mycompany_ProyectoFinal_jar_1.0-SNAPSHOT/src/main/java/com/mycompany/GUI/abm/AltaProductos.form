@@ -156,7 +156,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel4">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Proveedor*"/>
+                <Property name="text" type="java.lang.String" value="Proveedor"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JTextField" name="txtStock">

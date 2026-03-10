@@ -21,7 +21,7 @@ public class Caja implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String tipo;
-    private String monto;
+    private Double monto;
     private String medio;
     private String detalle;
     private LocalDateTime fecha;
@@ -50,11 +50,11 @@ public class Caja implements Serializable {
         this.tipo = tipo;
     }
 
-    public String getMonto() {
+    public double getMonto() {
         return monto;
     }
 
-    public void setMonto(String monto) {
+    public void setMonto(double monto) {
         this.monto = monto;
     }
 

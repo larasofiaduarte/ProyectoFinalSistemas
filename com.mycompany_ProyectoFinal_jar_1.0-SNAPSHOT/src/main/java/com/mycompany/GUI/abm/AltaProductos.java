@@ -115,8 +115,8 @@ public class AltaProductos extends JDialog{
     private void guardarProducto() {
 
         String nombre = txtNombre.getText();
-        Double stock = Double.parseDouble(txtStock.getText());;
-        String minimo = txtMinimo.getText();
+        Double stock = Double.parseDouble(txtStock.getText());
+        Double minimo = Double.parseDouble(txtMinimo.getText());
                     
         String prov = (String) cboProv.getSelectedItem();
         provSelec = guardarProveedor(prov);
@@ -143,8 +143,9 @@ public class AltaProductos extends JDialog{
     private void cargarDatosProducto() {
         txtNombre.setText(prodEditar.getNombre());
         String stock = Double.toString(prodEditar.getStock());
+        String minimo = Double.toString(prodEditar.getMinimo());
         txtStock.setText(stock);
-        txtMinimo.setText(prodEditar.getMinimo());
+        txtMinimo.setText(minimo);
         cboProv.setSelectedItem(prodEditar.getProveedor()); // trae obj Proveedor, usar metodo de crontrol para buscar prov por nombre
     }
 
@@ -180,7 +181,7 @@ public class AltaProductos extends JDialog{
 
         jLabel3.setText("Stock Minimo*");
 
-        jLabel4.setText("Proveedor*");
+        jLabel4.setText("Proveedor");
 
         txtStock.setBackground(new java.awt.Color(242, 242, 242));
         txtStock.setForeground(new java.awt.Color(102, 102, 102));
@@ -287,7 +288,7 @@ public class AltaProductos extends JDialog{
 
     
     private boolean validarCampos() {
-        if (cboProv.getSelectedItem()== null  ||
+        if (
                 txtMinimo.getText().isEmpty() ||
                 txtStock.getText().isEmpty()||
                 txtNombre.getText().isEmpty()) {

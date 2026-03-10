@@ -22,7 +22,7 @@ public class Producto implements Serializable {
     private int id;
     private String nombre;
     private double stock;
-    private String minimo;
+    private double minimo;
     @JoinColumn(name="idProveedor")
     private Proveedor Proveedor;
 
@@ -50,11 +50,11 @@ public class Producto implements Serializable {
         this.stock = stock;
     }
 
-    public String getMinimo() {
+    public double getMinimo() {
         return minimo;
     }
 
-    public void setMinimo(String minimo) {
+    public void setMinimo(double minimo) {
         this.minimo = minimo;
     }
 

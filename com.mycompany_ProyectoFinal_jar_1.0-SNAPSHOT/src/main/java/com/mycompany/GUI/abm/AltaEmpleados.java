@@ -6,6 +6,7 @@ import java.awt.Font;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.NumberVerifier;
 import com.mycompany.proyectofinal.Usuario;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -82,6 +83,7 @@ public class AltaEmpleados extends JDialog {
     }
 
     private void initUI(){
+        
         panelBtns.setBorder(new EmptyBorder(0,70,15,0));
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
@@ -123,7 +125,9 @@ public class AltaEmpleados extends JDialog {
                     dispose();
                 }
         });
-         
+        
+        txtEmpTel.addKeyListener(new NumberVerifier());
+        txtDni.addKeyListener(new NumberVerifier());
     }
     
     private void cargarDatosUsuario() {
@@ -145,6 +149,23 @@ public class AltaEmpleados extends JDialog {
                     String apellido = txtEmpApe.getText();
                     String dni = txtDni.getText();
                     String tel = txtEmpTel.getText();
+            
+        // verificar si ya existe
+        if (userEditar == null) {
+
+            if (control.doesUsernameExist(user)) {
+                JOptionPane.showMessageDialog(this, "Ese username ya existe.");
+                return;
+            }
+
+        } else {
+
+            if (!userEditar.getUsername().equals(user) && control.doesUsernameExist(user)) {
+                JOptionPane.showMessageDialog(this, "Ese username ya existe.");
+                return;
+            }
+
+        }
 
         if (userEditar == null) {
             // MODO ALTA
@@ -389,7 +410,7 @@ public class AltaEmpleados extends JDialog {
     }//GEN-LAST:event_checkPassActionPerformed
 
     private boolean validarCampos() {
-        if (txtEmpUser.getText().isEmpty() || cboEmpRol.getSelectedItem() == null || 
+        if (txtEmpUser.getText().isEmpty() || cboEmpRol.getSelectedItem() == null || txtDni.getText().isEmpty() || 
            txtEmpNombre.getText().isEmpty() || txtEmpApe.getText().isEmpty() || txtEmpPass.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);

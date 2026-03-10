@@ -5,12 +5,12 @@ com\mycompany\GUI\components\SideMenu$1.class
 com\mycompany\proyectofinal\Controladora.class
 com\mycompany\persistencia\exceptions\IllegalOrphanException.class
 com\mycompany\GUI\components\TopMenu.class
-com\mycompany\GUI\abm\AltaProveedores$4.class
 com\mycompany\GUI\abm\AltaProveedores$1.class
 com\mycompany\persistencia\exceptions\PreexistingEntityException.class
 com\mycompany\proyectofinal\Caja_.class
 com\mycompany\GUI\abm\AltaTurnos$3.class
 com\mycompany\GUI\components\TitlePanel.class
+com\mycompany\GUI\components\ReportBtn$1.class
 com\mycompany\GUI\abm\AltaServicios$3.class
 com\mycompany\GUI\cards\Clientes.class
 com\mycompany\GUI\abm\AltaEmpleados$2.class
@@ -36,12 +36,14 @@ com\mycompany\GUI\components\SideMenu.class
 com\mycompany\persistencia\ControladoraPersistencia.class
 com\mycompany\GUI\abm\AltaClientes$1.class
 com\mycompany\GUI\Theme.class
+com\mycompany\proyectofinal\NumberVerifier.class
 com\mycompany\proyectofinal\Proveedor_.class
 com\mycompany\GUI\abm\AltaEmpleados$1.class
 com\mycompany\GUI\cards\Inventario.class
 com\mycompany\proyectofinal\Servicio_.class
 com\mycompany\persistencia\ProveedorJpaController.class
 com\mycompany\GUI\components\PassField.class
+com\mycompany\GUI\abm\AltaServicios$5.class
 com\mycompany\GUI\components\PassField$2.class
 com\mycompany\GUI\components\TxtField.class
 com\mycompany\proyectofinal\Proveedor.class
@@ -57,6 +59,7 @@ com\mycompany\GUI\login\Login$1.class
 com\mycompany\GUI\cards\Conceptos.class
 com\mycompany\GUI\abm\AltaEmpleados$3.class
 com\mycompany\persistencia\ProductoJpaController.class
+com\mycompany\GUI\components\ReportBtn.class
 com\mycompany\persistencia\CajaJpaController.class
 com\mycompany\persistencia\ServicioJpaController.class
 com\mycompany\GUI\components\TxtField$1.class
@@ -76,6 +79,7 @@ com\mycompany\persistencia\ClienteJpaController.class
 com\mycompany\GUI\abm\AltaTurnos.class
 com\mycompany\proyectofinal\Servicio.class
 com\mycompany\proyectofinal\ServicioProducto.class
+com\mycompany\proyectofinal\EmailVerifier.class
 com\mycompany\GUI\components\TxtField$2.class
 com\mycompany\GUI\components\TitlePanel$2.class
 com\mycompany\proyectofinal\Producto.class
@@ -86,7 +90,6 @@ com\mycompany\GUI\cards\Servicios.class
 com\mycompany\GUI\cards\Usuarios.class
 com\mycompany\GUI\abm\AltaCaja$2.class
 com\mycompany\GUI\abm\AltaServicios$1.class
-com\mycompany\GUI\abm\AltaTurnos$4.class
 com\mycompany\GUI\abm\AltaProductos$3.class
 com\mycompany\GUI\abm\AltaProveedores$2.class
 com\mycompany\GUI\components\ImagePanel.class
@@ -98,6 +101,7 @@ com\mycompany\proyectofinal\Usuario_.class
 com\mycompany\persistencia\exceptions\NonexistentEntityException.class
 com\mycompany\proyectofinal\Producto_.class
 com\mycompany\GUI\components\MenuButton$1.class
+com\mycompany\proyectofinal\Session.class
 com\mycompany\GUI\abm\AltaEmpleados$4.class
 com\mycompany\GUI\abm\AltaCaja$1.class
 com\mycompany\proyectofinal\Usuario.class

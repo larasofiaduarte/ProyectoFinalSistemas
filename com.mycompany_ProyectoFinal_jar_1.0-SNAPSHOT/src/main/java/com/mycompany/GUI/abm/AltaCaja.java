@@ -98,7 +98,7 @@ public class AltaCaja extends JDialog {
 
         txtMonto.setBackground(new java.awt.Color(242, 242, 242));
         txtMonto.setForeground(new java.awt.Color(102, 102, 102));
-        txtMonto.setText("1.000,00");
+        txtMonto.setText("1000,00");
         txtMonto.setBorder(null);
         txtMonto.setPreferredSize(new java.awt.Dimension(73, 30));
 
@@ -240,6 +240,7 @@ public class AltaCaja extends JDialog {
     }//GEN-LAST:event_cboMedioActionPerformed
 
     private void initUI(){
+        cboHora.setSelectedIndex(0);
     
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
@@ -253,13 +254,24 @@ public class AltaCaja extends JDialog {
         jPanel1.setBackground(Styles.bgLight);
         panelBtns.setBackground(Styles.bgLight);
         
+        txtMonto.setToolTipText("Formato: 1500,50");
+        
         txtMonto.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
+                String text = txtMonto.getText();
+
+                if (!Character.isDigit(c) && c != ',' && c != '.') {
+                    e.consume();
+                    return;
                 }
+
+                // evitar más de un separador decimal
+                if ((c == ',' || c == '.') && (text.contains(",") || text.contains("."))) {
+                    e.consume();
+                }
+                
             }
         });
         
@@ -284,11 +296,19 @@ public class AltaCaja extends JDialog {
     
     }
     private boolean validarCampos() {
-        if (txtMonto.getText().isEmpty() || cboTipo.getSelectedItem() == null || cboMedio.getSelectedItem() == null) {
+        if (txtMonto.getText().isEmpty() ||
+        cboTipo.getSelectedItem() == null ||
+        cboMedio.getSelectedItem() == null ||
+        cboHora.getSelectedItem() == null ||
+        dateChooser.getDate() == null) {
 
-            JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-            return false; // Indicate validation failure
-        }
+        JOptionPane.showMessageDialog(null,
+            "Por favor, complete todos los campos obligatorios.",
+            "Campos vacíos",
+            JOptionPane.WARNING_MESSAGE);
+
+        return false;
+    }
         return true; // Indicate validation success
     }
     
@@ -312,8 +332,10 @@ public class AltaCaja extends JDialog {
     }
     
     private void cargarDatosCaja() {
-        txtMonto.setText(cajaEditar.getMonto());
         txtDetalle.setText(cajaEditar.getDetalle());
+        
+        String montoString = String.valueOf(cajaEditar.getMonto());
+        txtMonto.setText(montoString);
         
         cboTipo.setSelectedItem(cajaEditar.getTipo());
         cboMedio.setSelectedItem(cajaEditar.getMedio());
@@ -337,27 +359,39 @@ public class AltaCaja extends JDialog {
     }
     
     private void guardarCaja() {
-
+        if (!validarCampos()){
+            return;
+        }
         String monto = txtMonto.getText();
         String detalle = txtDetalle.getText();
         String tipo = (String) cboTipo.getSelectedItem();
         String medio = (String) cboMedio.getSelectedItem();
+        double precio;
                     
         String hora = (String) cboHora.getSelectedItem();
         Date fecha = dateChooser.getDate();
                     
         LocalDateTime fechafinal = obtenerFecha(hora,fecha);
-                    
+        
+        
+        
+        try {
+            precio = Double.parseDouble(txtMonto.getText().replace(",", "."));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Ingrese un número válido.");
+            return;
+        }
 
         if (cajaEditar == null) {
             // MODO ALTA
-            control.guardarConcepto(tipo, monto, medio,fechafinal, detalle);
+            
+            control.guardarConcepto(tipo, precio, medio,fechafinal, detalle);
             JOptionPane.showMessageDialog(this, "Concepto creado correctamente.");
         } else {
             // MODO MODIFICAR
             cajaEditar.setFecha(fechafinal);
 
-            control.modificarConcepto(cajaEditar,tipo,monto,medio,detalle);
+            control.modificarConcepto(cajaEditar,tipo,precio,medio,detalle);
             JOptionPane.showMessageDialog(this, "Concepto modificado correctamente.");
         }
 

@@ -32,6 +32,7 @@ public class AltaTurnos extends JDialog {
 
     Controladora control = new Controladora();
     Servicio servicioSeleccionado;
+    Cliente clienteSeleccionado;
     private Runnable onSave;
     private Turno turnoEditar;
     
@@ -66,13 +67,31 @@ public class AltaTurnos extends JDialog {
         
         initUI();
 
-        //cargarDatosTurno(); // cargar datos en los campos
+        cargarDatosTurno(); // cargar datos en los campos
         btnAlta.addActionListener(e -> guardarTurno());
     }
     
     private void cargarDatosTurno(){
-        //cargar combobox
-    
+        cboServicio.setSelectedItem(turnoEditar.getServicio().getNombre());
+        cboEstado.setSelectedItem(turnoEditar.getEstado());
+        cboClientes.setSelectedItem(turnoEditar.getCliente().getNombre()+" "+turnoEditar.getCliente().getApellido());
+        txtDetalle.setText(turnoEditar.getDetalle());
+        
+        if (turnoEditar != null && turnoEditar.getFecha() != null) {
+
+            LocalDateTime fechaHora = turnoEditar.getFecha();
+
+            Date fecha = Date.from(
+                    fechaHora.atZone(ZoneId.systemDefault()).toInstant()
+            );
+
+            calendar.setDate(fecha);
+
+            String horaStr = fechaHora.toLocalTime()
+                    .format(DateTimeFormatter.ofPattern("HH:mm"));
+
+            cboHora.setSelectedItem(horaStr);
+        }
     
     }
     
@@ -80,17 +99,11 @@ public class AltaTurnos extends JDialog {
 
     try {
 
-        int idCliente = Integer.parseInt(txtCliente.getText());
-        Cliente clienteEnt = control.findCliente(idCliente);
+        String nombreCliente = (String) cboClientes.getSelectedItem();
         String servicioStr = (String) cboServicio.getSelectedItem();
         servicioSeleccionado = guardarServicio(servicioStr);
-        if (clienteEnt == null) {
-            JOptionPane.showMessageDialog(this,
-                    "Cliente no encontrado.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        clienteSeleccionado = guardarCliente(nombreCliente);
+        
 
         if (!validarCampos()) {
             return;
@@ -115,14 +128,14 @@ public class AltaTurnos extends JDialog {
 
         if (turnoEditar == null) {
             // 🔹 ALTA
-            control.guardarTurno(servicioSeleccionado, fechaFinal, clienteEnt, estado, detalle);
+            control.guardarTurno(servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
             JOptionPane.showMessageDialog(this,
                     "Turno guardado correctamente.",
                     "Alta exitosa",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
             // 🔹 MODIFICAR
-            control.modificarTurno(turnoEditar, servicioSeleccionado, fechaFinal, clienteEnt, estado, detalle);
+            control.modificarTurno(turnoEditar, servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
             JOptionPane.showMessageDialog(this,
                     "Turno modificado correctamente.",
                     "Modificación exitosa",
@@ -163,7 +176,6 @@ public class AltaTurnos extends JDialog {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         cboServicio = new javax.swing.JComboBox<>();
-        txtCliente = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         cboHora = new javax.swing.JComboBox<>();
         jLabel5 = new javax.swing.JLabel();
@@ -172,6 +184,7 @@ public class AltaTurnos extends JDialog {
         jLabel6 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtDetalle = new javax.swing.JTextArea();
+        cboClientes = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -214,12 +227,6 @@ public class AltaTurnos extends JDialog {
 
         jLabel3.setText("Fecha*");
 
-        txtCliente.setBackground(new java.awt.Color(242, 242, 242));
-        txtCliente.setForeground(new java.awt.Color(102, 102, 102));
-        txtCliente.setText("1");
-        txtCliente.setBorder(null);
-        txtCliente.setPreferredSize(new java.awt.Dimension(73, 30));
-
         jLabel4.setText("Horario*");
 
         cboHora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30" }));
@@ -255,11 +262,12 @@ public class AltaTurnos extends JDialog {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtCliente, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cboEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(calendar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(cboServicio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(cboServicio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(196, 196, 196)))
                 .addContainerGap(70, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -268,8 +276,8 @@ public class AltaTurnos extends JDialog {
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtCliente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(34, 34, 34)
+                    .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(38, 38, 38)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(cboServicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -289,7 +297,7 @@ public class AltaTurnos extends JDialog {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(92, Short.MAX_VALUE))
+                .addContainerGap(96, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel3, java.awt.BorderLayout.CENTER);
@@ -314,16 +322,8 @@ public class AltaTurnos extends JDialog {
         panelBtns.add(btnCerrar);
         
         obtenerServicios();
+        obtenerClientes();
         
-        txtCliente.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
-                }
-            }
-        });
         
         calendar.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -345,7 +345,7 @@ public class AltaTurnos extends JDialog {
         btnLimpiar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    txtCliente.setText("");
+                    cboClientes.setSelectedIndex(-1);
                     cboServicio.setSelectedIndex(-1);
                     cboHora.setSelectedIndex(-1);
                     calendar.setDate(new java.util.Date());
@@ -385,7 +385,7 @@ public class AltaTurnos extends JDialog {
     }
     
     private boolean validarCampos() {
-    if (txtCliente.getText().isEmpty() || 
+    if (cboClientes.getSelectedItem() == null  || 
         cboServicio.getSelectedItem() == null || 
         cboHora.getSelectedItem() == null || 
         cboEstado.getSelectedItem() == null || 
@@ -408,6 +408,15 @@ public class AltaTurnos extends JDialog {
             cboServicio.addItem(nombreServicio);  // Assuming the toString method is implemented in Servicio
         }
     }
+    //cargar clientes a cbo
+    public void obtenerClientes(){
+        List<Cliente> clientes = control.traerClientes();
+        for (Cliente cliente : clientes) {
+            String nombreCliente = (cliente.getNombre()+" " +cliente.getApellido());
+            cboClientes.addItem(nombreCliente);  // Assuming the toString method is implemented in Servicio
+        }
+    }
+    
     //encontrar servicio por nombre y guardar
     public Servicio guardarServicio(String ser){
         List<Servicio> servicios = control.traerServicios();
@@ -428,9 +437,30 @@ public class AltaTurnos extends JDialog {
             return null;
         }
     }
+    //encontrar cliente x nombre y guardar
+    public Cliente guardarCliente(String cli){
+        List<Cliente> clientes = control.traerClientes();
+        Cliente clienteSeleccionado = null;
+
+        // Loop through the list to find the Servicio object with the matching name
+        for (Cliente cliente : clientes) {
+            if ((cliente.getNombre()+" "+cliente.getApellido()).equals(cli)) {  // Compare the name of the service
+                clienteSeleccionado = cliente;
+                break;  // Stop the loop once the match is found
+            }
+        }
+
+        // If the service is found, you can now use 'servicioSeleccionado' for further operations
+        if (clienteSeleccionado != null) {
+            return clienteSeleccionado;
+        } else {
+            return null;
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser calendar;
+    private javax.swing.JComboBox<String> cboClientes;
     private javax.swing.JComboBox<String> cboEstado;
     private javax.swing.JComboBox<String> cboHora;
     private javax.swing.JComboBox<String> cboServicio;
@@ -445,7 +475,6 @@ public class AltaTurnos extends JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblCargaTurnos;
     private javax.swing.JPanel panelBtns;
-    private javax.swing.JTextField txtCliente;
     private javax.swing.JTextArea txtDetalle;
     // End of variables declaration//GEN-END:variables
 }

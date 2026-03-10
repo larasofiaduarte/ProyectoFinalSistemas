@@ -18,6 +18,7 @@ public class Usuarios extends MainPanelBase {
     private Ventana ventana;
     private Controladora control;
     private Usuario currentUser;
+    protected String currentRol;
 
     public Usuarios(Ventana ventana) {
         super("Empleados");
@@ -71,7 +72,6 @@ public class Usuarios extends MainPanelBase {
     }
     
     private void abrirAltaUser() {
-        
         AltaEmpleados dialog =
         new AltaEmpleados(ventana, true, this::cargarTabla);
         dialog.setLocationRelativeTo(this);
@@ -80,7 +80,16 @@ public class Usuarios extends MainPanelBase {
     
     
     private void eliminarUser() {
-
+        Usuario currentUser = Session.getCurrentUser();
+        if (currentUser == null || !currentUser.getRol().equals("ADMIN")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Solamente el administrador puede eliminar usuarios.",
+                    "Acceso denegado",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {

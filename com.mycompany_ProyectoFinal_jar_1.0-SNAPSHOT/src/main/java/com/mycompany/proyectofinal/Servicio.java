@@ -18,7 +18,7 @@ public class Servicio implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nombre;
-    private String precio;
+    private double precio;
     @OneToOne
     @JoinColumn(name="idEmpleado")
     private Usuario empleado; //idUsuario
@@ -59,11 +59,11 @@ public class Servicio implements Serializable {
         this.nombre = nombre;
     }
 
-    public String getPrecio() {
+    public double getPrecio() {
         return precio;
     }
 
-    public void setPrecio(String precio) {
+    public void setPrecio(double precio) {
         this.precio = precio;
     }
 
