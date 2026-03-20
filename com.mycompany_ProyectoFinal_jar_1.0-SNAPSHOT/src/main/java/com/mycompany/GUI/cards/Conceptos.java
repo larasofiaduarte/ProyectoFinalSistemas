@@ -160,7 +160,7 @@ public class Conceptos extends MainPanelBase {
     
 
     private void generarReport() {
-        ReportManager.generateReport(this, "clientes.jrxml", null, "ListaClientes.pdf");
+        ReportManager.generateReport(this, "caja.jrxml", null, "ListaConceptos.pdf");
     }
 }  
  

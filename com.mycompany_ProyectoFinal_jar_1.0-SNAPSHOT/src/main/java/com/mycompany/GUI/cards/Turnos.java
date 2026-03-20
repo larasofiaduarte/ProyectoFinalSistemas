@@ -10,6 +10,7 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.ReportManager;
 import com.mycompany.proyectofinal.Turno;
 import java.util.List;
 import java.util.function.Function;
@@ -38,7 +39,8 @@ public class Turnos extends MainPanelBase{
         btnAlta.addActionListener(e -> abrirAltaTurnos());
         btnElim.addActionListener(e -> eliminarTurno());
         btnEdit.addActionListener(e -> modificarTurno());
-
+        titlePanel.addReportButtonListener(e -> generarReport());
+        
     }
     
     
@@ -151,5 +153,9 @@ public class Turnos extends MainPanelBase{
     @Override
     public void applyTheme() {
         super.applyTheme();
+    }
+    
+    private void generarReport() {
+        ReportManager.generateReport(this, "turnos.jrxml", null, "ListaTurnos.pdf");
     }
 }

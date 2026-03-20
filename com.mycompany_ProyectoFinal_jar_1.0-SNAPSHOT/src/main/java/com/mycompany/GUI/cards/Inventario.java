@@ -11,6 +11,7 @@ import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.ReportManager;
 import java.util.function.Function;
 
 public class Inventario extends MainPanelBase {
@@ -37,6 +38,9 @@ public class Inventario extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaProducto());
         btnElim.addActionListener(e -> eliminarProducto());
         btnEdit.addActionListener(e -> modificarProducto());
+        
+        titlePanel.addReportButtonListener(e -> generarReport());
+        
     }
     
     private void cargarTabla(){
@@ -136,5 +140,9 @@ public class Inventario extends MainPanelBase {
     @Override
     public void applyTheme() {
         super.applyTheme();
+    }
+    
+    private void generarReport() {
+        ReportManager.generateReport(this, "inventario.jrxml", null, "ListaProductos.pdf");
     }
 }

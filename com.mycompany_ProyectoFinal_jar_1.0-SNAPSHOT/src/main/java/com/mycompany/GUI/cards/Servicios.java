@@ -12,6 +12,7 @@ import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.ReportManager;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
 import java.util.function.Function;
@@ -36,6 +37,9 @@ public class Servicios extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaServicio());
         btnElim.addActionListener(e -> eliminarServicio());
         btnEdit.addActionListener(e -> modificarServicio());
+        
+        titlePanel.addReportButtonListener(e -> generarReport());
+        
 
     }
     
@@ -164,5 +168,7 @@ public class Servicios extends MainPanelBase {
         super.applyTheme();
     }
     
-    
+    private void generarReport() {
+        ReportManager.generateReport(this, "servicios.jrxml", null, "ListaServicios.pdf");
+    }
 }

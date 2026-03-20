@@ -69,7 +69,7 @@ public class ReportManager {
 
             // 5. Open Save dialog
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Guardar Report Como");
+            fileChooser.setDialogTitle("Guardar Report");
             fileChooser.setSelectedFile(new File(defaultFileName));
             fileChooser.setFileFilter(new FileNameExtensionFilter("PDF", "pdf"));
 

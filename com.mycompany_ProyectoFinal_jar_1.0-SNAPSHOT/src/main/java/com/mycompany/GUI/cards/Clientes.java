@@ -36,6 +36,9 @@ public class Clientes extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaCliente());
         btnElim.addActionListener(e -> eliminarCliente());
         btnEdit.addActionListener(e -> modificarCliente());
+        
+        titlePanel.addReportButtonListener(e -> generarReport());
+        
     }
 
     private void cargarTabla() {
@@ -133,5 +136,9 @@ public class Clientes extends MainPanelBase {
     @Override
     public void applyTheme() {
         super.applyTheme();
+    }
+    
+    private void generarReport() {
+        ReportManager.generateReport(this, "clientes.jrxml", null, "ListaClientes.pdf");
     }
 }

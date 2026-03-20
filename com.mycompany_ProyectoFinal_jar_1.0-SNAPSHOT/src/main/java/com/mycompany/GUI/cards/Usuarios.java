@@ -38,10 +38,12 @@ public class Usuarios extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaUser());
         btnElim.addActionListener(e -> eliminarUser());
         btnEdit.addActionListener(e -> modificarUser());
+        
+        titlePanel.addReportButtonListener(e -> generarReport());
 
     }
     
-    private void cargarTabla(){
+    public void cargarTabla(){
         
         // data from DB
         java.util.List<Usuario> usuarios = control.traerUsuarios();
@@ -152,5 +154,9 @@ public class Usuarios extends MainPanelBase {
     @Override
     public void applyTheme() {
         super.applyTheme();
+    }
+    
+    private void generarReport() {
+        ReportManager.generateReport(this, "empleados.jrxml", null, "ListaEmpleados.pdf");
     }
 }

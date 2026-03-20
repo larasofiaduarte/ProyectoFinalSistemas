@@ -91,5 +91,14 @@ public class Ventana extends JFrame implements Navigator {
         });
     }
     
+    public void recargarUsuarios() {
+    for (Component c : cardPanel.getComponents()) {
+        if (c instanceof Usuarios u) {
+            u.cargarTabla();
+            break;
+        }
+    }
+}
+    
 }
 

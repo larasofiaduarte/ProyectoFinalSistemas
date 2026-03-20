@@ -12,6 +12,7 @@ import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Proveedor;
+import com.mycompany.proyectofinal.ReportManager;
 import java.util.List;
 import java.util.function.Function;
 
@@ -36,6 +37,7 @@ public class Proveedores extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaProveedor());
         btnElim.addActionListener(e -> eliminarProveedor());
         btnEdit.addActionListener(e -> editarProveedor());
+        titlePanel.addReportButtonListener(e -> generarReport());
     }
     
     private void cargarTabla(){
@@ -133,5 +135,9 @@ public class Proveedores extends MainPanelBase {
     @Override
     public void applyTheme() {
         super.applyTheme();
+    }
+    
+    private void generarReport() {
+        ReportManager.generateReport(this, "prov.jrxml", null, "ListaProveedores.pdf");
     }
 }

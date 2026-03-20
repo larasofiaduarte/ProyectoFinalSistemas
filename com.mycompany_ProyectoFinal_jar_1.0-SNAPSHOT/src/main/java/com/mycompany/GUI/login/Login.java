@@ -5,6 +5,8 @@
 package com.mycompany.GUI.login;
 
 import com.mycompany.GUI.Styles;
+import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.AltaEmpleados;
 import com.mycompany.GUI.components.TxtField;
 import com.mycompany.GUI.components.PassField;
 import com.mycompany.GUI.components.ImagePanel;
@@ -139,6 +141,9 @@ import javax.swing.border.EmptyBorder;
 
         // Action for login
         primaryBtn.addActionListener(e -> Login());
+        
+        //Action de registro
+        secondaryBtn.addActionListener(e -> Register());
 
         return panel;
     }
@@ -283,6 +288,24 @@ import javax.swing.border.EmptyBorder;
     
     public boolean isLoginExitoso() {
         return loginExitoso;
+    }
+    
+    public void Register() {
+        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
+
+        AltaEmpleados dialog = new AltaEmpleados(
+            parentFrame,
+            true,
+            () -> {
+                // find Ventana and tell it to reload
+                if (parentFrame instanceof Ventana v) {
+                    v.recargarUsuarios();
+                }
+            }
+        );
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
     
     //Reestablecer contraseña - abrir Ventana o dialog nueva
