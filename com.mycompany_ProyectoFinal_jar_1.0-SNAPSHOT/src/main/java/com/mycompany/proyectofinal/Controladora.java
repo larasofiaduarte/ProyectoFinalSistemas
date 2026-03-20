@@ -424,6 +424,13 @@ public class Controladora {
 
         }
     
+        public void finalizarTurno(Turno turno) {
+        controlPersis.finalizarTurno(turno);
+    }
     
-    
+        public void registrarIngresoEnCaja(Turno turno){
+            controlPersis.registrarIngresoEnCaja(turno);
+            
+        }
+        
 }

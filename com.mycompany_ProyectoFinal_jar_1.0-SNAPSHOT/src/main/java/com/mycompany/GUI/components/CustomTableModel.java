@@ -61,12 +61,12 @@ public class CustomTableModel<T> extends AbstractTableModel {
     }
 
     @Override
-    public void setValueAt(Object value, int row, int col) {
-        if (valueSetters[col] != null) {
-            valueSetters[col].accept(data.get(row), value);
-            fireTableCellUpdated(row, col);
-        }
-    }
+    
+public void setValueAt(Object value, int row, int col) {
+    if (valueSetters == null || valueSetters[col] == null) return;
+    valueSetters[col].accept(data.get(row), value);
+    fireTableCellUpdated(row, col);
+}
 
     @Override
     public boolean isCellEditable(int row, int col) {

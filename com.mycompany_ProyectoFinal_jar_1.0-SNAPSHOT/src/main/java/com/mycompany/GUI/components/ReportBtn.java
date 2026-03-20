@@ -114,7 +114,6 @@ protected void paintBorder(Graphics g) {
         FlatSVGIcon icon = new FlatSVGIcon("images/report.svg", 20, 20);
         icon.setColorFilter(new FlatSVGIcon.ColorFilter(c -> iconColor));
         setIcon(icon);
-        System.out.println(UIManager.getColor("ReportBtn.background"));
         
     }
 

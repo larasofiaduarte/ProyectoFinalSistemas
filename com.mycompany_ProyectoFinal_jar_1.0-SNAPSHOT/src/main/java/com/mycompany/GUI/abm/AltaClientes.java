@@ -285,9 +285,9 @@ public class AltaClientes extends JDialog {
             txtApellidoCli.getText().isEmpty() ) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-            return false; // Indicate validation failure
+            return false; //falla de validacion
         }
-        return true; // Indicate validation success
+        return true; // validacion correcta
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

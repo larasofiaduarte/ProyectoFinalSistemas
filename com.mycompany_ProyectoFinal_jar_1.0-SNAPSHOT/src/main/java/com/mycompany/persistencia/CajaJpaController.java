@@ -39,11 +39,11 @@ public class CajaJpaController implements Serializable {
             em = emf.createEntityManager();
             transaction = em.getTransaction();
             transaction.begin();
-            em.persist(caja);
+            em.persist(caja);  //JPA convierte esto internamente en un INSERT con prepared statement. El usuario nunca toca la query directamente.
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {
-                transaction.rollback();
+                transaction.rollback(); //con rollback en el catch. Transacciones con JPA. garantiza que si algo falla a mitad de una operación, los datos no quedan a medias.
             }
             throw new RuntimeException("Error cargando cliente", e);
         } finally {
@@ -57,7 +57,7 @@ public class CajaJpaController implements Serializable {
     public Caja findCaja(int id) {
         EntityManager em = emf.createEntityManager();
         try {
-            return em.find(Caja.class, id);
+            return em.find(Caja.class, id); //JPA busca por primary key usando parámetros internos
         } finally {
             em.close();
         }
@@ -70,7 +70,7 @@ public class CajaJpaController implements Serializable {
     public List<Caja> findCajaEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = emf.createEntityManager();
         try {
-            TypedQuery<Caja> query = em.createQuery("SELECT u FROM Caja u", Caja.class);
+            TypedQuery<Caja> query = em.createQuery("SELECT u FROM Caja u", Caja.class); //Esta query no recibe ningún input del usuario, es un SELECT fijo, no hay nada que inyectar.
             if (!all) {
                 query.setMaxResults(maxResults);
                 query.setFirstResult(firstResult);
@@ -96,7 +96,7 @@ public class CajaJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Error updating caja", e);
+            throw new RuntimeException("Error actualizando caja", e);
         } finally {
             if (em != null) {
                 em.close();
@@ -114,7 +114,7 @@ public class CajaJpaController implements Serializable {
             transaction = em.getTransaction();
             transaction.begin();
             Caja caja = em.getReference(Caja.class, id);
-            em.remove(caja);
+            em.remove(caja);        //Busca por primary key igual que find, protegido por JPA.
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {

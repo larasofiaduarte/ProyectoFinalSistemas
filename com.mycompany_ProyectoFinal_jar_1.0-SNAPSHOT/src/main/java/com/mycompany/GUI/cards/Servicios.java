@@ -169,6 +169,18 @@ public class Servicios extends MainPanelBase {
     }
     
     private void generarReport() {
-        ReportManager.generateReport(this, "servicios.jrxml", null, "ListaServicios.pdf");
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "servicios.jrxml", null, "ListaServicios", formato);
+        }
     }
 }

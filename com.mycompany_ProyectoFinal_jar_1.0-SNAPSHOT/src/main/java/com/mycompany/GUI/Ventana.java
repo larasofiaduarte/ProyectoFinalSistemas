@@ -25,7 +25,7 @@ public class Ventana extends JFrame implements Navigator {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBackground(Styles.bgLight);
 
-        //change layout of content pane, not frame
+        //cambia layout de contenido
         getContentPane().setLayout(new BorderLayout());
         
         
@@ -92,9 +92,18 @@ public class Ventana extends JFrame implements Navigator {
     }
     
     public void recargarUsuarios() {
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Usuarios u) {
+                u.cargarTabla();
+                break;
+            }
+        }
+    }
+    
+    public void recargarCaja() {
     for (Component c : cardPanel.getComponents()) {
-        if (c instanceof Usuarios u) {
-            u.cargarTabla();
+        if (c instanceof Conceptos caja) {
+            caja.cargarTabla();
             break;
         }
     }

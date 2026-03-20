@@ -14,6 +14,7 @@ import com.mycompany.proyectofinal.*;
 import java.util.List;
 import java.util.function.Function;
 import com.mycompany.proyectofinal.Cliente;
+import javax.swing.table.TableCellRenderer;
 
 
 public class Clientes extends MainPanelBase {
@@ -29,28 +30,23 @@ public class Clientes extends MainPanelBase {
     }
 
     private void initUI() {
-        // load table data
+        // cargar datos tabla
         cargarTabla();
 
-        // buttons
+        // events botones
         btnAlta.addActionListener(e -> abrirAltaCliente());
         btnElim.addActionListener(e -> eliminarCliente());
         btnEdit.addActionListener(e -> modificarCliente());
         
-        titlePanel.addReportButtonListener(e -> generarReport());
+        titlePanel.addReportButtonListener(e -> generarReport()); //btn report
         
     }
 
     private void cargarTabla() {
-
         List<Cliente> clientes = control.traerClientes();
 
         String[] columns = {
-            "ID",
-            "Nombre",
-            "Apellido",
-            "Teléfono",
-            "Género"
+            "ID", "Nombre", "Apellido", "Teléfono", "Género", "Historial"
         };
 
         List<Function<Cliente, Object>> getters = List.of(
@@ -58,21 +54,32 @@ public class Clientes extends MainPanelBase {
             c -> c.getNombre(),
             c -> c.getApellido(),
             c -> c.getTelefono(),
-            c -> c.getGenero()
+            c -> c.getGenero(),
+            c -> "Ver Turnos"
         );
 
-        setTableData(clientes, columns, getters);
+        // última columna true para que el botón sea clickeable
+        boolean[] editables = {false, false, false, false, false, true};
+
+        setTableData(clientes, columns, getters, editables);
+
+        SwingUtilities.invokeLater(() -> {
+            int colBoton = table.getColumnCount() - 1;
+            table.getColumnModel().getColumn(colBoton).setCellRenderer(new ButtonRenderer());
+            table.getColumnModel().getColumn(colBoton).setCellEditor(new ButtonEditor(table));
+            table.setRowHeight(35);
+        });
     }
 
     
-    private void abrirAltaCliente() {
+    private void abrirAltaCliente() { //btn alta
         AltaClientes dialog =
         new AltaClientes(ventana, true, this::cargarTabla);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
     
-    private void eliminarCliente() {
+    private void eliminarCliente() { //btn elim
 
         int filaSeleccionada = table.getSelectedRow();
 
@@ -86,8 +93,8 @@ public class Clientes extends MainPanelBase {
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
+        int confirm = JOptionPane.showConfirmDialog( //confimacion
+                this, 
                 "¿Está seguro que desea eliminar este cliente?",
                 "Confirmar eliminación",
                 JOptionPane.YES_NO_OPTION
@@ -109,10 +116,10 @@ public class Clientes extends MainPanelBase {
                 JOptionPane.INFORMATION_MESSAGE
         );
 
-        cargarTabla();
+        cargarTabla(); //re carga datos tabla
     }
 
-    private void modificarCliente() {
+    private void modificarCliente() { //btn modif
 
         int fila = table.getSelectedRow();
 
@@ -125,7 +132,7 @@ public class Clientes extends MainPanelBase {
 
         Cliente cliente = control.findCliente(id);
 
-        AltaClientes dialog =
+        AltaClientes dialog =  //abre alta en modo modificacion
             new AltaClientes(ventana, true, cliente, this::cargarTabla);
 
         dialog.setLocationRelativeTo(this);
@@ -134,11 +141,73 @@ public class Clientes extends MainPanelBase {
 
 
     @Override
-    public void applyTheme() {
+    public void applyTheme() { //dark mode
         super.applyTheme();
     }
     
-    private void generarReport() {
-        ReportManager.generateReport(this, "clientes.jrxml", null, "ListaClientes.pdf");
+    private void generarReport() { //report
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog( //formatos
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "clientes.jrxml", null, "ListaClientes", formato);
+        }
     }
+    
+    
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setText("Ver Turnos");
+            setFocusPainted(false);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+        class ButtonEditor extends DefaultCellEditor {
+            private JButton button;
+            private JTable tabla;
+            private int currentRow; // ← agregá esto
+
+            public ButtonEditor(JTable tabla) {
+                super(new JCheckBox());
+                this.tabla = tabla;
+                button = new JButton("Ver Turnos");
+                button.setFocusPainted(false);
+                
+
+                button.addActionListener(e -> {
+                    System.out.println("BOTON CLICKEADO, fila: " + currentRow); 
+                    // usa currentRow en vez de tabla.getSelectedRow()
+                    int clienteId = ((Number) tabla.getValueAt(currentRow, 0)).intValue();
+                    String nombre = tabla.getValueAt(currentRow, 1) + " " + tabla.getValueAt(currentRow, 2);
+
+                    Frame parent = (Frame) SwingUtilities.getWindowAncestor(tabla);
+                    HistorialTurnosDialog dialog = new HistorialTurnosDialog(parent, clienteId, nombre);
+                    dialog.setVisible(true);
+                    fireEditingStopped();
+                });
+            }
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value,
+                    boolean isSelected, int row, int column) {
+                currentRow = row; // ← guardá la fila acá
+                return button;
+            }
+
+            @Override
+            public Object getCellEditorValue() { return "Ver Turnos"; }
+        }
 }

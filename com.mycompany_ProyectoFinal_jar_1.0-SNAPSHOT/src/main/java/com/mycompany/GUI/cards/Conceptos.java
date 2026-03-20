@@ -37,6 +37,8 @@ public class Conceptos extends MainPanelBase {
 
     private Ventana ventana;
     private Controladora control;
+    private Usuario currentUser;
+    protected String currentRol;
     
 
     public Conceptos(Ventana ventana) {
@@ -59,7 +61,7 @@ public class Conceptos extends MainPanelBase {
         
     }
     
-    private void cargarTabla(){
+    public  void cargarTabla(){
         // data from DB
         java.util.List<Caja> conceptos = control.traerConceptos();
 
@@ -93,6 +95,18 @@ public class Conceptos extends MainPanelBase {
     }
     
     private void eliminarConcepto() {
+         Usuario currentUser = Session.getCurrentUser(); // obtenerlo acá, no en constructor
+    
+        System.out.println("Rol del usuario: '" + currentUser.getRol() + "'");
+        if (currentUser == null || !currentUser.getRol().equalsIgnoreCase("Administrador")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Solamente el administrador puede eliminar movimientos de caja.",
+                    "Acceso denegado",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
         int filaSeleccionada = table.getSelectedRow();
 
@@ -160,7 +174,19 @@ public class Conceptos extends MainPanelBase {
     
 
     private void generarReport() {
-        ReportManager.generateReport(this, "caja.jrxml", null, "ListaConceptos.pdf");
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "caja.jrxml", null, "ListaConceptos", formato);
+        }
     }
 }  
  

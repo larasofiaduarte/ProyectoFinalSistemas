@@ -95,7 +95,7 @@ public class ClienteJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Error updating cliente", e);
+            throw new RuntimeException("Error actualizando cliente", e);
         } finally {
             if (em != null) {
                 em.close();
@@ -119,7 +119,7 @@ public class ClienteJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Error deleting client", e);
+            throw new RuntimeException("Error al eliminar client", e);
         } finally {
             if (em != null) {
                 em.close();

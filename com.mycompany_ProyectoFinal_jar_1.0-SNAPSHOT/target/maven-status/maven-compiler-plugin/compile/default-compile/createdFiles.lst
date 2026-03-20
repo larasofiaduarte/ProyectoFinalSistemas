@@ -17,6 +17,7 @@ com\mycompany\GUI\abm\AltaEmpleados$2.class
 com\mycompany\GUI\login\Login.class
 com\mycompany\proyectofinal\Turno_.class
 com\mycompany\GUI\cards\Inicio.class
+com\mycompany\GUI\cards\Clientes$ButtonEditor.class
 com\mycompany\GUI\components\CustomTableModel.class
 com\mycompany\GUI\Ventana.class
 com\mycompany\GUI\login\Login$2.class
@@ -41,6 +42,7 @@ com\mycompany\proyectofinal\Proveedor_.class
 com\mycompany\GUI\abm\AltaEmpleados$1.class
 com\mycompany\GUI\cards\Inventario.class
 com\mycompany\proyectofinal\Servicio_.class
+com\mycompany\GUI\cards\HistorialTurnosDialog.class
 com\mycompany\persistencia\ProveedorJpaController.class
 com\mycompany\GUI\components\PassField.class
 com\mycompany\GUI\abm\AltaServicios$5.class
@@ -48,6 +50,7 @@ com\mycompany\GUI\components\PassField$2.class
 com\mycompany\GUI\components\TxtField.class
 com\mycompany\proyectofinal\Proveedor.class
 com\mycompany\GUI\abm\AltaServicios$2.class
+com\mycompany\GUI\cards\Clientes$ButtonRenderer.class
 com\mycompany\GUI\cards\Turnos.class
 com\mycompany\GUI\components\ThemeToggle.class
 com\mycompany\GUI\exceptions\NonexistentEntityException.class
@@ -96,6 +99,7 @@ com\mycompany\GUI\abm\AltaProveedores$2.class
 com\mycompany\GUI\components\ImagePanel.class
 com\mycompany\GUI\components\TitlePanel$1.class
 com\mycompany\proyectofinal\ProyectoFinal.class
+com\mycompany\GUI\cards\HistorialTurnosDialog$1.class
 com\mycompany\GUI\abm\AltaServicios.class
 com\mycompany\GUI\abm\AltaEmpleados.class
 com\mycompany\proyectofinal\Usuario_.class

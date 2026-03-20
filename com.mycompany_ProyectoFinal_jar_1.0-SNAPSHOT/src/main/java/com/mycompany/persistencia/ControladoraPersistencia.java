@@ -255,9 +255,35 @@ public class ControladoraPersistencia {
    
 
     
+    public void finalizarTurno(Turno turno) {
+            // 1. Actualizar estado del turno
+            turno.setEstado("Finalizado");
+            turJpa.edit(turno);
 
+            // 2. Crear movimiento en caja automáticamente
+            Caja movimiento = new Caja();
+            movimiento.setTipo("Ingreso");
+            movimiento.setMonto(turno.getServicio().getPrecio());
+            movimiento.setDetalle("Servicio: " + turno.getServicio().getNombre() 
+                + " - Cliente: " + turno.getCliente().getNombre() 
+                + " " + turno.getCliente().getApellido());
+            movimiento.setMedio("Efectivo"); // o podés dejarlo null / pedirlo al usuario
+            movimiento.setFecha(LocalDateTime.now());
+
+            cajaJpa.create(movimiento);
+        }
         
-
+        public void registrarIngresoEnCaja(Turno turno) {
+            Caja movimiento = new Caja();
+            movimiento.setTipo("Ingreso");
+            movimiento.setMonto(turno.getServicio().getPrecio());
+            movimiento.setDetalle("Servicio: " + turno.getServicio().getNombre()
+                + " - Cliente: " + turno.getCliente().getNombre()
+                + " " + turno.getCliente().getApellido());
+            movimiento.setMedio("Efectivo");
+            movimiento.setFecha(LocalDateTime.now());
+            cajaJpa.create(movimiento);
+        }
     
 
     
