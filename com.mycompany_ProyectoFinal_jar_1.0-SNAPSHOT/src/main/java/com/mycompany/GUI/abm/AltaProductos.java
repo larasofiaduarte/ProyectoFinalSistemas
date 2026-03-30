@@ -9,6 +9,7 @@ import com.mycompany.proyectofinal.Proveedor;
 import com.mycompany.proyectofinal.Usuario;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.JOptionPane;
 
@@ -302,10 +303,13 @@ public class AltaProductos extends JDialog{
     //cargar servicios a cbo
     public void obtenerProveedores(){
         java.util.List<Proveedor> proveedores = control.traerProveedores();
+        java.util.List<String> nombres = new ArrayList<>();
         for (Proveedor prov : proveedores) {
             String nombreProv = prov.getNombre();
-            cboProv.addItem(nombreProv);  
+            cboProv.addItem(nombreProv); 
+            nombres.add(nombreProv);
         }
+        Styles.addAutoComplete(cboProv, nombres); 
     }
     //encontrar servicio por nombre y guardar el seleccionado
     public Proveedor guardarProveedor(String proveedor){

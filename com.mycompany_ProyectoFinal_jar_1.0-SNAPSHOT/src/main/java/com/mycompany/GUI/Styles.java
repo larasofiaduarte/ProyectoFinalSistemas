@@ -13,12 +13,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.*;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -185,4 +188,36 @@ public class Styles {
             // Handle the exception as needed
         }
     }
+    
+    
+    public static void addAutoComplete(JComboBox<String> combo, List<String> allItems) {
+        combo.setEditable(true);
+        JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
+
+        editor.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER || key == KeyEvent.VK_ESCAPE ||
+                    key == KeyEvent.VK_UP   || key == KeyEvent.VK_DOWN) return;
+
+                String typed = editor.getText().toLowerCase();
+                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+                for (String item : allItems) {
+                    if (item.toLowerCase().contains(typed)) {
+                        model.addElement(item);
+                    }
+                }
+
+                combo.setModel(model);
+                editor.setText(typed);
+                combo.hidePopup();
+                if (!typed.isEmpty() && model.getSize() > 0) {
+                    combo.showPopup();
+                }
+            }
+        });
+    }
 }
+

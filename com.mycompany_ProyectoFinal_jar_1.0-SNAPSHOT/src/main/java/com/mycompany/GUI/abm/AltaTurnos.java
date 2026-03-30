@@ -233,7 +233,7 @@ public class AltaTurnos extends JDialog {
 
         jPanel3.setBackground(new java.awt.Color(250, 250, 250));
 
-        jLabel1.setText("ID Cliente*");
+        jLabel1.setText("Cliente*");
 
         jLabel2.setText("Servicio*");
 
@@ -415,18 +415,24 @@ public class AltaTurnos extends JDialog {
     //cargar servicios a cbo
     public void obtenerServicios(){
         List<Servicio> servicios = control.traerServicios();
+        List<String> nombres = new ArrayList<>();
         for (Servicio servicio : servicios) {
             String nombreServicio = servicio.getNombre();
             cboServicio.addItem(nombreServicio);  // Assuming the toString method is implemented in Servicio
+            nombres.add(nombreServicio);
         }
+        Styles.addAutoComplete(cboServicio, nombres); //permitir busqueda
     }
     //cargar clientes a cbo
     public void obtenerClientes(){
         List<Cliente> clientes = control.traerClientes();
+        List<String> nombres = new ArrayList<>();
         for (Cliente cliente : clientes) {
             String nombreCliente = (cliente.getNombre()+" " +cliente.getApellido());
             cboClientes.addItem(nombreCliente);  // Assuming the toString method is implemented in Servicio
+            nombres.add(nombreCliente);
         }
+        Styles.addAutoComplete(cboClientes, nombres);
     }
     
     //encontrar servicio por nombre y guardar

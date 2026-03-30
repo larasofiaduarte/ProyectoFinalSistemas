@@ -310,13 +310,16 @@ public class AltaServicios extends JDialog {
     //cargar servicios a cbo
     public void obtenerUsuarios(){
         List<Usuario> usuarios = control.traerUsuarios();
+        List<String> nombres = new ArrayList<>();
         for (Usuario usu : usuarios) {
             String apellido = usu.getApellido();
             String nombre = usu.getNombre();
             String nombreComp;
             nombreComp = nombre + " " + apellido;
-            cboEmpleados.addItem(nombreComp);  
+            cboEmpleados.addItem(nombreComp); 
+            nombres.add(nombreComp);
         }
+        Styles.addAutoComplete(cboEmpleados, nombres);
     }
     //encontrar servicio por nombre y guardar
     public Usuario guardarEmpleado(String emp){

@@ -103,7 +103,7 @@ public class AltaCaja extends JDialog {
         txtMonto.setBorder(null);
         txtMonto.setPreferredSize(new java.awt.Dimension(73, 30));
 
-        cboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ingreso", "Gasto", " " }));
+        cboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ingreso", "Gasto" }));
 
         cboMedio.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Efectivo", "Débito", "Crédito", "MercadoPago", "Otro" }));
         cboMedio.addActionListener(new java.awt.event.ActionListener() {
