@@ -143,6 +143,18 @@ public class Inventario extends MainPanelBase {
     }
     
     private void generarReport() {
-        ReportManager.generateReport(this, "inventario.jrxml", null, "ListaProductos.pdf");
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "inventario.jrxml", null, "ListaStock", formato);
+        }
     }
 }

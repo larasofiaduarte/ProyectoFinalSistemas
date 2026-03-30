@@ -20,27 +20,22 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.export.JRCsvExporter;
+import net.sf.jasperreports.engine.export.ooxml.*;
+import net.sf.jasperreports.export.*;
 
 public class ReportManager {
 
-    // --- CHANGE THESE TO MATCH YOUR persistence.xml ---
     private static final String DB_URL  = "jdbc:mysql://localhost:3306/peluqueria";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
-    // ---------------------------------------------------
 
-    /**
-     * Generates and saves a PDF report.
-     * @param parent        The parent JFrame/JPanel (for dialog positioning)
-     * @param reportName    The jrxml filename e.g. "clientes.jrxml"
-     * @param parameters    Any parameters to pass to the report (can be empty)
-     * @param defaultFileName  The suggested filename in the save dialog e.g. "ListaClientes.pdf"
-     */
     public static void generateReport(
-            java.awt.Component parent,
-            String reportName,
-            Map<String, Object> parameters,
-            String defaultFileName) {
+        java.awt.Component parent,
+        String reportName,
+        Map<String, Object> parameters,
+        String defaultFileName,
+        String format) {
 
         Connection conn = null;
 
@@ -56,7 +51,7 @@ public class ReportManager {
             InputStream reportStream = ReportManager.class.getResourceAsStream(reportPath);
             if (reportStream == null) {
                 JOptionPane.showMessageDialog(parent,
-                    "Archivo de Report no encontrado" + reportPath +
+                    "Archivo de Report no encontrado: " + reportPath +
                     "\nAsegurar que se encuentre en src/reports/",
                     "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -67,43 +62,71 @@ public class ReportManager {
             if (parameters == null) parameters = new HashMap<>();
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, conn);
 
-            // 5. Open Save dialog
+            // 5. File chooser
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Guardar Report");
-            fileChooser.setSelectedFile(new File(defaultFileName));
-            fileChooser.setFileFilter(new FileNameExtensionFilter("PDF", "pdf"));
+            fileChooser.setDialogTitle("Guardar Reporte");
+            fileChooser.setSelectedFile(new File(defaultFileName + "." + format.toLowerCase()));
+            fileChooser.setFileFilter(new FileNameExtensionFilter(format, format.toLowerCase()));
 
             int userSelection = fileChooser.showSaveDialog(parent);
-
             if (userSelection == JFileChooser.APPROVE_OPTION) {
                 String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!filePath.endsWith(".pdf")) {
-                    filePath += ".pdf";
+
+                // 6. Exportar según formato
+                switch (format.toUpperCase()) {
+                    case "PDF" -> {
+                        if (!filePath.endsWith(".pdf")) filePath += ".pdf";
+                        JasperExportManager.exportReportToPdfFile(jasperPrint, filePath);
+                    }
+                    case "XLSX" -> {
+                        if (!filePath.endsWith(".xlsx")) filePath += ".xlsx";
+                        SimpleXlsxReportConfiguration config = new SimpleXlsxReportConfiguration();
+                        config.setOnePagePerSheet(false);
+                        config.setDetectCellType(true);
+                        JRXlsxExporter exporter = new JRXlsxExporter();
+                        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+                        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(filePath));
+                        exporter.setConfiguration(config);
+                        exporter.exportReport();
+                    }
+                    case "DOCX" -> {
+                        if (!filePath.endsWith(".docx")) filePath += ".docx";
+                        JRDocxExporter exporter = new JRDocxExporter();
+                        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+                        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(filePath));
+                        exporter.exportReport();
+                    }
+                    case "CSV" -> {
+                        if (!filePath.endsWith(".csv")) filePath += ".csv";
+                        JRCsvExporter exporter = new JRCsvExporter();
+                        exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+                        exporter.setExporterOutput(new SimpleWriterExporterOutput(filePath));
+                        exporter.exportReport();
+                    }
+                    default -> {
+                        JOptionPane.showMessageDialog(parent,
+                            "Formato no soportado: " + format,
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                 }
-
-                // 6. Export to PDF
-                JasperExportManager.exportReportToPdfFile(jasperPrint, filePath);
-
                 JOptionPane.showMessageDialog(parent,
-                    "Report guardado correctamente!\n" + filePath,
-                    "Success", JOptionPane.INFORMATION_MESSAGE);
+                    "Reporte guardado!\n" + filePath,
+                    "OK", JOptionPane.INFORMATION_MESSAGE);
             }
 
         } catch (ClassNotFoundException e) {
             JOptionPane.showMessageDialog(parent,
-                "MySQL Driver not found: " + e.getMessage(),
+                "MySQL Driver no encontrado: " + e.getMessage(),
                 "Driver Error", JOptionPane.ERROR_MESSAGE);
-
-        } catch (JRException e) {
-            JOptionPane.showMessageDialog(parent,
-                "Error generando report: " + e.getMessage(),
-                "Report Error", JOptionPane.ERROR_MESSAGE);
-
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(parent,
-                "Database connection error: " + e.getMessage(),
+                "Error de conexión a la base de datos: " + e.getMessage(),
                 "DB Error", JOptionPane.ERROR_MESSAGE);
-
+        } catch (JRException e) {
+            JOptionPane.showMessageDialog(parent,
+                "Error generando reporte: " + e.getMessage(),
+                "Report Error", JOptionPane.ERROR_MESSAGE);
         } finally {
             if (conn != null) {
                 try { conn.close(); } catch (SQLException ignored) {}
@@ -111,3 +134,4 @@ public class ReportManager {
         }
     }
 }
+

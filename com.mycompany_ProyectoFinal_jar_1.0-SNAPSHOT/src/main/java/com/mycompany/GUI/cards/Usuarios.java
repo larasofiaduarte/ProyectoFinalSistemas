@@ -83,7 +83,7 @@ public class Usuarios extends MainPanelBase {
     
     private void eliminarUser() {
         Usuario currentUser = Session.getCurrentUser();
-        if (currentUser == null || !currentUser.getRol().equals("ADMIN")) {
+        if (currentUser == null || !currentUser.getRol().equalsIgnoreCase("Administrador")) {
             JOptionPane.showMessageDialog(
                     this,
                     "Solamente el administrador puede eliminar usuarios.",
@@ -157,6 +157,18 @@ public class Usuarios extends MainPanelBase {
     }
     
     private void generarReport() {
-        ReportManager.generateReport(this, "empleados.jrxml", null, "ListaEmpleados.pdf");
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "empleados.jrxml", null, "ListaEmpleados", formato);
+        }
     }
 }

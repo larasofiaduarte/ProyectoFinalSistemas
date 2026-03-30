@@ -144,7 +144,7 @@ public class TurnoJpaController {
 }
     
     
-    
+    //para que no puedan haber 2 turnos al mismo tiempo
     public boolean turnoYaExiste2(Servicio servicio, LocalDateTime fecha, int currentId) {
         EntityManager em = emf.createEntityManager();
             try {
@@ -162,6 +162,18 @@ public class TurnoJpaController {
     }
     
     }
+    
+    public List<Turno> findByCliente(int clienteId) {
+    EntityManager em = emf.createEntityManager();
+    try {
+        TypedQuery<Turno> query = em.createQuery(
+            "SELECT t FROM Turno t WHERE t.cliente.id = :clienteId", Turno.class);
+        query.setParameter("clienteId", clienteId);
+        return query.getResultList();
+    } finally {
+        em.close();
+    }
+}
 
 
 }

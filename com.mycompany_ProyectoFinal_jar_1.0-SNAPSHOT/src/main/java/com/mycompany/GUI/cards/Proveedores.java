@@ -138,6 +138,18 @@ public class Proveedores extends MainPanelBase {
     }
     
     private void generarReport() {
-        ReportManager.generateReport(this, "prov.jrxml", null, "ListaProveedores.pdf");
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "prov.jrxml", null, "ListaProveedores", formato);
+        }
     }
 }

@@ -134,19 +134,31 @@ public class AltaTurnos extends JDialog {
                     "Alta exitosa",
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
-            // 🔹 MODIFICAR
+            // MODIFICAR - guardar estado ANTES de modificar
+            boolean eraFinalizado = "Finalizado".equals(turnoEditar.getEstado());
+            boolean ahoraFinalizado = "Finalizado".equals(estado);
+
             control.modificarTurno(turnoEditar, servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
+
+            if (!eraFinalizado && ahoraFinalizado) {
+                System.out.println(">>> Registrando ingreso en caja...");
+                turnoEditar.setServicio(servicioSeleccionado);
+                turnoEditar.setCliente(clienteSeleccionado);
+                control.registrarIngresoEnCaja(turnoEditar);
+                System.out.println(">>> Ingreso registrado");
+            }
+
             JOptionPane.showMessageDialog(this,
                     "Turno modificado correctamente.",
                     "Modificación exitosa",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
-        if (onSave != null) {
-            onSave.run();
-        }
+                if (onSave != null) {
+                    onSave.run();
+                }
 
-        dispose();
+                dispose();
 
     } catch (NumberFormatException ex) {
         JOptionPane.showMessageDialog(this,

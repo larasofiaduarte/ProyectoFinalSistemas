@@ -82,8 +82,13 @@ public class Turnos extends MainPanelBase{
     }
     
     private void abrirAltaTurnos() {
-        AltaTurnos dialog =
-        new AltaTurnos(ventana, true, this::cargarTabla);
+        AltaTurnos dialog = new AltaTurnos(
+            ventana, true,
+            () -> {
+                cargarTabla();
+                ventana.recargarCaja();
+            }
+        );
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
@@ -143,9 +148,13 @@ public class Turnos extends MainPanelBase{
 
         Turno turno = control.findTurno(id);
 
-        AltaTurnos dialog =
-            new AltaTurnos(ventana, true, turno, this::cargarTabla);
-
+        AltaTurnos dialog = new AltaTurnos(
+            ventana, true, turno,
+            () -> {
+                cargarTabla();
+                ventana.recargarCaja();
+            }
+        );
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
@@ -156,6 +165,18 @@ public class Turnos extends MainPanelBase{
     }
     
     private void generarReport() {
-        ReportManager.generateReport(this, "turnos.jrxml", null, "ListaTurnos.pdf");
+        String[] opciones = {"PDF", "DOCX"};
+        String formato = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccionar formato de exportación:",
+            "Exportar Reporte",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "PDF"
+        );
+        if (formato != null) {
+            ReportManager.generateReport(this, "turnos.jrxml", null, "ListaTurnos", formato);
+        }
     }
 }

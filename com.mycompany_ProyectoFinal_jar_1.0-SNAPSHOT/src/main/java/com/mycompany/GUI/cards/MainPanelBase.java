@@ -100,7 +100,7 @@ public abstract class MainPanelBase extends JPanel {
         repaint();
     }
     
-    /* ========= Helper for cards ========= */
+    
     protected <T> void setTableData(
         List<T> data,
         String[] columns,
@@ -122,6 +122,24 @@ public abstract class MainPanelBase extends JPanel {
     table.setModel(model);
     titlePanel.setTable(table);
 }
+    
+    protected <T> void setTableData(
+        List<T> data,
+        String[] columns,
+        List<Function<T, Object>> getters,
+        boolean[] editables) {
+
+        Function<T, Object>[] getterArray = getters.toArray(new Function[0]);
+        CustomTableModel<T> model = new CustomTableModel<>(
+            data,
+            columns,
+            getterArray,
+            null,
+            editables  // ← usá el array que pasás
+        );
+        table.setModel(model);
+        titlePanel.setTable(table);
+    }
 
 
 
