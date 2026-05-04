@@ -4,6 +4,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -66,10 +67,26 @@ public class AltaClientes extends JDialog {
         if (clienteEditar == null) {
             // MODO ALTA
             control.guardarCliente(nombre, apellido, telefono, genero);
+            RegistrarActividad.registrar(
+                "CLIENTES",
+                "nuevo registro",
+                "alta",
+                null,
+                "Nombre: " + nombre + " | Apellido: " + apellido + " | Telefono: " + telefono + " | Genero: " + genero,
+                "ALTA"
+            );
             JOptionPane.showMessageDialog(this, "Cliente creado correctamente.");
         } else {
             //MODO MODIFICAR
             control.modificarCliente(clienteEditar, nombre, apellido, telefono, genero);
+            RegistrarActividad.registrar(
+                "CLIENTES",
+                "ID: " + clienteEditar.getId(),
+                "modificación",
+                null,
+                "Nombre: " + nombre + " | Apellido: " + apellido + " | Telefono: " + telefono + " | Genero: " + genero,
+                "EDICIÓN"
+            );
             JOptionPane.showMessageDialog(this, "Cliente modificado correctamente.");
         }
 

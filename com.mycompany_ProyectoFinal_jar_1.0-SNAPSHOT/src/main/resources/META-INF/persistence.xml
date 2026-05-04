@@ -10,6 +10,7 @@
     <class>com.mycompany.proyectofinal.Turno</class>
     <class>com.mycompany.proyectofinal.ServicioProducto</class>
     <class>com.mycompany.proyectofinal.Caja</class>
+    <class>com.mycompany.proyectofinal.ActividadUsuario</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/peluqueria?serverTimezone=UTC"/>
       <property name="javax.persistence.jdbc.user" value="root"/>
@@ -17,9 +18,8 @@
       <property name="javax.persistence.jdbc.password" value=""/>
       <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
       <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-      
-    <property name="eclipselink.logging.level.sql" value="FINE"/>
-    <property name="eclipselink.logging.parameters" value="true"/>
+      <property name="eclipselink.logging.level.sql" value="FINE"/>
+      <property name="eclipselink.logging.parameters" value="true"/>
     </properties>
   </persistence-unit>
 </persistence>

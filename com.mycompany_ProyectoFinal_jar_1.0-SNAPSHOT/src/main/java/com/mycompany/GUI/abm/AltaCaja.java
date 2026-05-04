@@ -4,6 +4,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.*;
@@ -387,18 +388,38 @@ public class AltaCaja extends JDialog {
             // MODO ALTA
             
             control.guardarConcepto(tipo, precio, medio,fechafinal, detalle);
+            
+            RegistrarActividad.registrar(
+                "caja",
+                "nuevo registro",
+                "alta",
+                null,
+                "Tipo: " + tipo + " | Monto: " + precio + " | Medio: " + medio,
+                "ALTA"
+            );
             JOptionPane.showMessageDialog(this, "Concepto creado correctamente.");
         } else {
             // MODO MODIFICAR
             cajaEditar.setFecha(fechafinal);
 
             control.modificarConcepto(cajaEditar,tipo,precio,medio,detalle);
+            
+            RegistrarActividad.registrar(
+                "caja",
+                "ID: " + cajaEditar.getId(),
+                "modificacion",
+                "Tipo: " + cajaEditar.getTipo() + " | Monto: " + cajaEditar.getMonto(),
+                "Tipo: " + tipo + " | Monto: " + precio + " | Medio: " + medio,
+                "EDICION"
+            );
             JOptionPane.showMessageDialog(this, "Concepto modificado correctamente.");
         }
 
         onSave.run();
         dispose();
     }
+    
+    
     
 
 

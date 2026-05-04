@@ -6,7 +6,7 @@ import java.awt.Font;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
-import com.mycompany.proyectofinal.NumberVerifier;
+import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.Usuario;
 import java.awt.FlowLayout;
 import java.awt.Frame;

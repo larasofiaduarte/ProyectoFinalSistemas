@@ -4,6 +4,7 @@
  */
 package com.mycompany.GUI.cards;
 
+import com.mycompany.proyectofinal.util.ReportManager;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
@@ -12,13 +13,12 @@ import com.mycompany.GUI.abm.AltaClientes;
 import com.mycompany.GUI.abm.AltaEmpleados;
 import com.mycompany.proyectofinal.*;
 import java.util.function.Function;
+import javax.swing.table.TableCellRenderer;
 
 public class Usuarios extends MainPanelBase {
 
     private Ventana ventana;
     private Controladora control;
-    private Usuario currentUser;
-    protected String currentRol;
 
     public Usuarios(Ventana ventana) {
         super("Empleados");
@@ -28,24 +28,17 @@ public class Usuarios extends MainPanelBase {
     }
 
     private void initUI() {
-        // Add components into panels created by MainPanelBase
-        
         cargarTabla();
-        
-        
-        //buttons
-        
+
         btnAlta.addActionListener(e -> abrirAltaUser());
         btnElim.addActionListener(e -> eliminarUser());
         btnEdit.addActionListener(e -> modificarUser());
-        
-        titlePanel.addReportButtonListener(e -> generarReport());
 
+        titlePanel.addReportButtonListener(e -> generarReport());
     }
-    
-    public void cargarTabla(){
-        
-        // data from DB
+
+    public void cargarTabla() {
+
         java.util.List<Usuario> usuarios = control.traerUsuarios();
 
         String[] columns = {
@@ -55,7 +48,8 @@ public class Usuarios extends MainPanelBase {
             "Nombre",
             "Apellido",
             "Teléfono",
-            "Rol"
+            "Rol",
+            "Historial"
         };
 
         java.util.List<Function<Usuario, Object>> getters = java.util.List.of(
@@ -65,33 +59,41 @@ public class Usuarios extends MainPanelBase {
             c -> c.getNombre(),
             c -> c.getApellido(),
             c -> c.getTelefono(),
-            c -> c.getRol()
+            c -> c.getRol(),
+            c -> "Ver Actividad"
         );
 
+        boolean[] editables = {false, false, false, false, false, false, false, true};
 
+        setTableData(usuarios, columns, getters, editables); // ← overload con editables
 
-        setTableData(usuarios, columns, getters);
+        SwingUtilities.invokeLater(() -> {
+            int colBoton = table.getColumnCount() - 1;
+            table.getColumnModel().getColumn(colBoton).setCellRenderer(new ButtonRenderer());
+            table.getColumnModel().getColumn(colBoton).setCellEditor(new ButtonEditor(table));
+            table.setRowHeight(35);
+        });
     }
-    
+
     private void abrirAltaUser() {
         AltaEmpleados dialog =
-        new AltaEmpleados(ventana, true, this::cargarTabla);
+            new AltaEmpleados(ventana, true, this::cargarTabla);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
-    
-    
+
     private void eliminarUser() {
         Usuario currentUser = Session.getCurrentUser();
         if (currentUser == null || !currentUser.getRol().equalsIgnoreCase("Administrador")) {
             JOptionPane.showMessageDialog(
-                    this,
-                    "Solamente el administrador puede eliminar usuarios.",
-                    "Acceso denegado",
-                    JOptionPane.ERROR_MESSAGE
+                this,
+                "Solamente el administrador puede eliminar usuarios.",
+                "Acceso denegado",
+                JOptionPane.ERROR_MESSAGE
             );
             return;
         }
+
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {
@@ -105,15 +107,13 @@ public class Usuarios extends MainPanelBase {
         }
 
         int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro que desea eliminar este usuario?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
+            this,
+            "¿Está seguro que desea eliminar este usuario?",
+            "Confirmar eliminación",
+            JOptionPane.YES_NO_OPTION
         );
 
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
+        if (confirm != JOptionPane.YES_OPTION) return;
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
@@ -121,18 +121,16 @@ public class Usuarios extends MainPanelBase {
         control.borrarUsuario(id);
 
         JOptionPane.showMessageDialog(
-                this,
-                "Usuario borrado correctamente.",
-                "Eliminación exitosa",
-                JOptionPane.INFORMATION_MESSAGE
+            this,
+            "Usuario borrado correctamente.",
+            "Eliminación exitosa",
+            JOptionPane.INFORMATION_MESSAGE
         );
 
         cargarTabla();
     }
-    
-    
-    private void modificarUser() {
 
+    private void modificarUser() {
         int fila = table.getSelectedRow();
 
         if (fila == -1) {
@@ -141,21 +139,19 @@ public class Usuarios extends MainPanelBase {
         }
 
         int id = ((Number) table.getValueAt(fila, 0)).intValue();
-
         Usuario user = control.findUsuario(id);
 
         AltaEmpleados dialog =
             new AltaEmpleados(ventana, true, user, this::cargarTabla);
-
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
-    
+
     @Override
     public void applyTheme() {
         super.applyTheme();
     }
-    
+
     private void generarReport() {
         String[] opciones = {"PDF", "DOCX"};
         String formato = (String) JOptionPane.showInputDialog(
@@ -170,5 +166,52 @@ public class Usuarios extends MainPanelBase {
         if (formato != null) {
             ReportManager.generateReport(this, "empleados.jrxml", null, "ListaEmpleados", formato);
         }
+    }
+
+    // --- Button Renderer ---
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setText("Ver Actividad");
+            setFocusPainted(false);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+    // --- Button Editor ---
+    class ButtonEditor extends DefaultCellEditor {
+        private JButton button;
+        private JTable tabla;
+        private int currentRow;
+
+        public ButtonEditor(JTable tabla) {
+            super(new JCheckBox());
+            this.tabla = tabla;
+            button = new JButton("Ver Actividad");
+            button.setFocusPainted(false);
+
+            button.addActionListener(e -> {
+                int userId = ((Number) tabla.getValueAt(currentRow, 0)).intValue();
+                String nombre = tabla.getValueAt(currentRow, 3) + " " + tabla.getValueAt(currentRow, 4);
+                Frame parent = (Frame) SwingUtilities.getWindowAncestor(tabla);
+                HistorialUsuarioDialog dialog = new HistorialUsuarioDialog(parent, userId, nombre);
+                dialog.setVisible(true);
+                fireEditingStopped();
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            currentRow = row;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() { return "Ver Actividad"; }
     }
 }

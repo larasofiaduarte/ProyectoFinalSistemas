@@ -141,7 +141,14 @@ public abstract class MainPanelBase extends JPanel {
         titlePanel.setTable(table);
     }
 
-
+    // permitir editar celdas
+    protected boolean[] defaultEditables(int columnCount) {
+        boolean[] e = new boolean[columnCount];
+        for (int i = 1; i < columnCount; i++) {
+            e[i] = true;
+        }
+        return e;
+    }
 
 }
 

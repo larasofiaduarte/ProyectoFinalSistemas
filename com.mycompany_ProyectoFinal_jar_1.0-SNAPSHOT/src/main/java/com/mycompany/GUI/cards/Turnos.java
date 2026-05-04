@@ -10,7 +10,7 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Controladora;
-import com.mycompany.proyectofinal.ReportManager;
+import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Turno;
 import java.util.List;
 import java.util.function.Function;

@@ -4,6 +4,7 @@
  */
 package com.mycompany.GUI.cards;
 
+import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;

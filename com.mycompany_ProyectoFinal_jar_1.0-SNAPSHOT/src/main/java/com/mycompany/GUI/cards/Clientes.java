@@ -5,6 +5,7 @@
 
 package com.mycompany.GUI.cards;
 
+import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
@@ -59,9 +60,12 @@ public class Clientes extends MainPanelBase {
         );
 
         // última columna true para que el botón sea clickeable
+        /*
         boolean[] editables = {false, false, false, false, false, true};
 
-        setTableData(clientes, columns, getters, editables);
+        setTableData(clientes, columns, getters, editables);*/
+        
+        setTableData(clientes, columns, getters, defaultEditables(columns.length));
 
         SwingUtilities.invokeLater(() -> {
             int colBoton = table.getColumnCount() - 1;

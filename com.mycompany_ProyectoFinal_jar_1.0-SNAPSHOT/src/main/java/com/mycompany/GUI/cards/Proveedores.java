@@ -12,7 +12,7 @@ import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Proveedor;
-import com.mycompany.proyectofinal.ReportManager;
+import com.mycompany.proyectofinal.util.ReportManager;
 import java.util.List;
 import java.util.function.Function;
 
