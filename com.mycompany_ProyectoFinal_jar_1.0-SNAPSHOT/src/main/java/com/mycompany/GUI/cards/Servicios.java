@@ -9,12 +9,17 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
+import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
+import com.mycompany.proyectofinal.Usuario;
+import javax.swing.event.TableModelEvent;
+import java.util.List;
 import java.util.function.Function;
 
 public class Servicios extends MainPanelBase {
@@ -30,17 +35,27 @@ public class Servicios extends MainPanelBase {
     }
 
     private void initUI() {
-        
         cargarTabla();
-        
-        //buttons
+
         btnAlta.addActionListener(e -> abrirAltaServicio());
         btnElim.addActionListener(e -> eliminarServicio());
         btnEdit.addActionListener(e -> modificarServicio());
-        
         titlePanel.addReportButtonListener(e -> generarReport());
-        
 
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                if (!table.isEditing() && row >= 0 && table.isCellEditable(row, col)) {
+                    if (col == colIndex("Empleado")) {
+                        table.editCellAt(row, col, e);
+                        Component comp = table.getEditorComponent();
+                        if (comp != null) comp.requestFocusInWindow();
+                    }
+                }
+            }
+        });
     }
     
     private void cargarTabla(){
@@ -59,14 +74,7 @@ public class Servicios extends MainPanelBase {
             c -> c.getId(),
             c -> c.getNombre(),
             c -> c.getPrecio(),
-            c -> {
-                if (c.getEmpleado() == null) return "";
-                String nombre = c.getEmpleado().getNombre();
-                String apellido = c.getEmpleado().getApellido();
-                return (nombre != null ? nombre : "") +
-                       " " +
-                       (apellido != null ? apellido : "");
-            },
+            c -> c.getEmpleado(),
             c -> {
                 if (c.getProductos() == null || c.getProductos().isEmpty()) {
                     return "";
@@ -93,6 +101,35 @@ public class Servicios extends MainPanelBase {
 
 
         setTableData(servicios, columns, getters);
+
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Servicio> servModel = (CustomTableModel<Servicio>) table.getModel();
+        servModel.setValueSetter(3, (s, v) -> s.setEmpleado((Usuario) v));
+        servModel.addTableModelListener(e -> {
+            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
+            Servicio ser = servModel.getRowObject(e.getFirstRow());
+            control.modificarServicio(ser);
+            showToast("Cambio guardado");
+        });
+
+        List<Usuario> empleados = control.traerUsuarios();
+
+        SwingUtilities.invokeLater(() -> {
+            int colEmp = colIndex("Empleado");
+            FilteredComboBoxEditor<Usuario> empEditor = new FilteredComboBoxEditor<>(
+                empleados,
+                u -> u.getNombre() + " " + u.getApellido(),
+                Usuario::getId,
+                control::traerUsuarios,
+                () -> {
+                    AltaEmpleados d = new AltaEmpleados(ventana, true, () -> {});
+                    d.setLocationRelativeTo(this);
+                    d.setVisible(true);
+                }
+            );
+            table.getColumnModel().getColumn(colEmp).setCellEditor(empEditor);
+            table.getColumnModel().getColumn(colEmp).setCellRenderer(empEditor.getRenderer());
+        });
     }
     
     private void abrirAltaServicio() {

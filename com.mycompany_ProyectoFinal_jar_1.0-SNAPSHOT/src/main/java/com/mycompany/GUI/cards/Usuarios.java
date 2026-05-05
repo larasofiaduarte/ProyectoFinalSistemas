@@ -7,6 +7,7 @@ package com.mycompany.GUI.cards;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.proyectofinal.util.NumberVerifier;
+import javax.swing.event.TableModelEvent;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
@@ -66,7 +67,21 @@ public class Usuarios extends MainPanelBase {
         );
 
         setTableData(usuarios, columns, getters);
-        ((CustomTableModel<?>) table.getModel()).setNumericColumns(2);
+
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Usuario> userModel = (CustomTableModel<Usuario>) table.getModel();
+        userModel.setNumericColumns(2);
+        userModel.setValueSetter(2, (u, v) -> u.setDni(v.toString()));
+        userModel.addTableModelListener(e -> {
+            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
+            Object oldValue = userModel.getLastOldValue();
+            Object newValue = userModel.getLastNewValue();
+            if (String.valueOf(oldValue).equals(String.valueOf(newValue))) return;
+            Usuario usu = userModel.getRowObject(e.getFirstRow());
+            control.modificarUsuario(usu, usu.getUsername(), usu.getPassword(),
+                    usu.getNombre(), usu.getApellido(), usu.getTelefono(), usu.getRol(), usu.getDni());
+            showToast("Cambio guardado");
+        });
 
         SwingUtilities.invokeLater(() -> {
             int colBoton = table.getColumnCount() - 1;

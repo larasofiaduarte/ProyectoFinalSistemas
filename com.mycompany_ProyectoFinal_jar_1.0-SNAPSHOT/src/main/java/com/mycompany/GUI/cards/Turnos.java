@@ -8,10 +8,14 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
-import com.mycompany.proyectofinal.Caja;
+import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.GUI.components.FilteredComboBoxEditor;
+import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Turno;
+import javax.swing.event.TableModelEvent;
 import java.util.List;
 import java.util.function.Function;
 import java.time.format.DateTimeFormatter;
@@ -31,22 +35,34 @@ public class Turnos extends MainPanelBase{
     }
     
     private void initUI(){
-        // Add components into panels created by MainPanelBase
         cargarTabla();
-        
-        
-        //buttons
+
         btnAlta.addActionListener(e -> abrirAltaTurnos());
         btnElim.addActionListener(e -> eliminarTurno());
         btnEdit.addActionListener(e -> modificarTurno());
         titlePanel.addReportButtonListener(e -> generarReport());
-        
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                if (!table.isEditing() && row >= 0 && table.isCellEditable(row, col)) {
+                    int c1 = colIndex("Cliente");
+                    int c2 = colIndex("Servicio");
+                    if (col == c1 || col == c2) {
+                        table.editCellAt(row, col, e);
+                        Component comp = table.getEditorComponent();
+                        if (comp != null) comp.requestFocusInWindow();
+                    }
+                }
+            }
+        });
     }
     
     
     
     private void cargarTabla(){
-        // data from DB
         List<Turno> turnos = control.traerTurnos();
 
         String[] columns = {
@@ -54,31 +70,68 @@ public class Turnos extends MainPanelBase{
             "Fecha",
             "Cliente",
             "Servicio",
-            "Estado",  
+            "Estado",
             "Detalle",
         };
-        
 
         List<Function<Turno, Object>> getters = List.of(
             c -> c.getId(),
-            c -> c.getFecha() != null
-            ? c.getFecha().format(Styles.DATE_TIME)
-            : "",
-            c -> c.getCliente() != null
-                    ? c.getCliente().getNombre() + " " +
-                      c.getCliente().getApellido()
-                    : "",
-            c -> c.getServicio() != null
-                    ? c.getServicio().getNombre()
-                    : "",
+            c -> c.getFecha() != null ? c.getFecha().format(Styles.DATE_TIME) : "",
+            c -> c.getCliente(),
+            c -> c.getServicio(),
             c -> c.getEstado(),
             c -> c.getDetalle()
         );
 
-
-
-
         setTableData(turnos, columns, getters);
+
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Turno> turnoModel = (CustomTableModel<Turno>) table.getModel();
+        turnoModel.setValueSetter(2, (t, v) -> t.setCliente((Cliente) v));
+        turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
+        turnoModel.addTableModelListener(e -> {
+            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
+            Turno tur = turnoModel.getRowObject(e.getFirstRow());
+            control.modificarTurno(tur, tur.getServicio(), tur.getFecha(),
+                    tur.getCliente(), tur.getEstado(), tur.getDetalle());
+            showToast("Cambio guardado");
+        });
+
+        List<Cliente> clientes = control.traerClientes();
+        List<Servicio> servicios = control.traerServicios();
+
+        SwingUtilities.invokeLater(() -> {
+            int colCliente = colIndex("Cliente");
+            int colServicio = colIndex("Servicio");
+
+            FilteredComboBoxEditor<Cliente> clienteEditor = new FilteredComboBoxEditor<>(
+                clientes,
+                c -> c.getNombre() + " " + c.getApellido(),
+                Cliente::getId,
+                control::traerClientes,
+                () -> {
+                    AltaClientes d = new AltaClientes(ventana, true, () -> {});
+                    d.setLocationRelativeTo(this);
+                    d.setVisible(true);
+                }
+            );
+            table.getColumnModel().getColumn(colCliente).setCellEditor(clienteEditor);
+            table.getColumnModel().getColumn(colCliente).setCellRenderer(clienteEditor.getRenderer());
+
+            FilteredComboBoxEditor<Servicio> servicioEditor = new FilteredComboBoxEditor<>(
+                servicios,
+                Servicio::getNombre,
+                Servicio::getId,
+                control::traerServicios,
+                () -> {
+                    AltaServicios d = new AltaServicios(ventana, true, () -> {});
+                    d.setLocationRelativeTo(this);
+                    d.setVisible(true);
+                }
+            );
+            table.getColumnModel().getColumn(colServicio).setCellEditor(servicioEditor);
+            table.getColumnModel().getColumn(colServicio).setCellRenderer(servicioEditor.getRenderer());
+        });
     }
     
     private void abrirAltaTurnos() {

@@ -136,5 +136,32 @@ public abstract class MainPanelBase extends JPanel {
         return e;
     }
 
+    protected int colIndex(String name) {
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            if (name.equals(table.getColumnName(i))) return i;
+        }
+        return -1;
+    }
+
+    protected void showToast(String message) {
+        JWindow toast = new JWindow(SwingUtilities.getWindowAncestor(this));
+        JLabel label = new JLabel(message);
+        label.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        label.setOpaque(true);
+        label.setBackground(new Color(60, 60, 60));
+        label.setForeground(Color.WHITE);
+        toast.getContentPane().add(label);
+        toast.pack();
+        if (isShowing()) {
+            Point loc = getLocationOnScreen();
+            Dimension panelSize = getSize();
+            Dimension toastSize = toast.getSize();
+            toast.setLocation(loc.x + panelSize.width - toastSize.width - 20,
+                              loc.y + panelSize.height - toastSize.height - 20);
+        }
+        toast.setVisible(true);
+        new Timer(2000, e -> toast.dispose()).start();
+    }
+
 }
 

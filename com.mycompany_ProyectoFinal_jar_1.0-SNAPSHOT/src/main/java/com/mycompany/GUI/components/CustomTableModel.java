@@ -28,10 +28,23 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private BiConsumer<T, Object>[] valueSetters;
     private boolean[] editableColumns;
     private int[] numericColumns = new int[0];
+    private Object lastOldValue;
+    private Object lastNewValue;
 
     public void setNumericColumns(int... cols) {
         this.numericColumns = cols;
     }
+
+    @SuppressWarnings("unchecked")
+    public void setValueSetter(int col, BiConsumer<T, Object> setter) {
+        if (valueSetters == null) {
+            valueSetters = new BiConsumer[columnNames.length];
+        }
+        valueSetters[col] = setter;
+    }
+
+    public Object getLastOldValue() { return lastOldValue; }
+    public Object getLastNewValue() { return lastNewValue; }
 
     public CustomTableModel(
             List<T> data,
@@ -70,6 +83,7 @@ public class CustomTableModel<T> extends AbstractTableModel {
     @Override
     
 public void setValueAt(Object value, int row, int col) {
+    Object oldValue = valueGetters[col].apply(data.get(row));
     for (int nc : numericColumns) {
         if (nc == col) {
             String str = value == null ? "" : value.toString().trim();
@@ -82,6 +96,8 @@ public void setValueAt(Object value, int row, int col) {
         }
     }
     if (valueSetters == null || valueSetters[col] == null) return;
+    lastOldValue = oldValue;
+    lastNewValue = value;
     valueSetters[col].accept(data.get(row), value);
     fireTableCellUpdated(row, col);
 }

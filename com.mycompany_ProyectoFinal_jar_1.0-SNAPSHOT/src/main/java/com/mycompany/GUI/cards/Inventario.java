@@ -13,7 +13,11 @@ import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.util.NumberVerifier;
+import com.mycompany.proyectofinal.Proveedor;
+import javax.swing.event.TableModelEvent;
+import java.util.List;
 import java.util.function.Function;
 
 public class Inventario extends MainPanelBase {
@@ -29,20 +33,27 @@ public class Inventario extends MainPanelBase {
     }
 
     private void initUI() {
-        // Add components into panels created by MainPanelBase
-        
         cargarTabla();
 
-        
-        
-        //buttons
-        
         btnAlta.addActionListener(e -> abrirAltaProducto());
         btnElim.addActionListener(e -> eliminarProducto());
         btnEdit.addActionListener(e -> modificarProducto());
-        
         titlePanel.addReportButtonListener(e -> generarReport());
-        
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                if (!table.isEditing() && row >= 0 && table.isCellEditable(row, col)) {
+                    if (col == colIndex("Proveedor")) {
+                        table.editCellAt(row, col, e);
+                        Component comp = table.getEditorComponent();
+                        if (comp != null) comp.requestFocusInWindow();
+                    }
+                }
+            }
+        });
     }
     
     private void cargarTabla(){
@@ -62,23 +73,53 @@ public class Inventario extends MainPanelBase {
             c -> c.getNombre(),
             c -> c.getStock(),
             c -> c.getMinimo(),
-            c -> c.getProveedor() != null  //que no aparezca null
-                ? c.getProveedor().getNombre()
-                : ""
+            c -> c.getProveedor()
         );
 
 
 
         setTableData(productos, columns, getters);
+
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Producto> prodModel = (CustomTableModel<Producto>) table.getModel();
+        prodModel.setNumericColumns(2, 3);
+        prodModel.setValueSetter(2, (p, v) -> p.setStock(Double.parseDouble(v.toString())));
+        prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
+        prodModel.setValueSetter(4, (p, v) -> p.setProveedor((Proveedor) v));
+        prodModel.addTableModelListener(e -> {
+            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
+            Object oldValue = prodModel.getLastOldValue();
+            Object newValue = prodModel.getLastNewValue();
+            if (String.valueOf(oldValue).equals(String.valueOf(newValue))) return;
+            Producto prod = prodModel.getRowObject(e.getFirstRow());
+            control.modificarProducto(prod, prod.getNombre(), prod.getStock(), prod.getMinimo(), prod.getProveedor());
+            showToast("Cambio guardado");
+        });
+
+        List<Proveedor> proveedores = control.traerProveedores();
+
         SwingUtilities.invokeLater(() -> {
-            CustomTableModel<?> model = (CustomTableModel<?>) table.getModel();
-            model.setNumericColumns(2, 3);
             JTextField stockField = new JTextField();
             stockField.addKeyListener(new NumberVerifier());
             table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(stockField));
             JTextField minimoField = new JTextField();
             minimoField.addKeyListener(new NumberVerifier());
             table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(minimoField));
+
+            int colProv = colIndex("Proveedor");
+            FilteredComboBoxEditor<Proveedor> provEditor = new FilteredComboBoxEditor<>(
+                proveedores,
+                Proveedor::getNombre,
+                Proveedor::getId,
+                control::traerProveedores,
+                () -> {
+                    AltaProveedores d = new AltaProveedores(ventana, true, () -> {});
+                    d.setLocationRelativeTo(this);
+                    d.setVisible(true);
+                }
+            );
+            table.getColumnModel().getColumn(colProv).setCellEditor(provEditor);
+            table.getColumnModel().getColumn(colProv).setCellRenderer(provEditor.getRenderer());
         });
     }
     
