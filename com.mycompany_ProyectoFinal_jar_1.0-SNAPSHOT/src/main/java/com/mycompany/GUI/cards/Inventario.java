@@ -12,6 +12,8 @@ import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
+import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.proyectofinal.util.NumberVerifier;
 import java.util.function.Function;
 
 public class Inventario extends MainPanelBase {
@@ -68,6 +70,16 @@ public class Inventario extends MainPanelBase {
 
 
         setTableData(productos, columns, getters);
+        SwingUtilities.invokeLater(() -> {
+            CustomTableModel<?> model = (CustomTableModel<?>) table.getModel();
+            model.setNumericColumns(2, 3);
+            JTextField stockField = new JTextField();
+            stockField.addKeyListener(new NumberVerifier());
+            table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(stockField));
+            JTextField minimoField = new JTextField();
+            minimoField.addKeyListener(new NumberVerifier());
+            table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(minimoField));
+        });
     }
     
     private void abrirAltaProducto() {

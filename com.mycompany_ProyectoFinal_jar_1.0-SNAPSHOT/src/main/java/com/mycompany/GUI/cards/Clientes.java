@@ -65,7 +65,7 @@ public class Clientes extends MainPanelBase {
 
         setTableData(clientes, columns, getters, editables);*/
         
-        setTableData(clientes, columns, getters, defaultEditables(columns.length));
+        setTableData(clientes, columns, getters);
 
         SwingUtilities.invokeLater(() -> {
             int colBoton = table.getColumnCount() - 1;

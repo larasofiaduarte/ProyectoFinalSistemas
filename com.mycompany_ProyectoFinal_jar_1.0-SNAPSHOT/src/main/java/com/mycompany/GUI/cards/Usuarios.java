@@ -5,6 +5,8 @@
 package com.mycompany.GUI.cards;
 
 import com.mycompany.proyectofinal.util.ReportManager;
+import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.proyectofinal.util.NumberVerifier;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
@@ -63,15 +65,17 @@ public class Usuarios extends MainPanelBase {
             c -> "Ver Actividad"
         );
 
-        boolean[] editables = {false, false, false, false, false, false, false, true};
-
-        setTableData(usuarios, columns, getters, editables); // ← overload con editables
+        setTableData(usuarios, columns, getters);
+        ((CustomTableModel<?>) table.getModel()).setNumericColumns(2);
 
         SwingUtilities.invokeLater(() -> {
             int colBoton = table.getColumnCount() - 1;
             table.getColumnModel().getColumn(colBoton).setCellRenderer(new ButtonRenderer());
             table.getColumnModel().getColumn(colBoton).setCellEditor(new ButtonEditor(table));
             table.setRowHeight(35);
+            JTextField dniField = new JTextField();
+            dniField.addKeyListener(new NumberVerifier());
+            table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(dniField));
         });
     }
 

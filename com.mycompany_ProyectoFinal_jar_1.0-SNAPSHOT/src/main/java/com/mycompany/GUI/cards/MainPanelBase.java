@@ -102,25 +102,11 @@ public abstract class MainPanelBase extends JPanel {
     
     
     protected <T> void setTableData(
-        List<T> data,
-        String[] columns,
-        List<Function<T, Object>> getters) {
+    List<T> data,
+    String[] columns,
+    List<Function<T, Object>> getters) {
 
-    @SuppressWarnings("unchecked")
-    Function<T, Object>[] getterArray =
-            getters.toArray(new Function[0]);
-
-    CustomTableModel<T> model =
-            new CustomTableModel<>(
-                    data,
-                    columns,
-                    getterArray,
-                    null, // setters optional
-                    new boolean[columns.length]
-            );
-
-    table.setModel(model);
-    titlePanel.setTable(table);
+    setTableData(data, columns, getters, defaultEditables(columns.length));
 }
     
     protected <T> void setTableData(

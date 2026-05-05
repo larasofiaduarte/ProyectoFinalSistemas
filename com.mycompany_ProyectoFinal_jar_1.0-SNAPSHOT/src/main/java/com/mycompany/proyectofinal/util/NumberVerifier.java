@@ -8,12 +8,16 @@ import java.awt.event.KeyEvent;
 
 public class NumberVerifier extends KeyAdapter {
 
+    public static boolean isValid(String text) {
+        return text != null && text.matches("\\d+");
+    }
+    
     @Override
     public void keyTyped(KeyEvent e) {
         char c = e.getKeyChar();
 
         if (!Character.isDigit(c)) {
-            e.consume(); // ignore non-digit characters
+            e.consume();
         }
     }
 }

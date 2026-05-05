@@ -5,7 +5,9 @@
 package com.mycompany.GUI.components;
 
 import javax.swing.table.*;
+import javax.swing.JOptionPane;
 import java.awt.*;
+import com.mycompany.proyectofinal.util.NumberVerifier;
 import java.time.format.DateTimeFormatter;
 import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Turno;
@@ -25,6 +27,11 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private Function<T, Object>[] valueGetters;
     private BiConsumer<T, Object>[] valueSetters;
     private boolean[] editableColumns;
+    private int[] numericColumns = new int[0];
+
+    public void setNumericColumns(int... cols) {
+        this.numericColumns = cols;
+    }
 
     public CustomTableModel(
             List<T> data,
@@ -63,6 +70,17 @@ public class CustomTableModel<T> extends AbstractTableModel {
     @Override
     
 public void setValueAt(Object value, int row, int col) {
+    for (int nc : numericColumns) {
+        if (nc == col) {
+            String str = value == null ? "" : value.toString().trim();
+            if (!NumberVerifier.isValid(str)) {
+                JOptionPane.showMessageDialog(null, "Solo números permitidos",
+                        "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            break;
+        }
+    }
     if (valueSetters == null || valueSetters[col] == null) return;
     valueSetters[col].accept(data.get(row), value);
     fireTableCellUpdated(row, col);
