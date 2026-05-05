@@ -21,6 +21,7 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
     private final Runnable onNew;
     private Object lastValid;
     private boolean suppress = false;
+    private JTable currentTable;
 
     public FilteredComboBoxEditor(List<T> items, Function<T, String> label,
                                   Function<T, Integer> idOf,
@@ -33,6 +34,14 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
 
         combo.setEditable(true);
         combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
+        combo.addActionListener(e -> {
+            if (suppress || combo.isPopupVisible()) return;
+            Object selected = combo.getSelectedItem();
+            if (selected == null || NEW_ITEM.equals(selected) || selected instanceof String) return;
+            SwingUtilities.invokeLater(() -> {
+                if (currentTable != null && currentTable.isEditing()) stopCellEditing();
+            });
+        });
         combo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value,
@@ -69,25 +78,29 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
     private void filter(JTextField editorField) {
         if (suppress) return;
         String text = editorField.getText();
-        suppress = true;
-        try {
-            String lower = text.toLowerCase();
-            DefaultComboBoxModel<Object> m = new DefaultComboBoxModel<>();
-            for (T item : allItems) {
-                if (label.apply(item).toLowerCase().contains(lower)) m.addElement(item);
+        SwingUtilities.invokeLater(() -> {
+            if (suppress) return;
+            suppress = true;
+            try {
+                String lower = text.toLowerCase();
+                DefaultComboBoxModel<Object> m = new DefaultComboBoxModel<>();
+                for (T item : allItems) {
+                    if (label.apply(item).toLowerCase().contains(lower)) m.addElement(item);
+                }
+                m.addElement(NEW_ITEM);
+                combo.setModel(m);
+                editorField.setText(text);
+                if (m.getSize() > 1) combo.showPopup();
+            } finally {
+                suppress = false;
             }
-            m.addElement(NEW_ITEM);
-            combo.setModel(m);
-            editorField.setText(text);
-            if (m.getSize() > 1) combo.showPopup();
-        } finally {
-            suppress = false;
-        }
+        });
     }
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value,
             boolean isSelected, int row, int column) {
+        this.currentTable = table;
         lastValid = value;
         suppress = true;
         try {

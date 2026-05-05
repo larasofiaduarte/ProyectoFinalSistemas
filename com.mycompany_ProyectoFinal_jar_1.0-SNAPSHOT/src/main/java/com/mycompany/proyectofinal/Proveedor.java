@@ -55,5 +55,17 @@ public class Proveedor implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
+    @Override
+    public String toString() { return nombre != null ? nombre : ""; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Proveedor)) return false;
+        return this.id == ((Proveedor) o).id;
+    }
+
+    @Override
+    public int hashCode() { return id; }
 }

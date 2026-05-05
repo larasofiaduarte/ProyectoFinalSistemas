@@ -56,6 +56,21 @@ public class Cliente implements Serializable {
     public void setGenero(String genero) {
         this.genero = genero;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        String n = nombre != null ? nombre : "";
+        String a = apellido != null ? apellido : "";
+        return (n + " " + a).trim();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cliente)) return false;
+        return this.id == ((Cliente) o).id;
+    }
+
+    @Override
+    public int hashCode() { return id; }
 }

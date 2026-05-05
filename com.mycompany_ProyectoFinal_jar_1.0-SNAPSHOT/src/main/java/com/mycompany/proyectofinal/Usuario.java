@@ -109,4 +109,21 @@ public class Usuario implements Serializable {
     public String getDni() {
         return dni;
     }
+
+    @Override
+    public String toString() {
+        String n = nombre != null ? nombre : "";
+        String a = apellido != null ? apellido : "";
+        return (n + " " + a).trim();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Usuario)) return false;
+        return this.id == ((Usuario) o).id;
+    }
+
+    @Override
+    public int hashCode() { return id; }
 }

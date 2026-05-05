@@ -79,5 +79,17 @@ public class Servicio implements Serializable {
         productos.add(sp);
         sp.setServicio(this);
     }
-    
+
+    @Override
+    public String toString() { return nombre != null ? nombre : ""; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Servicio)) return false;
+        return this.id == ((Servicio) o).id;
+    }
+
+    @Override
+    public int hashCode() { return id; }
 }
