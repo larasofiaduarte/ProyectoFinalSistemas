@@ -35,9 +35,30 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
         combo.setEditable(true);
         combo.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
         combo.addActionListener(e -> {
-            if (suppress || combo.isPopupVisible()) return;
+            if (suppress) return;
             Object selected = combo.getSelectedItem();
-            if (selected == null || NEW_ITEM.equals(selected) || selected instanceof String) return;
+            if (selected == null) return;
+
+            if (selected.toString().contains("Nuevo")) {
+                suppress = true;
+                combo.setSelectedItem(lastValid);
+                suppress = false;
+                SwingUtilities.invokeLater(() -> {
+                    if (currentTable != null && currentTable.isEditing()) {
+                        currentTable.getCellEditor().stopCellEditing();
+                    }
+                    if (onNew == null) return;
+                    onNew.run();
+                    allItems.clear();
+                    allItems.addAll(refresher.get());
+                    suppress = true;
+                    try { populateModel(allItems); } finally { suppress = false; }
+                });
+                return;
+            }
+
+            if (selected instanceof String) return;
+
             SwingUtilities.invokeLater(() -> {
                 if (currentTable != null && currentTable.isEditing()) stopCellEditing();
             });
@@ -134,14 +155,9 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
     @Override
     public boolean stopCellEditing() {
         if (NEW_ITEM.equals(combo.getSelectedItem())) {
+            suppress = true;
             combo.setSelectedItem(lastValid);
-            SwingUtilities.invokeLater(() -> {
-                if (onNew != null) onNew.run();
-                allItems.clear();
-                allItems.addAll(refresher.get());
-                suppress = true;
-                try { populateModel(allItems); } finally { suppress = false; }
-            });
+            suppress = false;
             fireEditingStopped();
             return true;
         }
