@@ -8,6 +8,7 @@ import javax.swing.table.*;
 import javax.swing.JOptionPane;
 import java.awt.*;
 import com.mycompany.proyectofinal.util.NumberVerifier;
+import com.mycompany.proyectofinal.util.DoubleVerifier;
 import java.time.format.DateTimeFormatter;
 import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Turno;
@@ -29,12 +30,17 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private BiConsumer<T, Object>[] valueSetters;
     private boolean[] editableColumns;
     private int[] numericColumns = new int[0];
+    private int[] decimalColumns = new int[0];
     private Object lastOldValue;
     private Object lastNewValue;
     private Consumer<T> onPersist;
 
     public void setNumericColumns(int... cols) {
         this.numericColumns = cols;
+    }
+
+    public void setDecimalColumns(int... cols) {
+        this.decimalColumns = cols;
     }
 
     @SuppressWarnings("unchecked")
@@ -96,6 +102,17 @@ public void setValueAt(Object value, int row, int col) {
             String str = value == null ? "" : value.toString().trim();
             if (!NumberVerifier.isValid(str)) {
                 JOptionPane.showMessageDialog(null, "Solo números permitidos",
+                        "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            break;
+        }
+    }
+    for (int dc : decimalColumns) {
+        if (dc == col) {
+            String str = value == null ? "" : value.toString().trim();
+            if (!DoubleVerifier.isValid(str)) {
+                JOptionPane.showMessageDialog(null, "Número decimal inválido",
                         "Error de validación", JOptionPane.WARNING_MESSAGE);
                 return;
             }

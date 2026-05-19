@@ -14,7 +14,7 @@ import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
-import com.mycompany.proyectofinal.util.NumberVerifier;
+import com.mycompany.proyectofinal.util.DoubleVerifier;
 import com.mycompany.proyectofinal.Proveedor;
 import java.util.List;
 import java.util.function.Function;
@@ -70,8 +70,8 @@ public class Inventario extends MainPanelBase {
         java.util.List<Function<Producto, Object>> getters = java.util.List.of(
             c -> c.getId(),
             c -> c.getNombre(),
-            c -> c.getStock(),
-            c -> c.getMinimo(),
+            c -> DoubleVerifier.format(c.getStock()),
+            c -> DoubleVerifier.format(c.getMinimo()),
             c -> c.getProveedor()
         );
 
@@ -82,7 +82,7 @@ public class Inventario extends MainPanelBase {
         @SuppressWarnings("unchecked")
         CustomTableModel<Producto> prodModel = (CustomTableModel<Producto>) table.getModel();
         prodModel.setValueSetter(1, (p, v) -> p.setNombre(v.toString()));
-        prodModel.setNumericColumns(2, 3);
+        prodModel.setDecimalColumns(2, 3);
         prodModel.setValueSetter(2, (p, v) -> p.setStock(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(4, (p, v) -> p.setProveedor((Proveedor) v));
@@ -95,10 +95,10 @@ public class Inventario extends MainPanelBase {
 
         SwingUtilities.invokeLater(() -> {
             JTextField stockField = new JTextField();
-            stockField.addKeyListener(new NumberVerifier());
+            stockField.addKeyListener(new DoubleVerifier());
             table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(stockField));
             JTextField minimoField = new JTextField();
-            minimoField.addKeyListener(new NumberVerifier());
+            minimoField.addKeyListener(new DoubleVerifier());
             table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(minimoField));
 
             int colProv = colIndex("Proveedor");
