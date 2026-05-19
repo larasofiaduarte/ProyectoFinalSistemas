@@ -130,6 +130,12 @@ public class Turnos extends MainPanelBase{
             );
             table.getColumnModel().getColumn(colServicio).setCellEditor(servicioEditor);
             table.getColumnModel().getColumn(colServicio).setCellRenderer(servicioEditor.getRenderer());
+
+            int colEstado = colIndex("Estado");
+            JComboBox<String> estadoCombo = new JComboBox<>();
+            estadoCombo.addItem("Pendiente");
+            estadoCombo.addItem("Finalizado");
+            table.getColumnModel().getColumn(colEstado).setCellEditor(new DefaultCellEditor(estadoCombo));
         });
     }
     
