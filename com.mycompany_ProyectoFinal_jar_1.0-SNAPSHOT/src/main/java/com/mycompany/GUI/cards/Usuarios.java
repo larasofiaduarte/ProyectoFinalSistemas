@@ -7,7 +7,6 @@ package com.mycompany.GUI.cards;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.proyectofinal.util.NumberVerifier;
-import javax.swing.event.TableModelEvent;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
@@ -70,16 +69,16 @@ public class Usuarios extends MainPanelBase {
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Usuario> userModel = (CustomTableModel<Usuario>) table.getModel();
+        userModel.setValueSetter(1, (u, v) -> u.setUsername(v.toString()));
         userModel.setNumericColumns(2);
         userModel.setValueSetter(2, (u, v) -> u.setDni(v.toString()));
-        userModel.addTableModelListener(e -> {
-            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
-            Object oldValue = userModel.getLastOldValue();
-            Object newValue = userModel.getLastNewValue();
-            if (String.valueOf(oldValue).equals(String.valueOf(newValue))) return;
-            Usuario usu = userModel.getRowObject(e.getFirstRow());
-            control.modificarUsuario(usu, usu.getUsername(), usu.getPassword(),
-                    usu.getNombre(), usu.getApellido(), usu.getTelefono(), usu.getRol(), usu.getDni());
+        userModel.setValueSetter(3, (u, v) -> u.setNombre(v.toString()));
+        userModel.setValueSetter(4, (u, v) -> u.setApellido(v.toString()));
+        userModel.setValueSetter(5, (u, v) -> u.setTelefono(v.toString()));
+        userModel.setValueSetter(6, (u, v) -> u.setRol(v.toString()));
+        userModel.setOnPersist(u -> {
+            control.modificarUsuario(u, u.getUsername(), u.getPassword(),
+                    u.getNombre(), u.getApellido(), u.getTelefono(), u.getRol(), u.getDni());
             showToast("Cambio guardado");
         });
 

@@ -18,6 +18,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CustomTableModel<T> extends AbstractTableModel {
@@ -30,6 +31,7 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private int[] numericColumns = new int[0];
     private Object lastOldValue;
     private Object lastNewValue;
+    private Consumer<T> onPersist;
 
     public void setNumericColumns(int... cols) {
         this.numericColumns = cols;
@@ -45,6 +47,10 @@ public class CustomTableModel<T> extends AbstractTableModel {
 
     public Object getLastOldValue() { return lastOldValue; }
     public Object getLastNewValue() { return lastNewValue; }
+
+    public void setOnPersist(Consumer<T> callback) {
+        this.onPersist = callback;
+    }
 
     public CustomTableModel(
             List<T> data,
@@ -83,6 +89,7 @@ public class CustomTableModel<T> extends AbstractTableModel {
     @Override
     
 public void setValueAt(Object value, int row, int col) {
+    System.out.println("[CustomTableModel] setValueAt: row=" + row + ", col=" + col + ", value=" + value);
     Object oldValue = valueGetters[col].apply(data.get(row));
     for (int nc : numericColumns) {
         if (nc == col) {
@@ -95,11 +102,17 @@ public void setValueAt(Object value, int row, int col) {
             break;
         }
     }
-    if (valueSetters == null || valueSetters[col] == null) return;
+    if (valueSetters == null || valueSetters[col] == null) {
+        System.out.println("[CustomTableModel] No setter registered for col=" + col + ", skipping");
+        return;
+    }
     lastOldValue = oldValue;
     lastNewValue = value;
     valueSetters[col].accept(data.get(row), value);
     fireTableCellUpdated(row, col);
+    if (onPersist != null && !String.valueOf(oldValue).equals(String.valueOf(value))) {
+        onPersist.accept(data.get(row));
+    }
 }
 
     @Override

@@ -18,7 +18,6 @@ import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
 import com.mycompany.proyectofinal.Usuario;
-import javax.swing.event.TableModelEvent;
 import java.util.List;
 import java.util.function.Function;
 
@@ -104,11 +103,12 @@ public class Servicios extends MainPanelBase {
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Servicio> servModel = (CustomTableModel<Servicio>) table.getModel();
+        servModel.setValueSetter(1, (s, v) -> s.setNombre(v.toString()));
+        servModel.setNumericColumns(2);
+        servModel.setValueSetter(2, (s, v) -> s.setPrecio(Double.parseDouble(v.toString())));
         servModel.setValueSetter(3, (s, v) -> s.setEmpleado((Usuario) v));
-        servModel.addTableModelListener(e -> {
-            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
-            Servicio ser = servModel.getRowObject(e.getFirstRow());
-            control.modificarServicio(ser);
+        servModel.setOnPersist(s -> {
+            control.modificarServicio(s);
             showToast("Cambio guardado");
         });
 

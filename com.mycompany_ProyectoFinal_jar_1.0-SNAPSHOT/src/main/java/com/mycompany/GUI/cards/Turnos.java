@@ -15,7 +15,6 @@ import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Turno;
-import javax.swing.event.TableModelEvent;
 import java.util.List;
 import java.util.function.Function;
 import java.time.format.DateTimeFormatter;
@@ -89,11 +88,11 @@ public class Turnos extends MainPanelBase{
         CustomTableModel<Turno> turnoModel = (CustomTableModel<Turno>) table.getModel();
         turnoModel.setValueSetter(2, (t, v) -> t.setCliente((Cliente) v));
         turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
-        turnoModel.addTableModelListener(e -> {
-            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
-            Turno tur = turnoModel.getRowObject(e.getFirstRow());
-            control.modificarTurno(tur, tur.getServicio(), tur.getFecha(),
-                    tur.getCliente(), tur.getEstado(), tur.getDetalle());
+        turnoModel.setValueSetter(4, (t, v) -> t.setEstado(v.toString()));
+        turnoModel.setValueSetter(5, (t, v) -> t.setDetalle(v.toString()));
+        turnoModel.setOnPersist(t -> {
+            control.modificarTurno(t, t.getServicio(), t.getFecha(),
+                    t.getCliente(), t.getEstado(), t.getDetalle());
             showToast("Cambio guardado");
         });
 

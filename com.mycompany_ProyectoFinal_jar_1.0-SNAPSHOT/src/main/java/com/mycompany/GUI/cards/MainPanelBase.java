@@ -2,11 +2,15 @@
 package com.mycompany.GUI.cards;
 
 import javax.swing.*;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
 import java.awt.*;
+import java.awt.event.KeyListener;
 import com.mycompany.GUI.Styles;
 import java.util.List;
 import com.mycompany.GUI.components.ReportBtn;
 import com.mycompany.GUI.components.*;
+import com.mycompany.proyectofinal.util.TelefonoVerifier;
 import java.util.function.Function;
 
 public abstract class MainPanelBase extends JPanel {
@@ -56,6 +60,7 @@ public abstract class MainPanelBase extends JPanel {
         tablePanel = new JPanel(new BorderLayout());
 
         table = new JTable();
+        table.putClientProperty("terminateEditOnFocusLost", true);
         scroll = new JScrollPane(table);
 
         tablePanel.add(scroll, BorderLayout.CENTER);
@@ -125,6 +130,38 @@ public abstract class MainPanelBase extends JPanel {
         );
         table.setModel(model);
         titlePanel.setTable(table);
+        attachPhoneVerifier(columns);
+    }
+
+    private void attachPhoneVerifier(String[] columns) {
+        for (int i = 0; i < columns.length; i++) {
+            if (!"Teléfono".equals(columns[i])) continue;
+
+            TableColumn col = table.getColumnModel().getColumn(i);
+            TableCellEditor editor = col.getCellEditor();
+
+            if (editor instanceof DefaultCellEditor dce) {
+                Component comp = dce.getComponent();
+                if (comp instanceof JTextField field && !hasPhoneVerifier(field)) {
+                    field.addKeyListener(new TelefonoVerifier(TelefonoVerifier.Mode.PHONE));
+                }
+            } else if (editor == null) {
+                // No explicit editor: JTable default for Object/String is JTextField-based.
+                // Create a dedicated editor so the verifier has a concrete field to attach to.
+                JTextField field = new JTextField();
+                field.addKeyListener(new TelefonoVerifier(TelefonoVerifier.Mode.PHONE));
+                col.setCellEditor(new DefaultCellEditor(field));
+            }
+            // else: FilteredComboBoxEditor or other custom editor → skip
+            break;
+        }
+    }
+
+    private boolean hasPhoneVerifier(JTextField field) {
+        for (KeyListener kl : field.getKeyListeners()) {
+            if (kl instanceof TelefonoVerifier) return true;
+        }
+        return false;
     }
 
     // permitir editar celdas

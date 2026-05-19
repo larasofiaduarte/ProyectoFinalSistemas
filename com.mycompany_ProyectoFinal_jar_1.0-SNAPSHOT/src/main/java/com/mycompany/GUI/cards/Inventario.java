@@ -16,7 +16,6 @@ import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.Proveedor;
-import javax.swing.event.TableModelEvent;
 import java.util.List;
 import java.util.function.Function;
 
@@ -82,17 +81,13 @@ public class Inventario extends MainPanelBase {
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Producto> prodModel = (CustomTableModel<Producto>) table.getModel();
+        prodModel.setValueSetter(1, (p, v) -> p.setNombre(v.toString()));
         prodModel.setNumericColumns(2, 3);
         prodModel.setValueSetter(2, (p, v) -> p.setStock(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(4, (p, v) -> p.setProveedor((Proveedor) v));
-        prodModel.addTableModelListener(e -> {
-            if (e.getType() != TableModelEvent.UPDATE || e.getColumn() == TableModelEvent.ALL_COLUMNS) return;
-            Object oldValue = prodModel.getLastOldValue();
-            Object newValue = prodModel.getLastNewValue();
-            if (String.valueOf(oldValue).equals(String.valueOf(newValue))) return;
-            Producto prod = prodModel.getRowObject(e.getFirstRow());
-            control.modificarProducto(prod, prod.getNombre(), prod.getStock(), prod.getMinimo(), prod.getProveedor());
+        prodModel.setOnPersist(p -> {
+            control.modificarProducto(p, p.getNombre(), p.getStock(), p.getMinimo(), p.getProveedor());
             showToast("Cambio guardado");
         });
 
