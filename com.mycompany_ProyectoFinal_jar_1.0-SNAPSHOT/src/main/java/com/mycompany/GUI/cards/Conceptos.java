@@ -5,6 +5,7 @@
 package com.mycompany.GUI.cards;
 
 import com.mycompany.proyectofinal.util.ReportManager;
+import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
 import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
@@ -12,6 +13,9 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.*;
 import com.mycompany.proyectofinal.Controladora;
+import java.time.LocalDateTime;
+import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.GUI.components.DateTimeCellEditor;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -78,7 +82,7 @@ public class Conceptos extends MainPanelBase {
         java.util.List<Function<Caja, Object>> getters = java.util.List.of(
             c -> c.getId(),
             c -> c.getTipo(),
-            c -> c.getMonto(),
+            c -> LocalDoubleVerifier.format(c.getMonto()),
             c -> c.getMedio(),
             c -> c.getFecha() != null
             ? c.getFecha().format(Styles.DATE_TIME)
@@ -87,6 +91,43 @@ public class Conceptos extends MainPanelBase {
         );
 
         setTableData(conceptos, columns, getters);
+
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Caja> cajaModel = (CustomTableModel<Caja>) table.getModel();
+        cajaModel.setValueSetter(1, (c, v) -> c.setTipo(v.toString()));
+        cajaModel.setLocalDecimalColumns(2);
+        cajaModel.setValueSetter(2, (c, v) -> c.setMonto(Double.parseDouble(v.toString())));
+        cajaModel.setValueSetter(3, (c, v) -> c.setMedio(v.toString()));
+        cajaModel.setValueSetter(4, (c, v) -> c.setFecha(LocalDateTime.parse(v.toString(), Styles.DATE_TIME)));
+        cajaModel.setValueSetter(5, (c, v) -> c.setDetalle(v.toString()));
+        cajaModel.setOnPersist(c -> {
+            control.modificarConcepto(c, c.getTipo(), c.getMonto(), c.getMedio(), c.getDetalle());
+            showToast("Cambio guardado");
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateTimeCellEditor());
+
+            int colTipo = colIndex("Tipo");
+            JComboBox<String> tipoCombo = new JComboBox<>();
+            tipoCombo.addItem("Ingreso");
+            tipoCombo.addItem("Gasto");
+            table.getColumnModel().getColumn(colTipo).setCellEditor(new DefaultCellEditor(tipoCombo));
+
+            int colMedio = colIndex("Medio");
+            JComboBox<String> medioCombo = new JComboBox<>();
+            medioCombo.addItem("MercadoPago");
+            medioCombo.addItem("Efectivo");
+            medioCombo.addItem("Débito");
+            medioCombo.addItem("Crédito");
+            medioCombo.addItem("Transferencia");
+            table.getColumnModel().getColumn(colMedio).setCellEditor(new DefaultCellEditor(medioCombo));
+
+            int colMonto = colIndex("Monto");
+            JTextField montoField = new JTextField();
+            montoField.addKeyListener(new LocalDoubleVerifier());
+            table.getColumnModel().getColumn(colMonto).setCellEditor(new DefaultCellEditor(montoField));
+        });
     }
     
     private void abrirAltaCaja(){

@@ -3,14 +3,15 @@ package com.mycompany.proyectofinal.util;
 import javax.swing.*;
 import java.util.regex.Pattern;
 
-public class EmailVerifier extends InputVerifier {
+public class WebsiteVerifier extends InputVerifier {
 
-    private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$");
+    private static final Pattern WEBSITE_PATTERN = Pattern.compile(
+            "^(https?://)?(www\\.)?([a-zA-Z0-9\\-]+\\.)+[a-zA-Z]{2,}([/\\w\\-.]*)?$"
+    );
 
     public static boolean isValid(String text) {
         if (text == null || text.isBlank()) return true;
-        return EMAIL_PATTERN.matcher(text.trim()).matches();
+        return WEBSITE_PATTERN.matcher(text.trim()).matches();
     }
 
     @Override
@@ -18,8 +19,8 @@ public class EmailVerifier extends InputVerifier {
         String text = ((JTextField) input).getText().trim();
         if (isValid(text)) return true;
         JOptionPane.showMessageDialog(input,
-                "Ingrese una dirección de correo válida (ej: usuario@dominio.com).",
-                "Email inválido", JOptionPane.WARNING_MESSAGE);
+                "Ingrese una URL válida (ej: www.sitio.com o https://sitio.com).",
+                "Sitio web inválido", JOptionPane.WARNING_MESSAGE);
         return false;
     }
 }

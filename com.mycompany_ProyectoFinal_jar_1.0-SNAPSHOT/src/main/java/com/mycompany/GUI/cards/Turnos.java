@@ -9,6 +9,7 @@ import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.GUI.components.DateTimeCellEditor;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
@@ -17,6 +18,7 @@ import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Turno;
 import java.util.List;
 import java.util.function.Function;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
@@ -86,6 +88,7 @@ public class Turnos extends MainPanelBase{
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Turno> turnoModel = (CustomTableModel<Turno>) table.getModel();
+        turnoModel.setValueSetter(1, (t, v) -> t.setFecha(LocalDateTime.parse(v.toString(), Styles.DATE_TIME)));
         turnoModel.setValueSetter(2, (t, v) -> t.setCliente((Cliente) v));
         turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
         turnoModel.setValueSetter(4, (t, v) -> t.setEstado(v.toString()));
@@ -100,6 +103,8 @@ public class Turnos extends MainPanelBase{
         List<Servicio> servicios = control.traerServicios();
 
         SwingUtilities.invokeLater(() -> {
+            table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateTimeCellEditor());
+
             int colCliente = colIndex("Cliente");
             int colServicio = colIndex("Servicio");
 

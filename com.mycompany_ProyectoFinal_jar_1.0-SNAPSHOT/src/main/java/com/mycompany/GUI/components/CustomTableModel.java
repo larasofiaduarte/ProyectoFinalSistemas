@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import java.awt.*;
 import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.util.DoubleVerifier;
+import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
 import java.time.format.DateTimeFormatter;
 import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Turno;
@@ -31,6 +32,7 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private boolean[] editableColumns;
     private int[] numericColumns = new int[0];
     private int[] decimalColumns = new int[0];
+    private int[] localDecimalColumns = new int[0];
     private Object lastOldValue;
     private Object lastNewValue;
     private Consumer<T> onPersist;
@@ -41,6 +43,10 @@ public class CustomTableModel<T> extends AbstractTableModel {
 
     public void setDecimalColumns(int... cols) {
         this.decimalColumns = cols;
+    }
+
+    public void setLocalDecimalColumns(int... cols) {
+        this.localDecimalColumns = cols;
     }
 
     @SuppressWarnings("unchecked")
@@ -119,15 +125,32 @@ public void setValueAt(Object value, int row, int col) {
             break;
         }
     }
+    Object processedValue = value;
+    for (int ldc : localDecimalColumns) {
+        if (ldc == col) {
+            String str = value == null ? "" : value.toString().trim();
+            if (str.isBlank()) return;
+            String normalized = LocalDoubleVerifier.normalize(str);
+            try {
+                Double.parseDouble(normalized);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Número inválido",
+                        "Error de validación", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            processedValue = normalized;
+            break;
+        }
+    }
     if (valueSetters == null || valueSetters[col] == null) {
         System.out.println("[CustomTableModel] No setter registered for col=" + col + ", skipping");
         return;
     }
     lastOldValue = oldValue;
-    lastNewValue = value;
-    valueSetters[col].accept(data.get(row), value);
+    lastNewValue = processedValue;
+    valueSetters[col].accept(data.get(row), processedValue);
     fireTableCellUpdated(row, col);
-    if (onPersist != null && !String.valueOf(oldValue).equals(String.valueOf(value))) {
+    if (onPersist != null && !String.valueOf(oldValue).equals(String.valueOf(processedValue))) {
         onPersist.accept(data.get(row));
     }
 }

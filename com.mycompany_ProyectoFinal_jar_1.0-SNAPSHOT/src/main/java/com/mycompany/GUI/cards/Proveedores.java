@@ -13,6 +13,9 @@ import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Proveedor;
 import com.mycompany.proyectofinal.util.ReportManager;
+import com.mycompany.proyectofinal.util.EmailVerifier;
+import com.mycompany.proyectofinal.util.WebsiteVerifier;
+import com.mycompany.GUI.components.CustomTableModel;
 import java.util.List;
 import java.util.function.Function;
 
@@ -63,6 +66,53 @@ public class Proveedores extends MainPanelBase {
 
 
         setTableData(proveedores, columns, getters);
+
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Proveedor> provModel = (CustomTableModel<Proveedor>) table.getModel();
+        provModel.setValueSetter(1, (p, v) -> p.setNombre(v.toString()));
+        provModel.setValueSetter(2, (p, v) -> p.setTelefono(v.toString()));
+        provModel.setValueSetter(3, (p, v) -> p.setEmail(v.toString()));
+        provModel.setValueSetter(4, (p, v) -> p.setWebsite(v.toString()));
+        provModel.setOnPersist(p -> {
+            control.modificarProveedor(p, p.getNombre(), p.getTelefono(), p.getEmail(), p.getWebsite());
+            showToast("Cambio guardado");
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            JTextField emailField = new JTextField();
+            DefaultCellEditor emailEditor = new DefaultCellEditor(emailField) {
+                @Override
+                public boolean stopCellEditing() {
+                    String text = emailField.getText().trim();
+                    if (!EmailVerifier.isValid(text)) {
+                        JOptionPane.showMessageDialog(table,
+                                "Ingrese una dirección de correo válida (ej: usuario@dominio.com).",
+                                "Email inválido", JOptionPane.WARNING_MESSAGE);
+                        cancelCellEditing();
+                        return false;
+                    }
+                    return super.stopCellEditing();
+                }
+            };
+            table.getColumnModel().getColumn(colIndex("Email")).setCellEditor(emailEditor);
+
+            JTextField webField = new JTextField();
+            DefaultCellEditor webEditor = new DefaultCellEditor(webField) {
+                @Override
+                public boolean stopCellEditing() {
+                    String text = webField.getText().trim();
+                    if (!WebsiteVerifier.isValid(text)) {
+                        JOptionPane.showMessageDialog(table,
+                                "Ingrese una URL válida (ej: www.sitio.com o https://sitio.com).",
+                                "Sitio web inválido", JOptionPane.WARNING_MESSAGE);
+                        cancelCellEditing();
+                        return false;
+                    }
+                    return super.stopCellEditing();
+                }
+            };
+            table.getColumnModel().getColumn(colIndex("Web")).setCellEditor(webEditor);
+        });
     }
     
     private void abrirAltaProveedor() {

@@ -14,6 +14,7 @@ import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
@@ -72,7 +73,7 @@ public class Servicios extends MainPanelBase {
         java.util.List<Function<Servicio, Object>> getters = java.util.List.of(
             c -> c.getId(),
             c -> c.getNombre(),
-            c -> c.getPrecio(),
+            c -> LocalDoubleVerifier.format(c.getPrecio()),
             c -> c.getEmpleado(),
             c -> {
                 if (c.getProductos() == null || c.getProductos().isEmpty()) {
@@ -104,7 +105,7 @@ public class Servicios extends MainPanelBase {
         @SuppressWarnings("unchecked")
         CustomTableModel<Servicio> servModel = (CustomTableModel<Servicio>) table.getModel();
         servModel.setValueSetter(1, (s, v) -> s.setNombre(v.toString()));
-        servModel.setNumericColumns(2);
+        servModel.setLocalDecimalColumns(2);
         servModel.setValueSetter(2, (s, v) -> s.setPrecio(Double.parseDouble(v.toString())));
         servModel.setValueSetter(3, (s, v) -> s.setEmpleado((Usuario) v));
         servModel.setOnPersist(s -> {
@@ -115,6 +116,11 @@ public class Servicios extends MainPanelBase {
         List<Usuario> empleados = control.traerUsuarios();
 
         SwingUtilities.invokeLater(() -> {
+            int colPrecio = colIndex("Precio");
+            JTextField precioField = new JTextField();
+            precioField.addKeyListener(new LocalDoubleVerifier());
+            table.getColumnModel().getColumn(colPrecio).setCellEditor(new DefaultCellEditor(precioField));
+
             int colEmp = colIndex("Empleado");
             FilteredComboBoxEditor<Usuario> empEditor = new FilteredComboBoxEditor<>(
                 empleados,
