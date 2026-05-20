@@ -17,6 +17,7 @@ import com.mycompany.proyectofinal.util.EmailVerifier;
 import com.mycompany.proyectofinal.util.WebsiteVerifier;
 import com.mycompany.GUI.components.CustomTableModel;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class Proveedores extends MainPanelBase {
@@ -73,6 +74,7 @@ public class Proveedores extends MainPanelBase {
         provModel.setValueSetter(2, (p, v) -> p.setTelefono(v.toString()));
         provModel.setValueSetter(3, (p, v) -> p.setEmail(v.toString()));
         provModel.setValueSetter(4, (p, v) -> p.setWebsite(v.toString()));
+        provModel.setEntityClass(Proveedor.class, Map.of(1, "nombre", 2, "telefono", 3, "email", 4, "website"));
         provModel.setOnPersist(p -> {
             control.modificarProveedor(p, p.getNombre(), p.getTelefono(), p.getEmail(), p.getWebsite());
             showToast("Cambio guardado");

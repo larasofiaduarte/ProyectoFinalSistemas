@@ -7,6 +7,7 @@ package com.mycompany.GUI.cards;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.proyectofinal.util.NumberVerifier;
+import java.util.Map;
 import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
@@ -76,6 +77,7 @@ public class Usuarios extends MainPanelBase {
         userModel.setValueSetter(4, (u, v) -> u.setApellido(v.toString()));
         userModel.setValueSetter(5, (u, v) -> u.setTelefono(v.toString()));
         userModel.setValueSetter(6, (u, v) -> u.setRol(v.toString()));
+        userModel.setEntityClass(Usuario.class, Map.of(1, "username", 2, "dni", 3, "nombre", 4, "apellido", 5, "telefono", 6, "rol"));
         userModel.setOnPersist(u -> {
             control.modificarUsuario(u, u.getUsername(), u.getPassword(),
                     u.getNombre(), u.getApellido(), u.getTelefono(), u.getRol(), u.getDni());

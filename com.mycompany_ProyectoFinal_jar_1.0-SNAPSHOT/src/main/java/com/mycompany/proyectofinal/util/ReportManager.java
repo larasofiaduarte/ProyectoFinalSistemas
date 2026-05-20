@@ -112,21 +112,21 @@ public class ReportManager {
                 }
                 JOptionPane.showMessageDialog(parent,
                     "Reporte guardado!\n" + filePath,
-                    "OK", JOptionPane.INFORMATION_MESSAGE);
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
             }
 
         } catch (ClassNotFoundException e) {
             JOptionPane.showMessageDialog(parent,
                 "MySQL Driver no encontrado: " + e.getMessage(),
-                "Driver Error", JOptionPane.ERROR_MESSAGE);
+                "Error de controlador", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(parent,
                 "Error de conexión a la base de datos: " + e.getMessage(),
-                "DB Error", JOptionPane.ERROR_MESSAGE);
+                "Error de base de datos", JOptionPane.ERROR_MESSAGE);
         } catch (JRException e) {
             JOptionPane.showMessageDialog(parent,
                 "Error generando reporte: " + e.getMessage(),
-                "Report Error", JOptionPane.ERROR_MESSAGE);
+                "Error de reporte", JOptionPane.ERROR_MESSAGE);
         } finally {
             if (conn != null) {
                 try { conn.close(); } catch (SQLException ignored) {}

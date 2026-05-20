@@ -11,6 +11,7 @@ public class Proveedor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private String nombre;
     private String telefono;
     private String email;

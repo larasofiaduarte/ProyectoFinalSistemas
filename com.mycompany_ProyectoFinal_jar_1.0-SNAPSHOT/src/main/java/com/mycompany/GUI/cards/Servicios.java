@@ -20,6 +20,7 @@ import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
 import com.mycompany.proyectofinal.Usuario;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class Servicios extends MainPanelBase {
@@ -108,6 +109,7 @@ public class Servicios extends MainPanelBase {
         servModel.setLocalDecimalColumns(2);
         servModel.setValueSetter(2, (s, v) -> s.setPrecio(Double.parseDouble(v.toString())));
         servModel.setValueSetter(3, (s, v) -> s.setEmpleado((Usuario) v));
+        servModel.setEntityClass(Servicio.class, Map.of(1, "nombre"));
         servModel.setOnPersist(s -> {
             control.modificarServicio(s);
             showToast("Cambio guardado");

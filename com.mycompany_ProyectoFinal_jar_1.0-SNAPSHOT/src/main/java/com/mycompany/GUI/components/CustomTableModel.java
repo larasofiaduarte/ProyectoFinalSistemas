@@ -10,15 +10,11 @@ import java.awt.*;
 import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.util.DoubleVerifier;
 import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
-import java.time.format.DateTimeFormatter;
-import com.mycompany.proyectofinal.Turno;
-import com.mycompany.proyectofinal.Turno;
+import java.lang.reflect.Field;
 import java.util.List;
-
-
-
+import java.util.Map;
+import javax.persistence.Column;
 import javax.swing.table.AbstractTableModel;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,6 +32,8 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private Object lastOldValue;
     private Object lastNewValue;
     private Consumer<T> onPersist;
+    private Class<?> entityClass;
+    private Map<Integer, String> columnFieldMap;
 
     public void setNumericColumns(int... cols) {
         this.numericColumns = cols;
@@ -62,6 +60,24 @@ public class CustomTableModel<T> extends AbstractTableModel {
 
     public void setOnPersist(Consumer<T> callback) {
         this.onPersist = callback;
+    }
+
+    public void setEntityClass(Class<?> entityClass, Map<Integer, String> columnFieldMap) {
+        this.entityClass = entityClass;
+        this.columnFieldMap = columnFieldMap;
+    }
+
+    private boolean isNotNullColumn(int col) {
+        if (entityClass == null || columnFieldMap == null) return false;
+        String fieldName = columnFieldMap.get(col);
+        if (fieldName == null) return false;
+        try {
+            Field field = entityClass.getDeclaredField(fieldName);
+            Column colAnnotation = field.getAnnotation(Column.class);
+            return colAnnotation != null && !colAnnotation.nullable();
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
     }
 
     public CustomTableModel(
@@ -140,6 +156,14 @@ public void setValueAt(Object value, int row, int col) {
             }
             processedValue = normalized;
             break;
+        }
+    }
+    if (isNotNullColumn(col)) {
+        String str = processedValue == null ? "" : processedValue.toString().trim();
+        if (str.isBlank()) {
+            JOptionPane.showMessageDialog(null, "Este campo es requerido y no puede estar vacío.",
+                "Campo requerido", JOptionPane.WARNING_MESSAGE);
+            return;
         }
     }
     if (valueSetters == null || valueSetters[col] == null) {

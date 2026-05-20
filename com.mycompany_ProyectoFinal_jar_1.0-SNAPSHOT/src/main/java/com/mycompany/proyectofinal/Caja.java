@@ -20,8 +20,10 @@ public class Caja implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private String tipo;
     private Double monto;
+    @Column(nullable = false)
     private String medio;
     private String detalle;
     private LocalDateTime fecha;

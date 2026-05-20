@@ -100,6 +100,7 @@ public class Conceptos extends MainPanelBase {
         cajaModel.setValueSetter(3, (c, v) -> c.setMedio(v.toString()));
         cajaModel.setValueSetter(4, (c, v) -> c.setFecha(LocalDateTime.parse(v.toString(), Styles.DATE_TIME)));
         cajaModel.setValueSetter(5, (c, v) -> c.setDetalle(v.toString()));
+        cajaModel.setEntityClass(Caja.class, Map.of(1, "tipo", 3, "medio"));
         cajaModel.setOnPersist(c -> {
             control.modificarConcepto(c, c.getTipo(), c.getMonto(), c.getMedio(), c.getDetalle());
             showToast("Cambio guardado");

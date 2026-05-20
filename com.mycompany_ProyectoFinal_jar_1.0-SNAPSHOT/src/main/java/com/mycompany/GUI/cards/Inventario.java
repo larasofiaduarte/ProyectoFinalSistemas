@@ -17,6 +17,7 @@ import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.util.DoubleVerifier;
 import com.mycompany.proyectofinal.Proveedor;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class Inventario extends MainPanelBase {
@@ -86,6 +87,7 @@ public class Inventario extends MainPanelBase {
         prodModel.setValueSetter(2, (p, v) -> p.setStock(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(4, (p, v) -> p.setProveedor((Proveedor) v));
+        prodModel.setEntityClass(Producto.class, Map.of(1, "nombre"));
         prodModel.setOnPersist(p -> {
             control.modificarProducto(p, p.getNombre(), p.getStock(), p.getMinimo(), p.getProveedor());
             showToast("Cambio guardado");

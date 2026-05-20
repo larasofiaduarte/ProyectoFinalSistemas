@@ -27,6 +27,7 @@ public class Turno {
     @ManyToOne
     @JoinColumn(name="Servicio")
     private Servicio servicio;
+    @Column(nullable = false)
     private String estado;
     private String detalle;
 

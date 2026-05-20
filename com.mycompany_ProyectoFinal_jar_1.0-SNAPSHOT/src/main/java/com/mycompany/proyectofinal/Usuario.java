@@ -25,14 +25,18 @@ public class Usuario implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private String username;
     @Column(name = "clave")
     private String password;
     @Column(name="dni")
     private String dni;
+    @Column(nullable = false)
     private String nombre;
+    @Column(nullable = false)
     private String apellido;
     private String telefono;
+    @Column(nullable = false)
     private String rol;
 
     public String getNombre() {

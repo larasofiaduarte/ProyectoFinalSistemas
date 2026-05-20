@@ -17,6 +17,7 @@ import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Turno;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -99,6 +100,7 @@ public class Turnos extends MainPanelBase{
         turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
         turnoModel.setValueSetter(4, (t, v) -> t.setEstado(v.toString()));
         turnoModel.setValueSetter(5, (t, v) -> t.setDetalle(v.toString()));
+        turnoModel.setEntityClass(Turno.class, Map.of(4, "estado", 5, "detalle"));
         turnoModel.setOnPersist(t -> {
             control.modificarTurno(t, t.getServicio(), t.getFecha(),
                     t.getCliente(), t.getEstado(), t.getDetalle());
