@@ -149,7 +149,7 @@ public void setValueAt(Object value, int row, int col) {
     lastOldValue = oldValue;
     lastNewValue = processedValue;
     valueSetters[col].accept(data.get(row), processedValue);
-    fireTableCellUpdated(row, col);
+    fireTableRowsUpdated(row, row);
     if (onPersist != null && !String.valueOf(oldValue).equals(String.valueOf(processedValue))) {
         onPersist.accept(data.get(row));
     }

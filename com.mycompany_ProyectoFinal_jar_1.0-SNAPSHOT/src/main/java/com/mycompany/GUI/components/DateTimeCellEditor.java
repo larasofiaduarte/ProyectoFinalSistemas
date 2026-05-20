@@ -87,6 +87,12 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
                         .atZone(ZoneId.systemDefault())
                         .toLocalDateTime()
                         .withHour(0).withMinute(0).withSecond(0).withNano(0);
+                if (ldt.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                    JOptionPane.showMessageDialog(popup,
+                            "No se permite seleccionar fechas en domingo.",
+                            "Fecha no permitida", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 textField.setText(Styles.DATE_TIME.format(ldt));
             }
             closePopup();

@@ -88,7 +88,13 @@ public class Turnos extends MainPanelBase{
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Turno> turnoModel = (CustomTableModel<Turno>) table.getModel();
-        turnoModel.setValueSetter(1, (t, v) -> t.setFecha(LocalDateTime.parse(v.toString(), Styles.DATE_TIME)));
+        turnoModel.setValueSetter(1, (t, v) -> {
+            LocalDateTime ldt = LocalDateTime.parse(v.toString(), Styles.DATE_TIME);
+            t.setFecha(ldt);
+            if (ldt.isBefore(LocalDateTime.now())) {
+                t.setEstado("Finalizado");
+            }
+        });
         turnoModel.setValueSetter(2, (t, v) -> t.setCliente((Cliente) v));
         turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
         turnoModel.setValueSetter(4, (t, v) -> t.setEstado(v.toString()));
