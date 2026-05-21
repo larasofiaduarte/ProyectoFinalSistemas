@@ -4,6 +4,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Proveedor;
 import com.mycompany.proyectofinal.Usuario;
@@ -130,6 +131,16 @@ public class AltaProductos extends JDialog{
                 return; // Exit the action if prov does not exist
             }else{
                 control.guardarProducto(nombre, stock, minimo, provSelec);
+                if (prodEditar == null) {
+                    RegistrarActividad.registrar(
+                        "PRODUCTOS",
+                        "nuevo registro",
+                        "alta",
+                        null,
+                        "Nombre: " + nombre + " | Stock: " + stock + " | Mínimo: " + minimo + " | Proveedor: " + (provSelec != null ? provSelec.getNombre() : "N/A"),
+                        "ALTA"
+                    );
+                }
                 JOptionPane.showMessageDialog(null, "Producto guardado correctamente.", "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
                 if (onSave != null) {
                     onSave.run();   // 👈 refresh table

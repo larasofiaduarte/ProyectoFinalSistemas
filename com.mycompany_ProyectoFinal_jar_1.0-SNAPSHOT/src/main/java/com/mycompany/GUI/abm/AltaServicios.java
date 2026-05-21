@@ -7,6 +7,7 @@ package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Usuario;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -456,6 +457,14 @@ public class AltaServicios extends JDialog {
 
     if (servEditar == null) {
         control.guardarServicio(servicio);
+        RegistrarActividad.registrar(
+            "SERVICIOS",
+            "nuevo registro",
+            "alta",
+            null,
+            "Nombre: " + servicio.getNombre() + " | Precio: " + precio + " | Empleado: " + (empleadoSelec != null ? empleadoSelec.getNombre() + " " + empleadoSelec.getApellido() : "N/A"),
+            "ALTA"
+        );
         JOptionPane.showMessageDialog(this,
                 "Servicio guardado correctamente.",
                 "Alta exitosa",

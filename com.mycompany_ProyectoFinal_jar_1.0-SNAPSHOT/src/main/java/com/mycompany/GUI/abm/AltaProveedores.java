@@ -6,6 +6,7 @@ import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.util.EmailVerifier;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.Proveedor;
 import javax.swing.*;
@@ -51,6 +52,14 @@ public class AltaProveedores extends JDialog {
                     
                     if(txtNombre.getText() != null && !txtNombre.getText().isEmpty()){
                         control.guardarProveedor(nombre, telefono, email, web);
+                        RegistrarActividad.registrar(
+                            "PROVEEDORES",
+                            "nuevo registro",
+                            "alta",
+                            null,
+                            "Nombre: " + nombre + " | Teléfono: " + telefono + " | Email: " + email,
+                            "ALTA"
+                        );
                         JOptionPane.showMessageDialog(null, "Proveedor guardado correctamente.", "Proveedor guardado.", JOptionPane.INFORMATION_MESSAGE);
                         if (onSave != null) {
                             onSave.run();   // 👈 refresh table
@@ -144,6 +153,14 @@ public class AltaProveedores extends JDialog {
         if (provEditar == null) {
             // MODO ALTA
             control.guardarProveedor(nombre, telefono, email, web);
+            RegistrarActividad.registrar(
+                "PROVEEDORES",
+                "nuevo registro",
+                "alta",
+                null,
+                "Nombre: " + nombre + " | Teléfono: " + telefono + " | Email: " + email,
+                "ALTA"
+            );
             JOptionPane.showMessageDialog(this, "Proveedor guardado correctamente.");
         } else {
             //MODO MODIFICAR

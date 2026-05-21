@@ -2,6 +2,7 @@
 package com.mycompany.GUI.abm;
 
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.awt.Font;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
@@ -170,6 +171,14 @@ public class AltaEmpleados extends JDialog {
         if (userEditar == null) {
             // MODO ALTA
             control.guardarUser(user, pass, nombre, apellido, tel, rol, dni);
+            RegistrarActividad.registrar(
+                "USUARIOS",
+                "nuevo registro",
+                "alta",
+                null,
+                "Usuario: " + user + " | Nombre: " + nombre + " | Apellido: " + apellido + " | Rol: " + rol,
+                "ALTA"
+            );
             JOptionPane.showMessageDialog(this, "Usuario creado correctamente.");
         } else {
             //MODO MODIFICAR

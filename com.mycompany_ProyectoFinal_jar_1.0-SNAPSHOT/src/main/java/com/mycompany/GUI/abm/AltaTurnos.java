@@ -6,6 +6,7 @@ package com.mycompany.GUI.abm;
 
 import com.mycompany.GUI.*;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Cliente;
 import java.awt.event.ActionEvent;
@@ -129,6 +130,14 @@ public class AltaTurnos extends JDialog {
         if (turnoEditar == null) {
             // 🔹 ALTA
             control.guardarTurno(servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
+            RegistrarActividad.registrar(
+                "TURNOS",
+                "nuevo registro",
+                "alta",
+                null,
+                "Cliente: " + nombreCliente + " | Servicio: " + servicioStr + " | Fecha: " + fechaFinal + " | Estado: " + estado,
+                "ALTA"
+            );
             JOptionPane.showMessageDialog(this,
                     "Turno guardado correctamente.",
                     "Alta exitosa",
