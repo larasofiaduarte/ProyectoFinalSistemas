@@ -11,8 +11,10 @@ import java.awt.*;
 import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.AltaClientes;
+import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.proyectofinal.*;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import com.mycompany.proyectofinal.Cliente;
 import javax.swing.table.TableCellRenderer;
@@ -67,11 +69,28 @@ public class Clientes extends MainPanelBase {
         
         setTableData(clientes, columns, getters);
 
+        @SuppressWarnings("unchecked")
+        CustomTableModel<Cliente> clienteModel = (CustomTableModel<Cliente>) table.getModel();
+        clienteModel.setValueSetter(1, (c, v) -> c.setNombre(v.toString()));
+        clienteModel.setValueSetter(2, (c, v) -> c.setApellido(v.toString()));
+        clienteModel.setValueSetter(3, (c, v) -> c.setTelefono(v.toString()));
+        clienteModel.setValueSetter(4, (c, v) -> c.setGenero(v.toString()));
+        clienteModel.setEntityClass(Cliente.class, Map.of(1, "nombre", 2, "apellido", 3, "telefono", 4, "genero"));
+        clienteModel.setTableName("CLIENTES");
+        clienteModel.setOnPersist(c -> {
+            control.modificarCliente(c, c.getNombre(), c.getApellido(), c.getTelefono(), c.getGenero());
+            showToast("Cambio guardado");
+        });
+
         SwingUtilities.invokeLater(() -> {
             int colBoton = table.getColumnCount() - 1;
             table.getColumnModel().getColumn(colBoton).setCellRenderer(new ButtonRenderer());
             table.getColumnModel().getColumn(colBoton).setCellEditor(new ButtonEditor(table));
             table.setRowHeight(35);
+
+            int colGenero = colIndex("Género");
+            JComboBox<String> generoCombo = new JComboBox<>(new String[]{"F", "M", "X"});
+            table.getColumnModel().getColumn(colGenero).setCellEditor(new DefaultCellEditor(generoCombo));
         });
     }
 

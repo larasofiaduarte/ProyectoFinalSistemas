@@ -17,10 +17,13 @@ import javax.swing.JOptionPane;
 
 public class AltaProductos extends JDialog{
     
+    private static final String NUEVA_OPCION = "+ Nuevo proveedor...";
+
     Controladora control = new Controladora();
     private Runnable onSave;
     Proveedor provSelec;
     private Producto prodEditar;
+    private final java.util.List<String> nombresProveedores = new ArrayList<>();
 
     //MODO ALTA
     public AltaProductos(Frame parent, boolean modal, Runnable onSave) {
@@ -312,15 +315,70 @@ public class AltaProductos extends JDialog{
     }
     
     //cargar servicios a cbo
-    public void obtenerProveedores(){
+    public void obtenerProveedores() {
+        nombresProveedores.clear();
         java.util.List<Proveedor> proveedores = control.traerProveedores();
-        java.util.List<String> nombres = new ArrayList<>();
-        for (Proveedor prov : proveedores) {
-            String nombreProv = prov.getNombre();
-            cboProv.addItem(nombreProv); 
-            nombres.add(nombreProv);
+        for (Proveedor p : proveedores) nombresProveedores.add(p.getNombre());
+        nombresProveedores.add(NUEVA_OPCION);
+
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        for (String n : nombresProveedores) model.addElement(n);
+        cboProv.setModel(model);
+
+        cboProv.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (NUEVA_OPCION.equals(value)) {
+                    setFont(getFont().deriveFont(Font.ITALIC));
+                    if (!isSelected) setForeground(new Color(70, 130, 200));
+                }
+                return this;
+            }
+        });
+
+        Styles.addAutoComplete(cboProv, nombresProveedores);
+
+        // addAutoComplete replaces the model on each key release — re-append sentinel afterward
+        JTextField editor = (JTextField) cboProv.getEditor().getEditorComponent();
+        editor.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER || key == KeyEvent.VK_ESCAPE ||
+                    key == KeyEvent.VK_UP    || key == KeyEvent.VK_DOWN) return;
+                DefaultComboBoxModel<String> m = (DefaultComboBoxModel<String>) cboProv.getModel();
+                if (m.getIndexOf(NUEVA_OPCION) < 0) m.addElement(NUEVA_OPCION);
+            }
+        });
+
+        cboProv.addActionListener(e -> {
+            if (NUEVA_OPCION.equals(cboProv.getSelectedItem())) {
+                cboProv.hidePopup();
+                Frame parent = (Frame) SwingUtilities.getWindowAncestor(cboProv);
+                AltaProveedores dialog = new AltaProveedores(parent, true, () -> {});
+                dialog.setLocationRelativeTo(AltaProductos.this);
+                dialog.setVisible(true);
+                recargarProveedores();
+            }
+        });
+    }
+
+    private void recargarProveedores() {
+        java.util.List<Proveedor> actualizados = control.traerProveedores();
+
+        nombresProveedores.clear();
+        for (Proveedor p : actualizados) nombresProveedores.add(p.getNombre());
+        nombresProveedores.add(NUEVA_OPCION);
+
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        for (String n : nombresProveedores) model.addElement(n);
+        cboProv.setModel(model);
+
+        if (!actualizados.isEmpty()) {
+            cboProv.setSelectedItem(actualizados.get(actualizados.size() - 1).getNombre());
         }
-        Styles.addAutoComplete(cboProv, nombres); 
     }
     //encontrar servicio por nombre y guardar el seleccionado
     public Proveedor guardarProveedor(String proveedor){

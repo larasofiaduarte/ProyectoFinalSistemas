@@ -88,6 +88,7 @@ public class Inventario extends MainPanelBase {
         prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(4, (p, v) -> p.setProveedor((Proveedor) v));
         prodModel.setEntityClass(Producto.class, Map.of(1, "nombre"));
+        prodModel.setTableName("PRODUCTOS");
         prodModel.setOnPersist(p -> {
             control.modificarProducto(p, p.getNombre(), p.getStock(), p.getMinimo(), p.getProveedor());
             showToast("Cambio guardado");

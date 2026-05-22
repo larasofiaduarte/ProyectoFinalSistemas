@@ -78,6 +78,7 @@ public class Usuarios extends MainPanelBase {
         userModel.setValueSetter(5, (u, v) -> u.setTelefono(v.toString()));
         userModel.setValueSetter(6, (u, v) -> u.setRol(v.toString()));
         userModel.setEntityClass(Usuario.class, Map.of(1, "username", 2, "dni", 3, "nombre", 4, "apellido", 5, "telefono", 6, "rol"));
+        userModel.setTableName("USUARIOS");
         userModel.setOnPersist(u -> {
             control.modificarUsuario(u, u.getUsername(), u.getPassword(),
                     u.getNombre(), u.getApellido(), u.getTelefono(), u.getRol(), u.getDni());

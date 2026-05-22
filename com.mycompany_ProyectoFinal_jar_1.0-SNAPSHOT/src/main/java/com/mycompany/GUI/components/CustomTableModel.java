@@ -10,7 +10,9 @@ import java.awt.*;
 import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.util.DoubleVerifier;
 import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
+import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.Column;
@@ -34,6 +36,7 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private Consumer<T> onPersist;
     private Class<?> entityClass;
     private Map<Integer, String> columnFieldMap;
+    private String tableName;
 
     public void setNumericColumns(int... cols) {
         this.numericColumns = cols;
@@ -65,6 +68,20 @@ public class CustomTableModel<T> extends AbstractTableModel {
     public void setEntityClass(Class<?> entityClass, Map<Integer, String> columnFieldMap) {
         this.entityClass = entityClass;
         this.columnFieldMap = columnFieldMap;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    private int getEntityId(T entity) {
+        try {
+            Method getId = entity.getClass().getMethod("getId");
+            Object result = getId.invoke(entity);
+            return result instanceof Number ? ((Number) result).intValue() : -1;
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
     private boolean isNotNullColumn(int col) {
@@ -176,6 +193,18 @@ public void setValueAt(Object value, int row, int col) {
     fireTableRowsUpdated(row, row);
     if (onPersist != null && !String.valueOf(oldValue).equals(String.valueOf(processedValue))) {
         onPersist.accept(data.get(row));
+    }
+    if (tableName != null) {
+        Object finalValue = valueGetters[col].apply(data.get(row));
+        String oldStr = oldValue == null ? "" : oldValue.toString().trim();
+        String newStr = finalValue == null ? "" : finalValue.toString().trim();
+        if (!oldStr.equals(newStr)) {
+            int id = getEntityId(data.get(row));
+            String fieldName = (columnFieldMap != null)
+                ? columnFieldMap.getOrDefault(col, columnNames[col])
+                : columnNames[col];
+            RegistrarActividad.registrar(tableName, String.valueOf(id), fieldName, oldStr, newStr, "MODIFICACION");
+        }
     }
 }
 

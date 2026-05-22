@@ -101,6 +101,7 @@ public class Turnos extends MainPanelBase{
         turnoModel.setValueSetter(4, (t, v) -> t.setEstado(v.toString()));
         turnoModel.setValueSetter(5, (t, v) -> t.setDetalle(v.toString()));
         turnoModel.setEntityClass(Turno.class, Map.of(4, "estado", 5, "detalle"));
+        turnoModel.setTableName("TURNOS");
         turnoModel.setOnPersist(t -> {
             control.modificarTurno(t, t.getServicio(), t.getFecha(),
                     t.getCliente(), t.getEstado(), t.getDetalle());

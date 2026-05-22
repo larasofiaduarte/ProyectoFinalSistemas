@@ -22,6 +22,7 @@ import com.mycompany.proyectofinal.Usuario;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.swing.table.TableCellRenderer;
 
 public class Servicios extends MainPanelBase {
 
@@ -101,7 +102,7 @@ public class Servicios extends MainPanelBase {
 
 
 
-        setTableData(servicios, columns, getters);
+        setTableData(servicios, columns, getters, new boolean[]{false, true, true, true, true});
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Servicio> servModel = (CustomTableModel<Servicio>) table.getModel();
@@ -110,6 +111,7 @@ public class Servicios extends MainPanelBase {
         servModel.setValueSetter(2, (s, v) -> s.setPrecio(Double.parseDouble(v.toString())));
         servModel.setValueSetter(3, (s, v) -> s.setEmpleado((Usuario) v));
         servModel.setEntityClass(Servicio.class, Map.of(1, "nombre"));
+        servModel.setTableName("SERVICIOS");
         servModel.setOnPersist(s -> {
             control.modificarServicio(s);
             showToast("Cambio guardado");
@@ -137,6 +139,11 @@ public class Servicios extends MainPanelBase {
             );
             table.getColumnModel().getColumn(colEmp).setCellEditor(empEditor);
             table.getColumnModel().getColumn(colEmp).setCellRenderer(empEditor.getRenderer());
+
+            int colProductos = colIndex("Productos");
+            table.getColumnModel().getColumn(colProductos).setCellRenderer(new ProductosButtonRenderer());
+            table.getColumnModel().getColumn(colProductos).setCellEditor(new ProductosButtonEditor(table));
+            table.setRowHeight(35);
         });
     }
     
@@ -227,5 +234,62 @@ public class Servicios extends MainPanelBase {
         if (formato != null) {
             ReportManager.generateReport(this, "servicios.jrxml", null, "ListaServicios", formato);
         }
+    }
+
+    class ProductosButtonRenderer extends JButton implements TableCellRenderer {
+        public ProductosButtonRenderer() {
+            setFocusPainted(false);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            String text = value != null ? value.toString() : "";
+            setText(text.isBlank() ? "Seleccionar..." : text);
+            return this;
+        }
+    }
+
+    class ProductosButtonEditor extends DefaultCellEditor {
+        private final JButton button;
+        private final JTable tabla;
+        private int currentRow;
+        private String currentValue;
+
+        public ProductosButtonEditor(JTable tabla) {
+            super(new JCheckBox());
+            this.tabla = tabla;
+            button = new JButton();
+            button.setFocusPainted(false);
+
+            button.addActionListener(e -> {
+                int id = ((Number) tabla.getValueAt(currentRow, 0)).intValue();
+                Servicio servicio = control.findServicio(id);
+                List<Producto> allProductos = control.traerProductos();
+                Frame parent = (Frame) SwingUtilities.getWindowAncestor(tabla);
+
+                ProductosSelectorDialog dialog = new ProductosSelectorDialog(
+                    parent, servicio, allProductos, control, ventana
+                );
+                dialog.setVisible(true);
+
+                fireEditingStopped();
+                if (dialog.isSaved()) {
+                    cargarTabla();
+                }
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            currentRow = row;
+            currentValue = value != null ? value.toString() : "";
+            button.setText(currentValue.isBlank() ? "Seleccionar..." : currentValue);
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() { return currentValue; }
     }
 }
