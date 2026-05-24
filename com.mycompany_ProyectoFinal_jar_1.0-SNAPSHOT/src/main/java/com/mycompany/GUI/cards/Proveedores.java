@@ -126,7 +126,6 @@ public class Proveedores extends MainPanelBase {
     }
     
     private void eliminarProveedor() {
-
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {
@@ -139,27 +138,16 @@ public class Proveedores extends MainPanelBase {
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro que desea eliminar este proveedor?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        control.borrarProveedor(id);
-
-        JOptionPane.showMessageDialog(
+        DeleteWithRelationsHandler.handleDeleteProveedor(this, id, () ->
+            JOptionPane.showMessageDialog(
                 this,
                 "Proveedor borrado correctamente.",
                 "Eliminación exitosa",
                 JOptionPane.INFORMATION_MESSAGE
+            )
         );
 
         cargarTabla();

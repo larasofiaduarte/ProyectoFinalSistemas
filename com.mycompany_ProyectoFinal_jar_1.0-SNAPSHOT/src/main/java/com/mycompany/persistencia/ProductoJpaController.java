@@ -131,4 +131,54 @@ public class ProductoJpaController implements Serializable {
     Proveedor findProveedor(int id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    public List<Producto> findByProveedor(int proveedorId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createNativeQuery("SELECT * FROM productos WHERE idProveedor = ?1", Producto.class)
+                    .setParameter(1, proveedorId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void nullifyProveedor(int proveedorId) {
+        EntityManager em = null;
+        EntityTransaction transaction = null;
+        try {
+            em = emf.createEntityManager();
+            transaction = em.getTransaction();
+            transaction.begin();
+            em.createNativeQuery("UPDATE productos SET idProveedor = NULL WHERE idProveedor = ?1")
+                    .setParameter(1, proveedorId)
+                    .executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) transaction.rollback();
+            throw new RuntimeException("Error nullifying proveedor on productos", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public void reassignProveedor(int fromProveedorId, Proveedor toProveedor) {
+        EntityManager em = null;
+        EntityTransaction transaction = null;
+        try {
+            em = emf.createEntityManager();
+            transaction = em.getTransaction();
+            transaction.begin();
+            em.createNativeQuery("UPDATE productos SET idProveedor = ?1 WHERE idProveedor = ?2")
+                    .setParameter(1, toProveedor.getId())
+                    .setParameter(2, fromProveedorId)
+                    .executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) transaction.rollback();
+            throw new RuntimeException("Error reassigning proveedor on productos", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
 }
