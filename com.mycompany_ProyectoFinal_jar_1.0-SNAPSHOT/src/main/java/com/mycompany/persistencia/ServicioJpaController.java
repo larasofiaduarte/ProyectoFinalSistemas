@@ -132,6 +132,59 @@ public class ServicioJpaController implements Serializable {
         }
     }
     
+    public List<Servicio> findByEmpleado(int usuarioId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT s FROM Servicio s WHERE s.empleado.id = :id", Servicio.class)
+                .setParameter("id", usuarioId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void nullifyEmpleado(int usuarioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            em.createQuery("UPDATE Servicio s SET s.empleado = null WHERE s.empleado.id = :id")
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error nullifying empleado on servicios", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public void reassignEmpleado(int fromId, int toId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            com.mycompany.proyectofinal.Usuario nuevo =
+                em.getReference(com.mycompany.proyectofinal.Usuario.class, toId);
+            em.createQuery("UPDATE Servicio s SET s.empleado = :nuevo WHERE s.empleado.id = :id")
+                .setParameter("nuevo", nuevo)
+                .setParameter("id", fromId)
+                .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error reassigning empleado on servicios", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
     public boolean checkIfReferenced(int servicioId) {
         EntityManager em = emf.createEntityManager();
         try {

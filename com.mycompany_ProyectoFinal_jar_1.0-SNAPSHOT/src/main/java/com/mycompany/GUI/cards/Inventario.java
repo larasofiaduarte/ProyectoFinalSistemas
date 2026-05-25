@@ -129,40 +129,20 @@ public class Inventario extends MainPanelBase {
     }
     
     private void eliminarProducto() {
-
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Seleccione un producto para eliminar.",
-                "Ninguna selección",
-                JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro que desea eliminar este producto?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
+            JOptionPane.showMessageDialog(this, "Seleccione un producto para eliminar.",
+                    "Ninguna selección", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        control.borrarProducto(id);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Producto borrado correctamente.",
-                "Eliminación exitosa",
-                JOptionPane.INFORMATION_MESSAGE
+        DeleteWithRelationsHandler.handleDeleteProducto(this, id, () ->
+            JOptionPane.showMessageDialog(this, "Producto borrado correctamente.",
+                    "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE)
         );
 
         cargarTabla();
@@ -188,6 +168,19 @@ public class Inventario extends MainPanelBase {
         dialog.setVisible(true);
     }
     
+    public void seleccionarProducto(Producto p) {
+        @SuppressWarnings("unchecked")
+        com.mycompany.GUI.components.CustomTableModel<Producto> model =
+            (com.mycompany.GUI.components.CustomTableModel<Producto>) table.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getRowObject(i).getId() == p.getId()) {
+                table.setRowSelectionInterval(i, i);
+                table.scrollRectToVisible(table.getCellRect(i, 0, true));
+                return;
+            }
+        }
+    }
+
     @Override
     public void applyTheme() {
         super.applyTheme();

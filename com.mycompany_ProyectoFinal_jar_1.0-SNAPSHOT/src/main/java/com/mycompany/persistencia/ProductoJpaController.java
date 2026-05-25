@@ -40,6 +40,7 @@ public class ProductoJpaController implements Serializable {
             transaction.begin();
             em.persist(producto);
             transaction.commit();
+            NotificationService.getInstance().notifyStockChange();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
@@ -92,6 +93,7 @@ public class ProductoJpaController implements Serializable {
             transaction.begin();
             em.merge(producto);
             transaction.commit();
+            NotificationService.getInstance().notifyStockChange();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
@@ -116,6 +118,7 @@ public class ProductoJpaController implements Serializable {
             Producto producto = em.getReference(Producto.class, id);
             em.remove(producto);
             transaction.commit();
+            NotificationService.getInstance().notifyStockChange();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
@@ -179,6 +182,18 @@ public class ProductoJpaController implements Serializable {
             throw new RuntimeException("Error reassigning proveedor on productos", e);
         } finally {
             if (em != null) em.close();
+        }
+    }
+
+    public List<Producto> findLowStock() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT p FROM Producto p WHERE p.stock < p.minimo",
+                Producto.class
+            ).getResultList();
+        } finally {
+            em.close();
         }
     }
 }

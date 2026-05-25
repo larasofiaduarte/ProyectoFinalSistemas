@@ -128,6 +128,27 @@ public class ClienteJpaController implements Serializable {
     }
     
     
+    public void softDelete(int clienteId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            Cliente c = em.find(Cliente.class, clienteId);
+            if (c != null) {
+                c.setActivo(false);
+                em.merge(c);
+            }
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error soft-deleting cliente", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
     public boolean checkIfClientReferenced(int clienteId) {
         EntityManager em = emf.createEntityManager();
         try {

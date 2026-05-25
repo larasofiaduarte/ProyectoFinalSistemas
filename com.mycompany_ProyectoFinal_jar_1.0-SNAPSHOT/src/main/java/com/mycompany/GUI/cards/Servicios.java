@@ -156,40 +156,20 @@ public class Servicios extends MainPanelBase {
     
     
     private void eliminarServicio() {
-
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Seleccione un servicio para eliminar.",
-                "Ninguna selección",
-                JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "¿Está seguro que desea eliminar este servicio?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
+            JOptionPane.showMessageDialog(this, "Seleccione un servicio para eliminar.",
+                    "Ninguna selección", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        control.borrarServicio(id);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Servicio borrado correctamente.",
-                "Eliminación exitosa",
-                JOptionPane.INFORMATION_MESSAGE
+        DeleteWithRelationsHandler.handleDeleteServicio(this, id, () ->
+            JOptionPane.showMessageDialog(this, "Servicio borrado correctamente.",
+                    "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE)
         );
 
         cargarTabla();

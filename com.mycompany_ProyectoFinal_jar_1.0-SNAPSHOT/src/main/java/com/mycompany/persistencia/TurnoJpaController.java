@@ -164,16 +164,135 @@ public class TurnoJpaController {
     }
     
     public List<Turno> findByCliente(int clienteId) {
-    EntityManager em = emf.createEntityManager();
-    try {
-        TypedQuery<Turno> query = em.createQuery(
-            "SELECT t FROM Turno t WHERE t.cliente.id = :clienteId", Turno.class);
-        query.setParameter("clienteId", clienteId);
-        return query.getResultList();
-    } finally {
-        em.close();
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT t FROM Turno t WHERE t.cliente.id = :id", Turno.class)
+                .setParameter("id", clienteId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
     }
-}
 
+    public List<Turno> findActiveByServicio(int servicioId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT t FROM Turno t WHERE t.servicio.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')",
+                Turno.class)
+                .setParameter("id", servicioId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
 
+    public void cancelByServicio(int servicioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            em.createQuery(
+                "UPDATE Turno t SET t.estado = 'CANCELADO' WHERE t.servicio.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')")
+                .setParameter("id", servicioId)
+                .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error cancelling turnos by servicio", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public void reassignServicio(int fromServiceId, int toServiceId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            Servicio nuevo = em.getReference(Servicio.class, toServiceId);
+            em.createQuery(
+                "UPDATE Turno t SET t.servicio = :nuevo WHERE t.servicio.id = :id")
+                .setParameter("nuevo", nuevo)
+                .setParameter("id", fromServiceId)
+                .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error reassigning servicio on turnos", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public List<Turno> findActiveByCliente(int clienteId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT t FROM Turno t WHERE t.cliente.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')",
+                Turno.class)
+                .setParameter("id", clienteId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void cancelByCliente(int clienteId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            em.createQuery(
+                "UPDATE Turno t SET t.estado = 'CANCELADO' WHERE t.cliente.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')")
+                .setParameter("id", clienteId)
+                .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error cancelling turnos by cliente", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    public List<Turno> findActiveByEmpleado(int usuarioId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT t FROM Turno t WHERE t.servicio.empleado.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')",
+                Turno.class)
+                .setParameter("id", usuarioId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    public void cancelByEmpleado(int usuarioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+            em.createQuery(
+                "UPDATE Turno t SET t.estado = 'CANCELADO' WHERE t.servicio.empleado.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')")
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            throw new RuntimeException("Error cancelling turnos by empleado", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
 }

@@ -46,7 +46,9 @@ public class Clientes extends MainPanelBase {
     }
 
     private void cargarTabla() {
-        List<Cliente> clientes = control.traerClientes();
+        List<Cliente> clientes = control.traerClientes().stream()
+                .filter(c -> c.isActivo())
+                .collect(java.util.stream.Collectors.toList());
 
         String[] columns = {
             "ID", "Nombre", "Apellido", "Teléfono", "Género", "Historial"
@@ -102,44 +104,24 @@ public class Clientes extends MainPanelBase {
         dialog.setVisible(true);
     }
     
-    private void eliminarCliente() { //btn elim
-
+    private void eliminarCliente() {
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {
-            JOptionPane.showMessageDialog(
-                this,
-                "Seleccione un cliente para eliminar.",
-                "Ninguna selección",
-                JOptionPane.WARNING_MESSAGE
-            );
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog( //confimacion
-                this, 
-                "¿Está seguro que desea eliminar este cliente?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
+            JOptionPane.showMessageDialog(this, "Seleccione un cliente para eliminar.",
+                    "Ninguna selección", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        control.borrarCliente(id);
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Cliente borrado correctamente.",
-                "Eliminación exitosa",
-                JOptionPane.INFORMATION_MESSAGE
+        DeleteWithRelationsHandler.handleDeleteCliente(this, id, () ->
+            JOptionPane.showMessageDialog(this, "Cliente dado de baja correctamente.",
+                    "Baja exitosa", JOptionPane.INFORMATION_MESSAGE)
         );
 
-        cargarTabla(); //re carga datos tabla
+        cargarTabla();
     }
 
     private void modificarCliente() { //btn modif

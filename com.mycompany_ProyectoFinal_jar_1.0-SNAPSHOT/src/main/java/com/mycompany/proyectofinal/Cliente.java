@@ -19,6 +19,17 @@ public class Cliente implements Serializable {
     private String apellido;
     private String telefono;
     private String genero;
+    @Column(nullable = true)
+    private Boolean activo;
+
+    public boolean isActivo() {
+        return activo == null || activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
     public int getId() {
         return id;
     }

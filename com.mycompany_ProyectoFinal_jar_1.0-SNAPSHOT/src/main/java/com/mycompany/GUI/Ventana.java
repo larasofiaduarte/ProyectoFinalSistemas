@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import com.mycompany.GUI.cards.*;
+import com.mycompany.proyectofinal.Producto;
 import com.mycompany.GUI.components.SideMenu;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -101,13 +102,22 @@ public class Ventana extends JFrame implements Navigator {
     }
     
     public void recargarCaja() {
-    for (Component c : cardPanel.getComponents()) {
-        if (c instanceof Conceptos caja) {
-            caja.cargarTabla();
-            break;
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Conceptos caja) {
+                caja.cargarTabla();
+                break;
+            }
         }
     }
-}
-    
+
+    public void seleccionarProductoEnInventario(Producto p) {
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Inventario inv) {
+                inv.seleccionarProducto(p);
+                break;
+            }
+        }
+    }
+
 }
 

@@ -139,13 +139,9 @@ public class Usuarios extends MainPanelBase {
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        control.borrarUsuario(id);
-
-        JOptionPane.showMessageDialog(
-            this,
-            "Usuario borrado correctamente.",
-            "Eliminación exitosa",
-            JOptionPane.INFORMATION_MESSAGE
+        DeleteWithRelationsHandler.handleDeleteEmpleado(this, id, () ->
+            JOptionPane.showMessageDialog(this, "Usuario borrado correctamente.",
+                    "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE)
         );
 
         cargarTabla();

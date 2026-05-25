@@ -1,76 +1,123 @@
 package com.mycompany.GUI.cards;
 
-import com.mycompany.GUI.abm.AltaProveedores;
-import com.mycompany.proyectofinal.Controladora;
-import com.mycompany.proyectofinal.Proveedor;
 import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * Reusable dialog for deletion flows that have related children.
+ *
+ * Supports:
+ *  - Two radio-button options (A and B)
+ *  - Optional JComboBox shown when option B is selected
+ *  - Optional "+ Nuevo..." entry in the combo (pass onNuevo + nuevoRefresh)
+ */
 public class DeleteRelationsDialog extends JDialog {
 
-    public enum Accion { DEJAR_SIN_PROVEEDOR, REASIGNAR }
+    public enum Choice { A, B }
 
-    private static final String NUEVA_OPCION = "+ Nuevo proveedor...";
+    private static final String NUEVA_OPCION = "+ Nuevo...";
 
-    private Accion accionElegida = null;
-    private Proveedor proveedorElegido = null;
-    private final int idAEliminar;
+    private Choice choice = null;
+    private Object selectedItem = null;
 
-    private JRadioButton rbDejar;
-    private JRadioButton rbReasignar;
-    private JComboBox<Object> cbProveedores;
+    private JRadioButton rbA;
+    private JRadioButton rbB;
+    private JComboBox<Object> cbItems;
+    private final boolean hasCombo;
+    private Function<Object, String> itemLabel;
 
-    private final Controladora control = new Controladora();
+    /** No combo — two plain radio options. */
+    public DeleteRelationsDialog(Window owner, String message,
+                                  String labelA, String labelB) {
+        this(owner, message, labelA, labelB, null, null, null, null);
+    }
 
-    public DeleteRelationsDialog(Window owner, Proveedor aEliminar, int cantProductos, List<Proveedor> otrosProveedores) {
+    /** With combo for option B, no "+Nuevo...". */
+    public DeleteRelationsDialog(Window owner, String message,
+                                  String labelA, String labelB,
+                                  List<?> comboItems,
+                                  Function<Object, String> itemLabel) {
+        this(owner, message, labelA, labelB, comboItems, itemLabel, null, null);
+    }
+
+    /**
+     * Full constructor.
+     *
+     * @param comboItems   items for the combo (null = no combo)
+     * @param itemLabel    how to display combo items (null = toString)
+     * @param onNuevo      called when "+Nuevo..." is selected; null = no entry
+     * @param nuevoRefresh reloads the list after onNuevo; null = no reload
+     */
+    public DeleteRelationsDialog(Window owner, String message,
+                                  String labelA, String labelB,
+                                  List<?> comboItems,
+                                  Function<Object, String> itemLabel,
+                                  Runnable onNuevo,
+                                  Supplier<List<?>> nuevoRefresh) {
         super(owner, "Confirmar eliminación", ModalityType.APPLICATION_MODAL);
-        this.idAEliminar = aEliminar.getId();
-        initUI(aEliminar, cantProductos, otrosProveedores);
+        this.hasCombo = (comboItems != null);
+        this.itemLabel = itemLabel;
+        initUI(message, labelA, labelB, comboItems, onNuevo, nuevoRefresh);
         pack();
-        setMinimumSize(new Dimension(420, 240));
+        setMinimumSize(new Dimension(hasCombo ? 430 : 380, 230));
         setResizable(false);
         setLocationRelativeTo(owner);
     }
 
-    private void initUI(Proveedor aEliminar, int cantProductos, List<Proveedor> otrosProveedores) {
+    private void initUI(String message, String labelA, String labelB,
+                         List<?> comboItems, Runnable onNuevo, Supplier<List<?>> nuevoRefresh) {
         JPanel root = new JPanel(new BorderLayout(12, 12));
         root.setBorder(new EmptyBorder(20, 24, 16, 24));
         setContentPane(root);
 
-        String html = "<html>El proveedor <b>\"" + aEliminar.getNombre() + "\"</b> tiene <b>"
-                + cantProductos + "</b> producto(s) asociado(s).<br><br>"
-                + "¿Qué querés hacer con esos productos?</html>";
-        root.add(new JLabel(html), BorderLayout.NORTH);
+        root.add(new JLabel(message), BorderLayout.NORTH);
 
         JPanel optPanel = new JPanel();
         optPanel.setLayout(new BoxLayout(optPanel, BoxLayout.Y_AXIS));
         optPanel.setBorder(new EmptyBorder(4, 0, 4, 0));
 
-        rbDejar = new JRadioButton("Dejarlos sin proveedor");
-        rbReasignar = new JRadioButton("Reasignarlos a otro proveedor");
-        rbDejar.setSelected(true);
-
+        rbA = new JRadioButton(labelA);
+        rbB = new JRadioButton(labelB);
+        rbA.setSelected(true);
         ButtonGroup bg = new ButtonGroup();
-        bg.add(rbDejar);
-        bg.add(rbReasignar);
+        bg.add(rbA);
+        bg.add(rbB);
 
-        cbProveedores = new JComboBox<>();
-        poblarCombo(otrosProveedores);
-        cbProveedores.setEnabled(false);
-        cbProveedores.setRenderer(buildRenderer());
-        cbProveedores.addActionListener(e -> onComboAction());
-
-        rbDejar.addActionListener(e -> cbProveedores.setEnabled(false));
-        rbReasignar.addActionListener(e -> cbProveedores.setEnabled(true));
-
-        optPanel.add(rbDejar);
+        optPanel.add(rbA);
         optPanel.add(Box.createVerticalStrut(4));
-        optPanel.add(rbReasignar);
-        optPanel.add(Box.createVerticalStrut(8));
-        optPanel.add(cbProveedores);
+        optPanel.add(rbB);
+
+        if (hasCombo) {
+            cbItems = new JComboBox<>();
+            poblarCombo(comboItems, onNuevo != null);
+            cbItems.setEnabled(false);
+            cbItems.setRenderer(buildRenderer());
+
+            rbA.addActionListener(e -> cbItems.setEnabled(false));
+            rbB.addActionListener(e -> cbItems.setEnabled(true));
+
+            if (onNuevo != null) {
+                cbItems.addActionListener(e -> {
+                    if (!NUEVA_OPCION.equals(cbItems.getSelectedItem())) return;
+                    cbItems.hidePopup();
+                    onNuevo.run();
+                    if (nuevoRefresh != null) {
+                        List<?> refreshed = nuevoRefresh.get();
+                        poblarCombo(refreshed, true);
+                        if (!refreshed.isEmpty()) {
+                            cbItems.setSelectedIndex(refreshed.size() - 1);
+                        }
+                    }
+                });
+            }
+
+            optPanel.add(Box.createVerticalStrut(8));
+            optPanel.add(cbItems);
+        }
 
         root.add(optPanel, BorderLayout.CENTER);
 
@@ -86,11 +133,11 @@ public class DeleteRelationsDialog extends JDialog {
         getRootPane().setDefaultButton(btnConfirmar);
     }
 
-    private void poblarCombo(List<Proveedor> proveedores) {
+    private void poblarCombo(List<?> items, boolean includeNuevo) {
         DefaultComboBoxModel<Object> model = new DefaultComboBoxModel<>();
-        for (Proveedor p : proveedores) model.addElement(p);
-        model.addElement(NUEVA_OPCION);
-        cbProveedores.setModel(model);
+        for (Object item : items) model.addElement(item);
+        if (includeNuevo) model.addElement(NUEVA_OPCION);
+        cbItems.setModel(model);
     }
 
     private ListCellRenderer<Object> buildRenderer() {
@@ -99,69 +146,38 @@ public class DeleteRelationsDialog extends JDialog {
             public Component getListCellRendererComponent(JList<?> list, Object value,
                     int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Proveedor p) {
-                    setText(p.getNombre());
-                } else if (NUEVA_OPCION.equals(value)) {
+                if (NUEVA_OPCION.equals(value)) {
                     setText(NUEVA_OPCION);
                     setFont(getFont().deriveFont(Font.ITALIC));
                     if (!isSelected) setForeground(new Color(70, 130, 200));
+                } else if (value != null) {
+                    setText(itemLabel != null ? itemLabel.apply(value) : value.toString());
                 }
                 return this;
             }
         };
     }
 
-    private void onComboAction() {
-        if (!NUEVA_OPCION.equals(cbProveedores.getSelectedItem())) return;
-
-        cbProveedores.hidePopup();
-
-        Frame frame = findOwnerFrame();
-        AltaProveedores altaDlg = new AltaProveedores(frame, true, () -> {});
-        altaDlg.setLocationRelativeTo(this);
-        altaDlg.setVisible(true);
-
-        List<Proveedor> actualizados = control.traerProveedores().stream()
-                .filter(p -> p.getId() != idAEliminar)
-                .collect(Collectors.toList());
-
-        poblarCombo(actualizados);
-
-        if (!actualizados.isEmpty()) {
-            cbProveedores.setSelectedItem(actualizados.get(actualizados.size() - 1));
-        }
-    }
-
-    private Frame findOwnerFrame() {
-        Window w = getOwner();
-        while (w != null && !(w instanceof Frame)) {
-            w = w.getOwner();
-        }
-        return (w instanceof Frame f) ? f : null;
-    }
-
     private void confirmar() {
-        if (rbDejar.isSelected()) {
-            accionElegida = Accion.DEJAR_SIN_PROVEEDOR;
+        if (rbA.isSelected()) {
+            choice = Choice.A;
         } else {
-            Object selected = cbProveedores.getSelectedItem();
-            if (!(selected instanceof Proveedor)) {
-                JOptionPane.showMessageDialog(this,
-                        "Seleccione un proveedor al que reasignar los productos.",
-                        "Sin selección", JOptionPane.WARNING_MESSAGE);
-                return;
+            if (hasCombo) {
+                Object sel = cbItems.getSelectedItem();
+                if (sel == null || NUEVA_OPCION.equals(sel)) {
+                    JOptionPane.showMessageDialog(this,
+                            "Seleccione una opción válida.",
+                            "Sin selección", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                selectedItem = sel;
             }
-            proveedorElegido = (Proveedor) selected;
-            accionElegida = Accion.REASIGNAR;
+            choice = Choice.B;
         }
         dispose();
     }
 
-    public Accion getAccionElegida() {
-        return accionElegida;
-    }
+    public Choice getChoice() { return choice; }
 
-    public Proveedor getProveedorElegido() {
-        return proveedorElegido;
-    }
+    public Object getSelectedItem() { return selectedItem; }
 }
