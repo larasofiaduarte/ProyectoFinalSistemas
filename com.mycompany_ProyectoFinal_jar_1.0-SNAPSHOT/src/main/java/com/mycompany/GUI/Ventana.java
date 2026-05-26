@@ -5,6 +5,8 @@ import javax.swing.*;
 
 import com.mycompany.GUI.cards.*;
 import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.Session;
+import com.mycompany.proyectofinal.Usuario;
 import com.mycompany.GUI.components.SideMenu;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -37,6 +39,12 @@ public class Ventana extends JFrame implements Navigator {
 
     private void initCards() {
 
+        Usuario user = Session.getCurrentUser();
+
+        if (user == null) {
+            throw new IllegalStateException("Session not initialized before UI creation");
+        }
+
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout); //cardPanel es el main Panel que tiene asignado Card Layout, va a contener las dif. cards
 
@@ -48,7 +56,7 @@ public class Ventana extends JFrame implements Navigator {
         cardPanel.add(new Conceptos(this), "CAJA");
         cardPanel.add(new Proveedores(this), "PROVEEDORES");
         cardPanel.add(new Turnos(this), "TURNOS");
-        cardPanel.add(new Inicio(this), "INICIO");
+        cardPanel.add(new Inicio(this, user), "INICIO");
         getContentPane().add(cardPanel, BorderLayout.CENTER);
 
         cardLayout.show(cardPanel, "INICIO");

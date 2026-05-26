@@ -16,12 +16,12 @@ public class ProyectoFinal {
         
         SwingUtilities.invokeLater(() -> {
             Styles.applyLightTheme();
-            Ventana ventana = new Ventana();
-            Login login = new Login(ventana);
+            Login login = new Login(null); // no parent yet — Ventana doesn't exist until login succeeds
 
             login.setVisible(true); // modal → blocks
 
             if (login.isLoginExitoso()) {
+                Ventana ventana = new Ventana(); // created AFTER session is set by login
                 ventana.setVisible(true);
             } else {
                 System.exit(0);
