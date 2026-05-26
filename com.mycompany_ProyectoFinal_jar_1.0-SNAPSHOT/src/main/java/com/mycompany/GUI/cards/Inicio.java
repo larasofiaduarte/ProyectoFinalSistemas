@@ -4,6 +4,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.components.ImagePanel;
 import com.mycompany.GUI.components.MinimalScrollBarUI;
+import com.mycompany.GUI.components.TopMenu;
 import com.mycompany.proyectofinal.Usuario;
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,8 @@ public class Inicio extends JPanel {
     private Usuario currentUser;
     protected String currentName;
     private JScrollPane scrollPane;
+    private JLabel calendarLabel;
+    private JLabel estadisticasLabel;
 
     public Inicio(Ventana ventana, Usuario user) {
         this.ventana = ventana;
@@ -31,6 +34,8 @@ public class Inicio extends JPanel {
 
     private void initUI() {
         setLayout(new BorderLayout());
+
+        add(new TopMenu(), BorderLayout.NORTH);
 
         // MAIN CONTENT (vertical layout)
         JPanel content = new JPanel();
@@ -76,7 +81,7 @@ public class Inicio extends JPanel {
         content.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // ===== CALENDAR TITLE =====
-        JLabel calendarLabel = new JLabel("Calendario");
+        calendarLabel = new JLabel("Calendario");
         calendarLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         calendarLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
 
@@ -93,6 +98,13 @@ public class Inicio extends JPanel {
 
         content.add(calendarCard);
         content.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // ===== STATS TITLE =====
+        estadisticasLabel = new JLabel("Estadísticas");
+        estadisticasLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        estadisticasLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
+
+        content.add(estadisticasLabel);
 
         // ===== STATS CARD =====
         JPanel statsCard = createCard(250);
@@ -153,5 +165,7 @@ public class Inicio extends JPanel {
             view.setBackground(Styles.bgLight);
             view.setForeground(Styles.fontDark);
         }
+        calendarLabel.setForeground(Styles.fontDark);
+        estadisticasLabel.setForeground(Styles.fontDark);
     }
 }
