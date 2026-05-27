@@ -27,6 +27,8 @@ public class Caja implements Serializable {
     private String medio;
     private String detalle;
     private LocalDateTime fecha;
+    @Column(name = "id_turno")
+    private Integer idTurno;
 
     public LocalDateTime getFecha() {
         return fecha;
@@ -75,9 +77,13 @@ public class Caja implements Serializable {
     public void setDetalle(String detalle) {
         this.detalle = detalle;
     }
-    
-    
-    
-    
-    
+
+    public Integer getIdTurno() {
+        return idTurno;
+    }
+
+    public void setIdTurno(Integer idTurno) {
+        this.idTurno = idTurno;
+    }
+
 }

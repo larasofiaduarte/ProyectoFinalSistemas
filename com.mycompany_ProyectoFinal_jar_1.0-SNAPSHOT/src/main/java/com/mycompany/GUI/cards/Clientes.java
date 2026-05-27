@@ -46,9 +46,8 @@ public class Clientes extends MainPanelBase {
     }
 
     private void cargarTabla() {
-        List<Cliente> clientes = control.traerClientes().stream()
-                .filter(c -> c.isActivo())
-                .collect(java.util.stream.Collectors.toList());
+        List<Cliente> clientes = control.traerClientes();
+        System.out.println("Clientes loaded: " + clientes.size());
 
         String[] columns = {
             "ID", "Nombre", "Apellido", "Teléfono", "Género", "Historial"
@@ -98,8 +97,10 @@ public class Clientes extends MainPanelBase {
 
     
     private void abrirAltaCliente() { //btn alta
-        AltaClientes dialog =
-        new AltaClientes(ventana, true, this::cargarTabla);
+        AltaClientes dialog = new AltaClientes(ventana, true, () -> {
+            cargarTabla();
+            ventana.recargarTurnos();
+        });
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }

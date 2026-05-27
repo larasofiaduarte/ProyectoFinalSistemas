@@ -104,6 +104,37 @@ public class CajaJpaController implements Serializable {
         }
     }
     
+    public boolean existsByTurnoId(int turnoId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<Long> q = em.createQuery(
+                "SELECT COUNT(c) FROM Caja c WHERE c.idTurno = :tid", Long.class);
+            q.setParameter("tid", turnoId);
+            return q.getSingleResult() > 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void deleteByTurnoId(int turnoId) {
+        EntityManager em = null;
+        EntityTransaction transaction = null;
+        try {
+            em = emf.createEntityManager();
+            transaction = em.getTransaction();
+            transaction.begin();
+            em.createQuery("DELETE FROM Caja c WHERE c.idTurno = :tid")
+              .setParameter("tid", turnoId)
+              .executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) transaction.rollback();
+            throw new RuntimeException("Error deleting caja by turnoId", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
     // Delete
     public void destroy(int id) {
         EntityManager em = null;

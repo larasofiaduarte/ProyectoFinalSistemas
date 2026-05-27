@@ -103,8 +103,29 @@ public class Turnos extends MainPanelBase{
         turnoModel.setEntityClass(Turno.class, Map.of(4, "estado", 5, "detalle"));
         turnoModel.setTableName("TURNOS");
         turnoModel.setOnPersist(t -> {
+            Turno dbTurno = control.findTurno(t.getId());
+            boolean eraFinalizado = dbTurno != null && "Finalizado".equals(dbTurno.getEstado());
+            boolean ahoraFinalizado = "Finalizado".equals(t.getEstado());
+
             control.modificarTurno(t, t.getServicio(), t.getFecha(),
                     t.getCliente(), t.getEstado(), t.getDetalle());
+
+            if (!eraFinalizado && ahoraFinalizado) {
+                if (!control.existsCajaByTurnoId(t.getId())) {
+                    control.registrarIngresoEnCaja(t);
+                    ventana.recargarCaja();
+                }
+            } else if (eraFinalizado && !ahoraFinalizado) {
+                int confirm = JOptionPane.showConfirmDialog(
+                    SwingUtilities.getWindowAncestor(Turnos.this),
+                    "¿Desea eliminar el ingreso registrado en Caja para este turno?",
+                    "Revertir finalización",
+                    JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    control.deleteCajaByTurnoId(t.getId());
+                    ventana.recargarCaja();
+                }
+            }
             showToast("Cambio guardado");
         });
 
@@ -231,6 +252,10 @@ public class Turnos extends MainPanelBase{
         dialog.setVisible(true);
     }
     
+    public void recargarClientes() {
+        cargarTabla();
+    }
+
     @Override
     public void applyTheme() {
         super.applyTheme();

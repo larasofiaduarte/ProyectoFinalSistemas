@@ -118,6 +118,15 @@ public class Ventana extends JFrame implements Navigator {
         }
     }
 
+    public void recargarTurnos() {
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Turnos t) {
+                t.recargarClientes();
+                break;
+            }
+        }
+    }
+
     public void seleccionarProductoEnInventario(Producto p) {
         for (Component c : cardPanel.getComponents()) {
             if (c instanceof Inventario inv) {

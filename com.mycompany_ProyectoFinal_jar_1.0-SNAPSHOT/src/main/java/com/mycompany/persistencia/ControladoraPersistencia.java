@@ -280,9 +280,18 @@ public class ControladoraPersistencia {
             movimiento.setDetalle("Servicio: " + turno.getServicio().getNombre()
                 + " - Cliente: " + turno.getCliente().getNombre()
                 + " " + turno.getCliente().getApellido());
-            movimiento.setMedio("Efectivo");
+            movimiento.setMedio("MercadoPago");
             movimiento.setFecha(LocalDateTime.now());
+            movimiento.setIdTurno(turno.getId());
             cajaJpa.create(movimiento);
+        }
+
+        public boolean existsCajaByTurnoId(int turnoId) {
+            return cajaJpa.existsByTurnoId(turnoId);
+        }
+
+        public void deleteCajaByTurnoId(int turnoId) {
+            cajaJpa.deleteByTurnoId(turnoId);
         }
     
 

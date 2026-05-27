@@ -131,6 +131,7 @@ public abstract class MainPanelBase extends JPanel {
         table.setModel(model);
         titlePanel.setTable(table);
         attachPhoneVerifier(columns);
+        TableUtils.applyDefaultIdSorting(table);
     }
 
     private void attachPhoneVerifier(String[] columns) {

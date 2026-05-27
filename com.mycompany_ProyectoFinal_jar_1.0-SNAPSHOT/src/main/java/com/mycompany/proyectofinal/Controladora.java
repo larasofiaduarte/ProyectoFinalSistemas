@@ -127,12 +127,13 @@ public class Controladora {
     //CREATE
     public void guardarCliente(String nombre, String apellido, String telefono, String genero){
         Cliente nuevoCliente = new Cliente();
-        
+
         nuevoCliente.setNombre(nombre);
         nuevoCliente.setApellido(apellido);
         nuevoCliente.setTelefono(telefono);
         nuevoCliente.setGenero(genero);
-        
+        nuevoCliente.setActivo(true);
+
         controlPersis.guardarCliente(nuevoCliente);
         
     }
@@ -430,7 +431,14 @@ public class Controladora {
     
         public void registrarIngresoEnCaja(Turno turno){
             controlPersis.registrarIngresoEnCaja(turno);
-            
+        }
+
+        public boolean existsCajaByTurnoId(int turnoId) {
+            return controlPersis.existsCajaByTurnoId(turnoId);
+        }
+
+        public void deleteCajaByTurnoId(int turnoId) {
+            controlPersis.deleteCajaByTurnoId(turnoId);
         }
         
 }

@@ -147,14 +147,22 @@ public class AltaTurnos extends JDialog {
             boolean eraFinalizado = "Finalizado".equals(turnoEditar.getEstado());
             boolean ahoraFinalizado = "Finalizado".equals(estado);
 
+            turnoEditar.setServicio(servicioSeleccionado);
+            turnoEditar.setCliente(clienteSeleccionado);
             control.modificarTurno(turnoEditar, servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
 
             if (!eraFinalizado && ahoraFinalizado) {
-                System.out.println(">>> Registrando ingreso en caja...");
-                turnoEditar.setServicio(servicioSeleccionado);
-                turnoEditar.setCliente(clienteSeleccionado);
-                control.registrarIngresoEnCaja(turnoEditar);
-                System.out.println(">>> Ingreso registrado");
+                if (!control.existsCajaByTurnoId(turnoEditar.getId())) {
+                    control.registrarIngresoEnCaja(turnoEditar);
+                }
+            } else if (eraFinalizado && !ahoraFinalizado) {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                    "¿Desea eliminar el ingreso registrado en Caja para este turno?",
+                    "Revertir finalización",
+                    JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    control.deleteCajaByTurnoId(turnoEditar.getId());
+                }
             }
 
             JOptionPane.showMessageDialog(this,
@@ -434,11 +442,13 @@ public class AltaTurnos extends JDialog {
     }
     //cargar clientes a cbo
     public void obtenerClientes(){
-        List<Cliente> clientes = control.traerClientes();
+        List<Cliente> clientes = control.traerClientes().stream()
+                .filter(c -> c.isActivo())
+                .collect(java.util.stream.Collectors.toList());
         List<String> nombres = new ArrayList<>();
         for (Cliente cliente : clientes) {
             String nombreCliente = (cliente.getNombre()+" " +cliente.getApellido());
-            cboClientes.addItem(nombreCliente);  // Assuming the toString method is implemented in Servicio
+            cboClientes.addItem(nombreCliente);
             nombres.add(nombreCliente);
         }
         Styles.addAutoComplete(cboClientes, nombres);
