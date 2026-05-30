@@ -20,6 +20,8 @@ public abstract class MainPanelBase extends JPanel {
     protected JPanel tablePanel;
     protected JPanel btnPanel;
     protected JPanel navPanel;
+    protected JPanel actionsRowPanel;
+    protected Btn btnFilter;
     
     protected Btn btnAlta;
     protected Btn btnEdit;
@@ -53,6 +55,22 @@ public abstract class MainPanelBase extends JPanel {
         
         topPanel.add(navPanel);
         topPanel.add(titlePanel);
+
+        actionsRowPanel = new JPanel(new BorderLayout());
+        actionsRowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        actionsRowPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        leftPanel.setOpaque(false);
+
+        btnFilter = Btn.filter("Filtrar");
+        btnFilter.setPreferredSize(Styles.btnSizeSm);
+        leftPanel.add(btnFilter);
+
+        actionsRowPanel.add(leftPanel, BorderLayout.WEST);
+        actionsRowPanel.add(titlePanel.getActionsPanel(), BorderLayout.EAST);
+
+        topPanel.add(actionsRowPanel);
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -100,6 +118,10 @@ public abstract class MainPanelBase extends JPanel {
 
         if (titlePanel != null) {
             titlePanel.applyTheme();
+        }
+
+        if (actionsRowPanel != null) {
+            actionsRowPanel.setBackground(Styles.bgLight);
         }
 
         repaint();

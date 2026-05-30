@@ -127,6 +127,10 @@ public class TitlePanel extends JPanel implements Theme {
         repaint();
     }
     
+    public JPanel getActionsPanel() {
+        return bottomPanel;
+    }
+
     public void addReportButtonListener(ActionListener listener) {
         btnReport.addActionListener(listener);
     }

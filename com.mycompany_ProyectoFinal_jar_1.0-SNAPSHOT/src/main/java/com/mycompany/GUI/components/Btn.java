@@ -71,6 +71,18 @@ public class Btn extends JButton{
         return b;
     }
 
+    public static Btn filter(String text) {
+        Btn b = new Btn(text);
+        Color bg = new Color(220, 220, 220);
+        b.setBackground(bg);
+        b.setForeground(Color.DARK_GRAY);
+        b.setHasBorder(false);
+        b.originalBackground = bg;
+        b.originalForeground = Color.DARK_GRAY;
+        b.setHoverBackgroundColor(new Color(200, 200, 200));
+        return b;
+    }
+
     // Factory method for Secondary button
     public static Btn secondary(String text) {
         Btn b = new Btn(text);
