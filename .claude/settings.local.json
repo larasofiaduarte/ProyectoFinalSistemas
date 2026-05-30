@@ -4,7 +4,9 @@
       "Bash(Get-ChildItem -Recurse -Path \"C:\\\\Users\\\\duart\\\\OneDrive\\\\Desktop\\\\ProyectoFinal\" -Force)",
       "Bash(Select-Object FullName)",
       "Bash(Head -100)",
-      "PowerShell(head *)"
+      "PowerShell(head *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\duart\\\\OneDrive\\\\Desktop\\\\ProyectoFinal\" -Recurse -Filter \"*.java\")",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }

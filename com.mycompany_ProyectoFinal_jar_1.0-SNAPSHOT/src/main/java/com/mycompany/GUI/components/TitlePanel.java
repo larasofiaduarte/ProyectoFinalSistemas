@@ -18,6 +18,7 @@ public class TitlePanel extends JPanel implements Theme {
 
     private SearchBar search;
     private TableRowSorter<?> sorter;
+    private boolean listenerAttached = false;
 
     private JPanel topPanel;
     private JPanel bottomPanel;
@@ -87,11 +88,14 @@ public class TitlePanel extends JPanel implements Theme {
         sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
 
-        search.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterTable(); }
-            public void removeUpdate(DocumentEvent e) { filterTable(); }
-            public void changedUpdate(DocumentEvent e) { filterTable(); }
-        });
+        if (!listenerAttached) {
+            search.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { filterTable(); }
+                public void removeUpdate(DocumentEvent e) { filterTable(); }
+                public void changedUpdate(DocumentEvent e) { filterTable(); }
+            });
+            listenerAttached = true;
+        }
     }
 
     private void filterTable() {

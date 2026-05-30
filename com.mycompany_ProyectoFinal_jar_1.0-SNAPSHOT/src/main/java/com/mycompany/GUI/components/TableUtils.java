@@ -19,7 +19,17 @@ public final class TableUtils {
             return;
         }
 
-        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+        // Reuse the sorter already set by TitlePanel so search filtering stays wired up.
+        // Only create a new one if none exists yet.
+        TableRowSorter<TableModel> sorter;
+        if (table.getRowSorter() instanceof TableRowSorter) {
+            @SuppressWarnings("unchecked")
+            TableRowSorter<TableModel> existing = (TableRowSorter<TableModel>) table.getRowSorter();
+            sorter = existing;
+        } else {
+            sorter = new TableRowSorter<>(table.getModel());
+            table.setRowSorter(sorter);
+        }
 
         // Column 0 is always the ID; Number cast handles both Integer and Long
         sorter.setComparator(0, Comparator.comparingInt(a -> ((Number) a).intValue()));
@@ -30,7 +40,5 @@ public final class TableUtils {
         }
 
         sorter.setSortKeys(List.of(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
-
-        table.setRowSorter(sorter);
     }
 }
