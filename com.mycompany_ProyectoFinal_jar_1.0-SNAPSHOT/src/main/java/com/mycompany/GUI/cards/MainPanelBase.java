@@ -11,6 +11,7 @@ import java.util.List;
 import com.mycompany.GUI.components.ReportBtn;
 import com.mycompany.GUI.components.*;
 import com.mycompany.proyectofinal.util.TelefonoVerifier;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.util.function.Function;
 
 public abstract class MainPanelBase extends JPanel {
@@ -62,9 +63,14 @@ public abstract class MainPanelBase extends JPanel {
 
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         leftPanel.setOpaque(false);
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(19, 0, 0, 0));
 
         btnFilter = Btn.filter("Filtrar");
         btnFilter.setPreferredSize(Styles.btnSizeSm);
+        FlatSVGIcon filterIcon = new FlatSVGIcon("images/filters.svg", 16, 16);
+        btnFilter.setIcon(filterIcon);
+        btnFilter.setHorizontalTextPosition(SwingConstants.LEFT);
+        btnFilter.setIconTextGap(8);
         leftPanel.add(btnFilter);
 
         actionsRowPanel.add(leftPanel, BorderLayout.WEST);
