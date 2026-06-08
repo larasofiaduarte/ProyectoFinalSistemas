@@ -74,7 +74,7 @@ public class Styles {
         fontDisabledField = new Color(148, 148, 148); //for disabled fields?
         fontPlaceholder = new Color(150, 150, 150); //for textfield placeholder text
         fontDark = new Color(43, 43, 45);
-        fontDarkGrey = new Color(50, 50, 50);//Petrol grey
+        fontDarkGrey = new Color(76, 76, 79);//for Hover
 
         //accent colors
         accent = new Color(127, 52, 201); //Dark Violet

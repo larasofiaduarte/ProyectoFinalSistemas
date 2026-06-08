@@ -4,9 +4,13 @@ package com.mycompany.GUI.cards;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import com.mycompany.GUI.Styles;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import com.mycompany.GUI.components.ReportBtn;
 import com.mycompany.GUI.components.*;
@@ -22,7 +26,9 @@ public abstract class MainPanelBase extends JPanel {
     protected JPanel btnPanel;
     protected JPanel navPanel;
     protected JPanel actionsRowPanel;
+    protected JPanel filterDropPanel;
     protected Btn btnFilter;
+    protected List<Btn> filterOptionsList = new ArrayList<>();
     
     protected Btn btnAlta;
     protected Btn btnEdit;
@@ -75,8 +81,55 @@ public abstract class MainPanelBase extends JPanel {
 
         actionsRowPanel.add(leftPanel, BorderLayout.WEST);
         actionsRowPanel.add(titlePanel.getActionsPanel(), BorderLayout.EAST);
-
         topPanel.add(actionsRowPanel);
+
+        // Drop-down filter strip — lives in topPanel below the actions row
+        filterDropPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        filterDropPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 6, 20));
+        filterDropPanel.setVisible(false);
+
+        Btn btnIdAsc    = Btn.filterOption("ID Ascendente");
+        Btn btnIdDesc   = Btn.filterOption("ID Descendente");
+        Btn btnReciente = Btn.filterOption("Más reciente");
+        Btn btnAntiguo  = Btn.filterOption("Más antiguo");
+
+        filterOptionsList.addAll(List.of(btnIdAsc, btnIdDesc, btnReciente, btnAntiguo));
+
+        for (Btn b : filterOptionsList) {
+            b.setPreferredSize(new Dimension(150, 28));
+            filterDropPanel.add(b);
+        }
+
+        btnIdAsc.addActionListener(e -> {
+            filterOptionsList.forEach(b -> b.setSelectedState(false));
+            btnIdAsc.setSelectedState(true);
+            applySortKey(0, SortOrder.ASCENDING);
+        });
+        btnIdDesc.addActionListener(e -> {
+            filterOptionsList.forEach(b -> b.setSelectedState(false));
+            btnIdDesc.setSelectedState(true);
+            applySortKey(0, SortOrder.DESCENDING);
+        });
+        btnReciente.addActionListener(e -> {
+            filterOptionsList.forEach(b -> b.setSelectedState(false));
+            btnReciente.setSelectedState(true);
+            int col = findDateColumn(); if (col >= 0) applySortKey(col, SortOrder.DESCENDING);
+        });
+        btnAntiguo.addActionListener(e -> {
+            filterOptionsList.forEach(b -> b.setSelectedState(false));
+            btnAntiguo.setSelectedState(true);
+            int col = findDateColumn(); if (col >= 0) applySortKey(col, SortOrder.ASCENDING);
+        });
+
+        btnIdAsc.setSelectedState(true);
+
+        topPanel.add(filterDropPanel);
+
+        btnFilter.addActionListener(e -> {
+            filterDropPanel.setVisible(!filterDropPanel.isVisible());
+            topPanel.revalidate();
+            topPanel.repaint();
+        });
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -97,17 +150,17 @@ public abstract class MainPanelBase extends JPanel {
         btnPanel.setBorder(Styles.btnPanelPadding);
         
         btnAlta = Btn.primary("Alta");
-        btnEdit = Btn.secondary("Editar");
+        // btnEdit = Btn.secondary("Editar"); // disabled — editing is handled inline
         btnElim = Btn.secondary("Eliminar");
-        
+
         btnAlta.setPreferredSize(Styles.btnSizeSm);
-        btnEdit.setPreferredSize(Styles.btnSizeSm);
+        // btnEdit.setPreferredSize(Styles.btnSizeSm);
         btnElim.setPreferredSize(Styles.btnSizeSm);
-        
+
         btnPanel.setLayout(new FlowLayout());
-        
+
         btnPanel.add(btnElim, FlowLayout.LEFT);
-        btnPanel.add(btnEdit, FlowLayout.LEFT);
+        // btnPanel.add(btnEdit, FlowLayout.LEFT);
         btnPanel.add(btnAlta, FlowLayout.LEFT);
         
         // Connect search to table
@@ -128,6 +181,10 @@ public abstract class MainPanelBase extends JPanel {
 
         if (actionsRowPanel != null) {
             actionsRowPanel.setBackground(Styles.bgLight);
+        }
+
+        if (filterDropPanel != null) {
+            filterDropPanel.setBackground(Styles.bgLight);
         }
 
         repaint();
@@ -205,6 +262,42 @@ public abstract class MainPanelBase extends JPanel {
     protected int colIndex(String name) {
         for (int i = 0; i < table.getColumnCount(); i++) {
             if (name.equals(table.getColumnName(i))) return i;
+        }
+        return -1;
+    }
+
+    protected void applySortKey(int column, SortOrder order) {
+        RowSorter<?> rs = table.getRowSorter();
+        if (rs instanceof TableRowSorter<?> sorter) {
+            sorter.setSortKeys(List.of(new RowSorter.SortKey(column, order)));
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    protected void setColumnComparator(int column, Comparator<Object> comparator) {
+        RowSorter<?> rs = table.getRowSorter();
+        if (rs instanceof TableRowSorter sorter) {
+            sorter.setComparator(column, comparator);
+        }
+    }
+
+    protected void addFilterOption(String label, Runnable action) {
+        Btn b = Btn.filterOption(label);
+        b.setPreferredSize(new Dimension(150, 28));
+        b.addActionListener(e -> {
+            filterOptionsList.forEach(opt -> opt.setSelectedState(false));
+            b.setSelectedState(true);
+            action.run();
+        });
+        filterOptionsList.add(b);
+        filterDropPanel.add(b);
+        filterDropPanel.revalidate();
+    }
+
+    private int findDateColumn() {
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            String name = table.getColumnName(i).toLowerCase();
+            if (name.contains("fecha") || name.contains("date")) return i;
         }
         return -1;
     }

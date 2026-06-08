@@ -35,9 +35,12 @@ public class Usuarios extends MainPanelBase {
 
         btnAlta.addActionListener(e -> abrirAltaUser());
         btnElim.addActionListener(e -> eliminarUser());
-        btnEdit.addActionListener(e -> modificarUser());
+        // btnEdit.addActionListener(e -> modificarUser()); // disabled — editing is handled inline
 
         titlePanel.addReportButtonListener(e -> generarReport());
+
+        addFilterOption("Nombre A → Z", () -> applySortKey(colIndex("Nombre"), SortOrder.ASCENDING));
+        addFilterOption("Nombre Z → A", () -> applySortKey(colIndex("Nombre"), SortOrder.DESCENDING));
     }
 
     public void cargarTabla() {
@@ -51,6 +54,7 @@ public class Usuarios extends MainPanelBase {
             "Nombre",
             "Apellido",
             "Teléfono",
+            "Email",
             "Rol",
             "Historial"
         };
@@ -62,6 +66,7 @@ public class Usuarios extends MainPanelBase {
             c -> c.getNombre(),
             c -> c.getApellido(),
             c -> c.getTelefono(),
+            c -> c.getEmail(),
             c -> c.getRol(),
             c -> "Ver Actividad"
         );
@@ -76,12 +81,13 @@ public class Usuarios extends MainPanelBase {
         userModel.setValueSetter(3, (u, v) -> u.setNombre(v.toString()));
         userModel.setValueSetter(4, (u, v) -> u.setApellido(v.toString()));
         userModel.setValueSetter(5, (u, v) -> u.setTelefono(v.toString()));
-        userModel.setValueSetter(6, (u, v) -> u.setRol(v.toString()));
-        userModel.setEntityClass(Usuario.class, Map.of(1, "username", 2, "dni", 3, "nombre", 4, "apellido", 5, "telefono", 6, "rol"));
+        userModel.setValueSetter(6, (u, v) -> u.setEmail(v.toString()));
+        userModel.setValueSetter(7, (u, v) -> u.setRol(v.toString()));
+        userModel.setEntityClass(Usuario.class, Map.of(1, "username", 2, "dni", 3, "nombre", 4, "apellido", 5, "telefono", 6, "email", 7, "rol"));
         userModel.setTableName("USUARIOS");
         userModel.setOnPersist(u -> {
             control.modificarUsuario(u, u.getUsername(), u.getPassword(),
-                    u.getNombre(), u.getApellido(), u.getTelefono(), u.getRol(), u.getDni());
+                    u.getNombre(), u.getApellido(), u.getTelefono(), u.getRol(), u.getDni(), u.getEmail());
             showToast("Cambio guardado");
         });
 
@@ -147,22 +153,18 @@ public class Usuarios extends MainPanelBase {
         cargarTabla();
     }
 
-    private void modificarUser() {
-        int fila = table.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un usuario.");
-            return;
-        }
-
-        int id = ((Number) table.getValueAt(fila, 0)).intValue();
-        Usuario user = control.findUsuario(id);
-
-        AltaEmpleados dialog =
-            new AltaEmpleados(ventana, true, user, this::cargarTabla);
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
+    // private void modificarUser() { // disabled — editing is handled inline
+    //     int fila = table.getSelectedRow();
+    //     if (fila == -1) {
+    //         JOptionPane.showMessageDialog(this, "Seleccione un usuario.");
+    //         return;
+    //     }
+    //     int id = ((Number) table.getValueAt(fila, 0)).intValue();
+    //     Usuario user = control.findUsuario(id);
+    //     AltaEmpleados dialog = new AltaEmpleados(ventana, true, user, this::cargarTabla);
+    //     dialog.setLocationRelativeTo(this);
+    //     dialog.setVisible(true);
+    // }
 
     @Override
     public void applyTheme() {

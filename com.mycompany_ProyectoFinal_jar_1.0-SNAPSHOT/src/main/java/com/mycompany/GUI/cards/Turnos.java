@@ -41,7 +41,7 @@ public class Turnos extends MainPanelBase{
 
         btnAlta.addActionListener(e -> abrirAltaTurnos());
         btnElim.addActionListener(e -> eliminarTurno());
-        btnEdit.addActionListener(e -> modificarTurno());
+        // btnEdit.addActionListener(e -> modificarTurno()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -228,30 +228,22 @@ public class Turnos extends MainPanelBase{
         cargarTabla();
     }
     
-    private void modificarTurno() {
+    // private void modificarTurno() { // disabled — editing is handled inline
+    //     int fila = table.getSelectedRow();
+    //     if (fila == -1) {
+    //         JOptionPane.showMessageDialog(this, "Seleccione un registro para modificar.");
+    //         return;
+    //     }
+    //     int id = ((Number) table.getValueAt(fila, 0)).intValue();
+    //     Turno turno = control.findTurno(id);
+    //     AltaTurnos dialog = new AltaTurnos(
+    //         ventana, true, turno,
+    //         () -> { cargarTabla(); ventana.recargarCaja(); }
+    //     );
+    //     dialog.setLocationRelativeTo(this);
+    //     dialog.setVisible(true);
+    // }
 
-        int fila = table.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un registro para modificar.");
-            return;
-        }
-
-        int id = ((Number) table.getValueAt(fila, 0)).intValue();
-
-        Turno turno = control.findTurno(id);
-
-        AltaTurnos dialog = new AltaTurnos(
-            ventana, true, turno,
-            () -> {
-                cargarTabla();
-                ventana.recargarCaja();
-            }
-        );
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
-    
     public void recargarClientes() {
         cargarTabla();
     }

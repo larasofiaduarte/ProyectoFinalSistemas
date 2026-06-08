@@ -39,10 +39,12 @@ public class Clientes extends MainPanelBase {
         // events botones
         btnAlta.addActionListener(e -> abrirAltaCliente());
         btnElim.addActionListener(e -> eliminarCliente());
-        btnEdit.addActionListener(e -> modificarCliente());
+        // btnEdit.addActionListener(e -> modificarCliente()); // disabled — editing is handled inline
         
         titlePanel.addReportButtonListener(e -> generarReport()); //btn report
-        
+
+        addFilterOption("Nombre A → Z", () -> applySortKey(colIndex("Nombre"), SortOrder.ASCENDING));
+        addFilterOption("Nombre Z → A", () -> applySortKey(colIndex("Nombre"), SortOrder.DESCENDING));
     }
 
     private void cargarTabla() {
@@ -125,25 +127,18 @@ public class Clientes extends MainPanelBase {
         cargarTabla();
     }
 
-    private void modificarCliente() { //btn modif
-
-        int fila = table.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
-            return;
-        }
-
-        int id = ((Number) table.getValueAt(fila, 0)).intValue();
-
-        Cliente cliente = control.findCliente(id);
-
-        AltaClientes dialog =  //abre alta en modo modificacion
-            new AltaClientes(ventana, true, cliente, this::cargarTabla);
-
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
+    // private void modificarCliente() { // disabled — editing is handled inline
+    //     int fila = table.getSelectedRow();
+    //     if (fila == -1) {
+    //         JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+    //         return;
+    //     }
+    //     int id = ((Number) table.getValueAt(fila, 0)).intValue();
+    //     Cliente cliente = control.findCliente(id);
+    //     AltaClientes dialog = new AltaClientes(ventana, true, cliente, this::cargarTabla);
+    //     dialog.setLocationRelativeTo(this);
+    //     dialog.setVisible(true);
+    // }
 
 
     @Override

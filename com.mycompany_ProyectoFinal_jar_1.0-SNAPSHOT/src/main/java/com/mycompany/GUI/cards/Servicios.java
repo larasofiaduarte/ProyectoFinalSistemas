@@ -41,8 +41,11 @@ public class Servicios extends MainPanelBase {
 
         btnAlta.addActionListener(e -> abrirAltaServicio());
         btnElim.addActionListener(e -> eliminarServicio());
-        btnEdit.addActionListener(e -> modificarServicio());
+        // btnEdit.addActionListener(e -> modificarServicio()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
+
+        addFilterOption("Precio menor a mayor", () -> applySortKey(colIndex("Precio"), SortOrder.ASCENDING));
+        addFilterOption("Precio mayor a menor", () -> applySortKey(colIndex("Precio"), SortOrder.DESCENDING));
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -103,6 +106,11 @@ public class Servicios extends MainPanelBase {
 
 
         setTableData(servicios, columns, getters, new boolean[]{false, true, true, true, true});
+
+        setColumnComparator(colIndex("Precio"), (a, b) -> Double.compare(
+            Double.parseDouble(LocalDoubleVerifier.normalize(a.toString())),
+            Double.parseDouble(LocalDoubleVerifier.normalize(b.toString()))
+        ));
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Servicio> servModel = (CustomTableModel<Servicio>) table.getModel();
@@ -175,25 +183,18 @@ public class Servicios extends MainPanelBase {
         cargarTabla();
     }
     
-    private void modificarServicio() {
-
-        int fila = table.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
-            return;
-        }
-
-        int id = ((Number) table.getValueAt(fila, 0)).intValue();
-
-        Servicio serv = control.findServicio(id);
-
-        AltaServicios dialog =
-            new AltaServicios(ventana, true, serv, this::cargarTabla);
-
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
+    // private void modificarServicio() { // disabled — editing is handled inline
+    //     int fila = table.getSelectedRow();
+    //     if (fila == -1) {
+    //         JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+    //         return;
+    //     }
+    //     int id = ((Number) table.getValueAt(fila, 0)).intValue();
+    //     Servicio serv = control.findServicio(id);
+    //     AltaServicios dialog = new AltaServicios(ventana, true, serv, this::cargarTabla);
+    //     dialog.setLocationRelativeTo(this);
+    //     dialog.setVisible(true);
+    // }
     
     @Override
     public void applyTheme() {

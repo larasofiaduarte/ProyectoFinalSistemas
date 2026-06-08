@@ -53,22 +53,21 @@ public class UsuarioJpaController implements Serializable {
         }
     }
     
-    //validar que usuario coincida con dni
-    public boolean validarUsuarioYDni(String usuario, String dni) {
-
+    public boolean validarUsuarioYEmail(String usuario, String email) {
         EntityManager em = emf.createEntityManager();
-
         try {
-            TypedQuery<Long> q = em.createQuery(
-                "SELECT COUNT(u) FROM Usuario u WHERE u.username = :user AND u.dni = :dni",
-                Long.class
+            TypedQuery<Usuario> q = em.createQuery(
+                "SELECT u FROM Usuario u WHERE u.username = :user",
+                Usuario.class
             );
             q.setParameter("user", usuario);
-            q.setParameter("dni", dni);
-
-            Long count = q.getSingleResult();
-            return count > 0;
-
+            Usuario u;
+            try {
+                u = q.getSingleResult();
+            } catch (NoResultException e) {
+                return false;
+            }
+            return u.getEmail() != null && u.getEmail().trim().equalsIgnoreCase(email.trim());
         } finally {
             em.close();
         }

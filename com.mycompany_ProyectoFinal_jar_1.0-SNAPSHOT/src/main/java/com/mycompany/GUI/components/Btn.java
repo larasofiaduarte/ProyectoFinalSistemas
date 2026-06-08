@@ -14,6 +14,7 @@ public class Btn extends JButton{
       
       private int cornerRadius = 45;
       private boolean hasBorder = false;
+      private String baseText;
       
       private Color hoverBackgroundColor;
       private Color hoverForegroundColor;
@@ -69,6 +70,28 @@ public class Btn extends JButton{
         b.originalBackground = Styles.accent;
         b.originalForeground = Styles.fontLight;
         return b;
+    }
+
+    public static Btn filterOption(String text) {
+        Btn b = new Btn(text);
+        b.baseText = text;
+        b.setText("○ " + text);
+        b.setBackground(Styles.bgLight);
+        b.setForeground(Styles.fontDark);
+        b.setFont(Styles.fontLbl);
+        b.setHasBorder(false);
+        b.originalBackground = Styles.bgLight;
+        b.originalForeground = Styles.fontDark;
+        b.setHoverForegroundColor(Styles.fontDarkGrey);
+        return b;
+    }
+
+    public void setSelectedState(boolean selected) {
+        setText((selected ? "● " : "○ ") + baseText);
+        Color fg = selected ? Styles.fontDarkGrey : Styles.fontDark;
+        setForeground(fg);
+        originalForeground = fg;
+        setFont(selected ? Styles.fontLblBold : Styles.fontLbl);
     }
 
     public static Btn filter(String text) {

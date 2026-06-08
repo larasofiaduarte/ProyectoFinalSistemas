@@ -40,7 +40,7 @@ public class Proveedores extends MainPanelBase {
         //buttons
         btnAlta.addActionListener(e -> abrirAltaProveedor());
         btnElim.addActionListener(e -> eliminarProveedor());
-        btnEdit.addActionListener(e -> editarProveedor());
+        // btnEdit.addActionListener(e -> editarProveedor()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
     }
     
@@ -153,25 +153,18 @@ public class Proveedores extends MainPanelBase {
         cargarTabla();
     }
     
-    private void editarProveedor() {
-
-        int fila = table.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
-            return;
-        }
-
-        int id = ((Number) table.getValueAt(fila, 0)).intValue();
-
-        Proveedor prov = control.findProveedor(id);
-
-        AltaProveedores dialog =
-            new AltaProveedores(ventana, true, prov, this::cargarTabla);
-
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
+    // private void editarProveedor() { // disabled — editing is handled inline
+    //     int fila = table.getSelectedRow();
+    //     if (fila == -1) {
+    //         JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+    //         return;
+    //     }
+    //     int id = ((Number) table.getValueAt(fila, 0)).intValue();
+    //     Proveedor prov = control.findProveedor(id);
+    //     AltaProveedores dialog = new AltaProveedores(ventana, true, prov, this::cargarTabla);
+    //     dialog.setLocationRelativeTo(this);
+    //     dialog.setVisible(true);
+    // }
     
     @Override
     public void applyTheme() {

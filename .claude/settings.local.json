@@ -6,7 +6,8 @@
       "Bash(Head -100)",
       "PowerShell(head *)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\duart\\\\OneDrive\\\\Desktop\\\\ProyectoFinal\" -Recurse -Filter \"*.java\")",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(findstr /i \"password\\\\|pass\\\\|recover\\\\|recuper\")"
     ]
   }
 }

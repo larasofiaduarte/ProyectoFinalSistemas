@@ -3,6 +3,7 @@ package com.mycompany.GUI.login;
 import com.mycompany.proyectofinal.Controladora;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Random;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.*;
 import com.mycompany.GUI.components.Btn;
@@ -12,7 +13,7 @@ public class RecoverPass extends JDialog {
     private Controladora control;
 
     private TxtField txtUser;
-    private TxtField txtDni;
+    private TxtField txtEmail;
     private PassField txtPass;
     private PassField txtConfirmPass;
     private JCheckBox check;
@@ -28,6 +29,14 @@ public class RecoverPass extends JDialog {
 
     private JPanel step1;
     private JPanel step2;
+
+    // ---- token state ----
+    private int    currentToken;
+    private long   tokenGeneratedAt;
+    private int    tokenAttempts;
+
+    private static final int  MAX_ATTEMPTS    = 5;
+    private static final long TOKEN_EXPIRY_MS = 5 * 60 * 1000L; // 5 minutes
 
     public RecoverPass(Window parent) {
         super(parent, "Recuperar Contraseña", ModalityType.APPLICATION_MODAL);
@@ -72,7 +81,7 @@ public class RecoverPass extends JDialog {
 
         panel.add(panelTitle);
         panel.add(buildUserPanel());
-        panel.add(buildDniPanel());
+        panel.add(buildEmailPanel());
         panel.add(Box.createVerticalStrut(15));
         panel.add(buildBtnPanelStep1());
 
@@ -95,10 +104,10 @@ public class RecoverPass extends JDialog {
         panel.add(panelTitle);
         panel.add(buildPassPanel());
         panel.add(buildConfirmPassPanel());
-        
+
         panel.add(Box.createHorizontalStrut(15));
         panel.add(buildCheckPanel());
-        
+
         panel.add(buildBtnPanelStep2());
 
         return panel;
@@ -139,15 +148,15 @@ public class RecoverPass extends JDialog {
         return userPanel;
     }
 
-    // ================= DNI =================
+    // ================= EMAIL =================
 
-    private JPanel buildDniPanel() {
+    private JPanel buildEmailPanel() {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Styles.bgLight);
 
-        JLabel lbl = new JLabel("DNI");
+        JLabel lbl = new JLabel("Email");
         lbl.setFont(Styles.fontLbl);
         lbl.setForeground(Styles.fontDark);
 
@@ -158,13 +167,13 @@ public class RecoverPass extends JDialog {
         lblContainer.add(lbl);
         lblContainer.add(Box.createHorizontalGlue());
 
-        txtDni = new TxtField(20, "Ingrese su DNI");
-        txtDni.setMaximumSize(new Dimension(300, 40));
+        txtEmail = new TxtField(20, "Ingrese su email");
+        txtEmail.setMaximumSize(new Dimension(300, 40));
 
         JPanel txtContainer = new JPanel();
         txtContainer.setLayout(new BoxLayout(txtContainer, BoxLayout.X_AXIS));
         txtContainer.setBackground(Styles.bgLight);
-        txtContainer.add(txtDni);
+        txtContainer.add(txtEmail);
 
         panel.add(lblContainer);
         panel.add(txtContainer);
@@ -198,8 +207,6 @@ public class RecoverPass extends JDialog {
         txtContainer.setLayout(new BoxLayout(txtContainer, BoxLayout.X_AXIS));
         txtContainer.setBackground(Styles.bgLight);
         txtContainer.add(txtPass);
-        
-        
 
         JPanel bottomContainer = new JPanel();
         bottomContainer.setLayout(new BoxLayout(bottomContainer, BoxLayout.X_AXIS));
@@ -253,14 +260,10 @@ public class RecoverPass extends JDialog {
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBackground(Styles.bgLight);
 
-        Dimension buttonSize = new Dimension(300, 40);
-
         secondaryBtnStep1 = Btn.secondary("Cancelar");
         secondaryBtnStep1.setPreferredSize(Styles.btnSizeSm);
         secondaryBtnStep1.setMaximumSize(Styles.btnSizeSm);
         secondaryBtnStep1.setMinimumSize(Styles.btnSizeSm);
-        
-
 
         primaryBtnStep1 = Btn.primary("Continuar");
         primaryBtnStep1.setPreferredSize(Styles.btnSizeSm);
@@ -273,10 +276,10 @@ public class RecoverPass extends JDialog {
 
         return panel;
     }
-    
-    private JPanel buildCheckPanel(){
+
+    private JPanel buildCheckPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        
+
         panel.setBorder(BorderFactory.createEmptyBorder(0, 13, 0, 0));
         check = new JCheckBox("Mostrar Contraseña");
         check.setBackground(Styles.bgLight);
@@ -284,27 +287,23 @@ public class RecoverPass extends JDialog {
         panel.add(check);
         return panel;
     }
-    
+
     private JPanel buildBtnPanelStep2() {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBackground(Styles.bgLight);
 
-        Dimension buttonSize = new Dimension(300, 40);
-        
-        
-        
         secondaryBtnStep2 = Btn.secondary("Cancelar");
         secondaryBtnStep2.setPreferredSize(Styles.btnSizeSm);
         secondaryBtnStep2.setMaximumSize(Styles.btnSizeSm);
         secondaryBtnStep2.setMinimumSize(Styles.btnSizeSm);
-        
+
         primaryBtnStep2 = Btn.primary("Aceptar");
         primaryBtnStep2.setPreferredSize(Styles.btnSizeSm);
         primaryBtnStep2.setMaximumSize(Styles.btnSizeSm);
         primaryBtnStep2.setMinimumSize(Styles.btnSizeSm);
-        
+
         panel.add(secondaryBtnStep2);
         panel.add(Box.createHorizontalStrut(10));
         panel.add(primaryBtnStep2);
@@ -312,32 +311,149 @@ public class RecoverPass extends JDialog {
         return panel;
     }
 
+    // ================= TOKEN =================
+
+    private int generateToken() {
+        return 100000 + new Random().nextInt(900000);
+    }
+
+    private void showTokenDialog(String email) {
+        JDialog dialog = new JDialog(this, "Verificación", true);
+        dialog.setSize(360, 250);
+        dialog.setLocationRelativeTo(this);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Styles.bgLight);
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+
+        JLabel lbl = new JLabel("Ingrese el código enviado a su email");
+        lbl.setFont(Styles.fontLbl);
+        lbl.setForeground(Styles.fontDark);
+        lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        TxtField txtToken = new TxtField(10, "Código de 6 dígitos");
+        txtToken.setMaximumSize(new Dimension(280, 40));
+
+        Btn btnVerificar = Btn.primary("Verificar");
+        btnVerificar.setPreferredSize(Styles.btnSizeSm);
+        btnVerificar.setMaximumSize(Styles.btnSizeSm);
+        btnVerificar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        Btn btnReenviar = Btn.secondary("Reenviar código");
+        btnReenviar.setPreferredSize(Styles.btnSizeSm);
+        btnReenviar.setMaximumSize(Styles.btnSizeSm);
+        btnReenviar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel btnRow = new JPanel();
+        btnRow.setLayout(new BoxLayout(btnRow, BoxLayout.X_AXIS));
+        btnRow.setBackground(Styles.bgLight);
+        btnRow.add(btnReenviar);
+        btnRow.add(Box.createHorizontalStrut(10));
+        btnRow.add(btnVerificar);
+
+        panel.add(lbl);
+        panel.add(Box.createVerticalStrut(18));
+        panel.add(txtToken);
+        panel.add(Box.createVerticalStrut(18));
+        panel.add(btnRow);
+
+        dialog.setContentPane(panel);
+
+        // ---- Verificar ----
+        btnVerificar.addActionListener(e -> {
+            if (tokenAttempts >= MAX_ATTEMPTS) {
+                JOptionPane.showMessageDialog(dialog,
+                    "Demasiados intentos. Reinicie el proceso de recuperación.",
+                    "Bloqueado", JOptionPane.ERROR_MESSAGE);
+                dialog.dispose();
+                return;
+            }
+
+            if (System.currentTimeMillis() - tokenGeneratedAt > TOKEN_EXPIRY_MS) {
+                JOptionPane.showMessageDialog(dialog,
+                    "El código expiró. Solicite uno nuevo.",
+                    "Código expirado", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String input = txtToken.getText().trim();
+            tokenAttempts++;
+
+            if (!input.equals(String.valueOf(currentToken))) {
+                int remaining = MAX_ATTEMPTS - tokenAttempts;
+                JOptionPane.showMessageDialog(dialog,
+                    "Código incorrecto. Intentos restantes: " + remaining,
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            dialog.dispose();
+            cardLayout.show(cardPanel, "STEP2");
+        });
+
+        // ---- Reenviar ----
+        btnReenviar.addActionListener(e -> {
+            currentToken      = generateToken();
+            tokenGeneratedAt  = System.currentTimeMillis();
+            tokenAttempts     = 0;
+
+            boolean sent = EmailService.sendRecoveryToken(email, String.valueOf(currentToken));
+            if (sent) {
+                JOptionPane.showMessageDialog(dialog,
+                    "Nuevo código enviado a " + email,
+                    "Código enviado", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(dialog,
+                    "No se pudo enviar el código. Intente más tarde.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        dialog.setVisible(true);
+    }
+
     // ================= EVENTS =================
 
     private void addEventListeners() {
 
-        // STEP 1 → STEP 2
+        // STEP 1 → token dialog → STEP 2
         primaryBtnStep1.addActionListener(e -> {
 
-            String user = txtUser.getText();
-            String dni = txtDni.getText();
+            String user  = txtUser.getText();
+            String email = txtEmail.getText();
 
-            if (user.isEmpty() || dni.isEmpty()) {
+            if (user.isEmpty() || email.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Complete todos los campos");
                 return;
             }
 
-            if (!control.validarUsuarioYDni(user, dni)) {
-                JOptionPane.showMessageDialog(this, "Usuario y DNI no coinciden");
+            if (!control.validarUsuarioYEmail(user, email)) {
+                JOptionPane.showMessageDialog(this, "Usuario y email no coinciden");
                 return;
             }
 
-            cardLayout.show(cardPanel, "STEP2");
+            // Generate token and send email
+            currentToken     = generateToken();
+            tokenGeneratedAt = System.currentTimeMillis();
+            tokenAttempts    = 0;
+
+            boolean sent = EmailService.sendRecoveryToken(email, String.valueOf(currentToken));
+            if (!sent) {
+                JOptionPane.showMessageDialog(this,
+                    "No se pudo enviar el código de verificación. Intente más tarde.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Modal dialog — blocks until verified or dismissed
+            showTokenDialog(email);
         });
 
         secondaryBtnStep1.addActionListener(e -> dispose());
 
-        // STEP 2 → GUARDAR PASS
+        // STEP 2 → save password (unchanged)
         primaryBtnStep2.addActionListener(e -> {
 
             String pass1 = new String(txtPass.getPassword());
@@ -360,14 +476,10 @@ public class RecoverPass extends JDialog {
         });
 
         secondaryBtnStep2.addActionListener(e -> dispose());
-        
-        
+
         check.addActionListener(e -> {
             txtPass.setEchoChar(check.isSelected() ? (char) 0 : '•');
             txtConfirmPass.setEchoChar(check.isSelected() ? (char) 0 : '•');
         });
-
-
     }
 }
-

@@ -53,19 +53,19 @@ public class Controladora {
         return controlPersis.checkIfUsuReferenced(id);
     }
     
-    //VALIDAR QUE USUARIO COINCIDA CON DNI PARA RECUPERAR CONTRAESÑA
-    public boolean validarUsuarioYDni(String usuario, String dni) {
-        return controlPersis.validarUsuarioYDni(usuario, dni);
+    //VALIDAR QUE USUARIO COINCIDA CON EMAIL PARA RECUPERAR CONTRASEÑA
+    public boolean validarUsuarioYEmail(String usuario, String email) {
+        return controlPersis.validarUsuarioYEmail(usuario, email);
     }
         
     
     
     
     //LOGICA DE ALTA DE USUARIO
-    public void guardarUser(String user, String pass, String nombre, String apellido, String tel, String rol, String dni) {
+    public void guardarUser(String user, String pass, String nombre, String apellido, String tel, String rol, String dni, String email) {
         // Crear una nueva instancia de Usuario
         Usuario nuevoUsuario = new Usuario();
-        
+
         // Asignar los valores a las propiedades del objeto Usuario
         nuevoUsuario.setUsername(user);
         nuevoUsuario.setPassword(pass);
@@ -74,6 +74,7 @@ public class Controladora {
         nuevoUsuario.setTelefono(tel);
         nuevoUsuario.setRol(rol);
         nuevoUsuario.setDni(dni);
+        nuevoUsuario.setEmail(email);
         // Llamar al método para guardar el usuario en la base de datos
         controlPersis.guardar(nuevoUsuario);
     }
@@ -109,8 +110,8 @@ public class Controladora {
     }
     
     //edit
-    public void modificarUsuario(Usuario usu, String user, String pass, String nombre, String apellido, String tel, String rol, String dni) {
-        
+    public void modificarUsuario(Usuario usu, String user, String pass, String nombre, String apellido, String tel, String rol, String dni, String email) {
+
         usu.setUsername(user);
         usu.setPassword(pass);
         usu.setNombre(nombre);
@@ -118,7 +119,8 @@ public class Controladora {
         usu.setRol(rol);
         usu.setTelefono(tel);
         usu.setDni(dni);
-        
+        usu.setEmail(email);
+
         controlPersis.modificarUsuario(usu);
     }
     

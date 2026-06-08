@@ -31,6 +31,8 @@ public class Usuario implements Serializable {
     private String password;
     @Column(name="dni")
     private String dni;
+    @Column(nullable = false, unique = true)
+    private String email;
     @Column(nullable = false)
     private String nombre;
     @Column(nullable = false)
@@ -112,6 +114,14 @@ public class Usuario implements Serializable {
 
     public String getDni() {
         return dni;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

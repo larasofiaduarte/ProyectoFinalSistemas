@@ -37,7 +37,7 @@ public class Inventario extends MainPanelBase {
 
         btnAlta.addActionListener(e -> abrirAltaProducto());
         btnElim.addActionListener(e -> eliminarProducto());
-        btnEdit.addActionListener(e -> modificarProducto());
+        // btnEdit.addActionListener(e -> modificarProducto()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -148,25 +148,18 @@ public class Inventario extends MainPanelBase {
         cargarTabla();
     }
     
-    private void modificarProducto() {
-
-        int fila = table.getSelectedRow();
-
-        if (fila == -1) {
-            JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
-            return;
-        }
-
-        int id = ((Number) table.getValueAt(fila, 0)).intValue();
-
-        Producto prod = control.findProducto(id);
-
-        AltaProductos dialog =
-            new AltaProductos(ventana, true, prod, this::cargarTabla);
-
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-    }
+    // private void modificarProducto() { // disabled — editing is handled inline
+    //     int fila = table.getSelectedRow();
+    //     if (fila == -1) {
+    //         JOptionPane.showMessageDialog(this, "Seleccione un cliente.");
+    //         return;
+    //     }
+    //     int id = ((Number) table.getValueAt(fila, 0)).intValue();
+    //     Producto prod = control.findProducto(id);
+    //     AltaProductos dialog = new AltaProductos(ventana, true, prod, this::cargarTabla);
+    //     dialog.setLocationRelativeTo(this);
+    //     dialog.setVisible(true);
+    // }
     
     public void seleccionarProducto(Producto p) {
         @SuppressWarnings("unchecked")
