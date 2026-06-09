@@ -439,6 +439,10 @@ public class Controladora {
             controlPersis.descontarStockProductos(turno);
         }
 
+        public void revertirStockProductos(Turno turno) {
+            controlPersis.revertirStockProductos(turno);
+        }
+
         public boolean existsCajaByTurnoId(int turnoId) {
             return controlPersis.existsCajaByTurnoId(turnoId);
         }
