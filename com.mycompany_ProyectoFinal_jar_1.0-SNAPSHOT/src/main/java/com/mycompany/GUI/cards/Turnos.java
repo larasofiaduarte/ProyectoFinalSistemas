@@ -115,6 +115,7 @@ public class Turnos extends MainPanelBase{
                     control.registrarIngresoEnCaja(t);
                     ventana.recargarCaja();
                 }
+                control.descontarStockProductos(t);
             } else if (eraFinalizado && !ahoraFinalizado) {
                 int confirm = JOptionPane.showConfirmDialog(
                     SwingUtilities.getWindowAncestor(Turnos.this),

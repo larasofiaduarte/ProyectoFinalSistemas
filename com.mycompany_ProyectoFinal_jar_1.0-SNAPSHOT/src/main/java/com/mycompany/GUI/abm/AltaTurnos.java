@@ -155,6 +155,7 @@ public class AltaTurnos extends JDialog {
                 if (!control.existsCajaByTurnoId(turnoEditar.getId())) {
                     control.registrarIngresoEnCaja(turnoEditar);
                 }
+                control.descontarStockProductos(turnoEditar);
             } else if (eraFinalizado && !ahoraFinalizado) {
                 int confirm = JOptionPane.showConfirmDialog(this,
                     "¿Desea eliminar el ingreso registrado en Caja para este turno?",

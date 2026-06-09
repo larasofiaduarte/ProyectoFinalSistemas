@@ -214,16 +214,16 @@ public class Controladora {
     }
     //PRODUCTO
     //ALTA
-    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor){
+    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor, String unidad){
         Producto nuevoProducto = new Producto();
-        
+
         nuevoProducto.setNombre(nombre);
         nuevoProducto.setStock(stock);
         nuevoProducto.setMinimo(minimo);
         nuevoProducto.setProveedor(proveedor);
-        
+        nuevoProducto.setUnidad(unidad);
+
         controlPersis.guardarProducto(nuevoProducto);
-        
     }
     
     
@@ -433,6 +433,10 @@ public class Controladora {
     
         public void registrarIngresoEnCaja(Turno turno){
             controlPersis.registrarIngresoEnCaja(turno);
+        }
+
+        public void descontarStockProductos(Turno turno) {
+            controlPersis.descontarStockProductos(turno);
         }
 
         public boolean existsCajaByTurnoId(int turnoId) {

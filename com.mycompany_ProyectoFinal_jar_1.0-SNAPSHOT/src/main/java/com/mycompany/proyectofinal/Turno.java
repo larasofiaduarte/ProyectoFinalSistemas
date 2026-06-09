@@ -30,6 +30,8 @@ public class Turno {
     @Column(nullable = false)
     private String estado;
     private String detalle;
+    @Column(name = "stock_descontado", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean stockDescontado = false;
 
     public String getDetalle() {
         return detalle;
@@ -82,6 +84,12 @@ public class Turno {
     public Cliente getCliente(){
         return cliente;
     }
-    
-    
+
+    public boolean isStockDescontado() {
+        return stockDescontado;
+    }
+
+    public void setStockDescontado(boolean stockDescontado) {
+        this.stockDescontado = stockDescontado;
+    }
 }

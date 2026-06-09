@@ -272,7 +272,7 @@ public class AltaServicios extends JDialog {
     private void inicializarTablaProductos() {
 
     modeloProductos = new DefaultTableModel(
-        new Object[]{"Seleccionar", "Producto", "Cantidad"}, 0
+        new Object[]{"Seleccionar", "Producto", "Cantidad", "Unidad"}, 0
     ) {
         @Override
         public Class<?> getColumnClass(int columnIndex) {
@@ -356,10 +356,10 @@ public class AltaServicios extends JDialog {
     for (Producto p : lista) {
         modeloProductos.addRow(new Object[]{
             false,
-            p,      // 🔥 store entire object
-            0
+            p,
+            0,
+            p.getUnidad() != null ? p.getUnidad() : "—"
         });
-
     }
 }
     

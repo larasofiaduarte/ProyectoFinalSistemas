@@ -8,6 +8,7 @@ import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Proveedor;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.ServicioProducto;
 import com.mycompany.proyectofinal.Turno;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -293,7 +294,91 @@ public class ControladoraPersistencia {
         public void deleteCajaByTurnoId(int turnoId) {
             cajaJpa.deleteByTurnoId(turnoId);
         }
-    
+
+        /**
+         * Descuenta el stock de cada producto usado en el servicio del turno.
+         * Idempotente: si stockDescontado == true no hace nada.
+         *
+         * Siempre re-fetches entities fresh from DB to avoid detached/cached
+         * state issues with the in-memory table model entities.
+         */
+        public void descontarStockProductos(Turno turno) {
+            try {
+                // ── 1. Re-fetch turno from DB (avoid detached-entity problems) ──
+                Turno managed = turJpa.findTurno(turno.getId());
+                if (managed == null) {
+                    System.err.println("[StockDescuento] WARN: Turno id=" + turno.getId() + " no encontrado en DB");
+                    return;
+                }
+
+                // ── 2. Idempotency guard (read from DB, not from in-memory field) ──
+                if (managed.isStockDescontado()) {
+                    System.out.println("[StockDescuento] Turno id=" + turno.getId() + " ya procesado — omitiendo");
+                    return;
+                }
+
+                // ── 3. Verify servicio ──
+                Servicio servicio = managed.getServicio();
+                if (servicio == null) {
+                    System.err.println("[StockDescuento] WARN: Turno id=" + turno.getId() + " sin servicio");
+                    managed.setStockDescontado(true);
+                    turJpa.edit(managed);
+                    return;
+                }
+
+                // ── 4. Re-fetch servicio directly to guarantee productos list is loaded ──
+                Servicio freshServicio = serJpa.findServicio(servicio.getId());
+                List<ServicioProducto> productos =
+                    (freshServicio != null) ? freshServicio.getProductos() : null;
+
+                if (productos == null || productos.isEmpty()) {
+                    System.out.println("[StockDescuento] Servicio id=" + servicio.getId()
+                        + " sin productos configurados — nada que descontar");
+                    managed.setStockDescontado(true);
+                    turJpa.edit(managed);
+                    return;
+                }
+
+                System.out.println("[StockDescuento] Turno id=" + turno.getId()
+                    + " | Servicio: " + freshServicio.getNombre()
+                    + " | Productos: " + productos.size());
+
+                // ── 5. Deduct stock per product ──
+                for (ServicioProducto sp : productos) {
+                    Producto producto = sp.getProducto();
+                    if (producto == null) {
+                        System.err.println("[StockDescuento] WARN: ServicioProducto id=" + sp.getId() + " sin producto");
+                        continue;
+                    }
+
+                    // Re-fetch producto fresh to read current DB stock (not stale)
+                    Producto freshProducto = prodJpa.findProducto(producto.getId());
+                    if (freshProducto == null) {
+                        System.err.println("[StockDescuento] WARN: Producto id=" + producto.getId() + " no encontrado");
+                        continue;
+                    }
+
+                    double antes   = freshProducto.getStock();
+                    double despues = antes - sp.getCantidadUsada();
+                    freshProducto.setStock(despues);
+                    prodJpa.edit(freshProducto);
+
+                    System.out.printf("[StockDescuento]   %-20s: %.4f - %.4f = %.4f%n",
+                        freshProducto.getNombre(), antes, sp.getCantidadUsada(), despues);
+                }
+
+                // ── 6. Mark as done and persist ──
+                managed.setStockDescontado(true);
+                turJpa.edit(managed);
+                System.out.println("[StockDescuento] Completado — Turno id=" + turno.getId()
+                    + " stockDescontado=true persistido");
+
+            } catch (Exception e) {
+                System.err.println("[StockDescuento] ERROR en turno id=" + turno.getId() + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
 
     
 

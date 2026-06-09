@@ -65,13 +65,13 @@ public class Inventario extends MainPanelBase {
             "Nombre",
             "Stock",
             "Minimo",
-            "Proveedor"  
+            "Proveedor"
         };
 
         java.util.List<Function<Producto, Object>> getters = java.util.List.of(
             c -> c.getId(),
             c -> c.getNombre(),
-            c -> DoubleVerifier.format(c.getStock()),
+            c -> formatStock(c.getStock(), c.getUnidad()),
             c -> DoubleVerifier.format(c.getMinimo()),
             c -> c.getProveedor()
         );
@@ -172,6 +172,19 @@ public class Inventario extends MainPanelBase {
                 return;
             }
         }
+    }
+
+    private static String formatStock(double stock, String unidad) {
+        if ("ml".equals(unidad)) {
+            if (stock >= 1000) {
+                String formatted = String.format("%.2f", stock / 1000.0);
+                // strip trailing zeros: "1.50" → "1.5", "1.00" → "1"
+                formatted = formatted.replaceAll("0+$", "").replaceAll("\\.$", "");
+                return formatted + " L";
+            }
+            return DoubleVerifier.format(stock) + " ml";
+        }
+        return DoubleVerifier.format(stock);
     }
 
     @Override

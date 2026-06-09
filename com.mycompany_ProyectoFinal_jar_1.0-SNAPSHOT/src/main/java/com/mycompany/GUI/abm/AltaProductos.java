@@ -106,6 +106,7 @@ public class AltaProductos extends JDialog{
                     txtNombre.setText("");
                     txtStock.setText("");
                     txtMinimo.setText("");
+                    cmbUnidad.setSelectedIndex(0);
                 }
         });
         
@@ -119,21 +120,20 @@ public class AltaProductos extends JDialog{
     
     private void guardarProducto() {
 
-        String nombre = txtNombre.getText();
-        Double stock = Double.parseDouble(txtStock.getText());
-        Double minimo = Double.parseDouble(txtMinimo.getText());
-                    
+        String nombre  = txtNombre.getText();
+        Double stock   = Double.parseDouble(txtStock.getText());
+        Double minimo  = Double.parseDouble(txtMinimo.getText());
+        String unidad  = (String) cmbUnidad.getSelectedItem();
+
         String prov = (String) cboProv.getSelectedItem();
         provSelec = guardarProveedor(prov);
-                    
-                    
-                    
+
         if (validarCampos()){
             if (provSelec == null) {
                 JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, seleccione un proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
                 return; // Exit the action if prov does not exist
             }else{
-                control.guardarProducto(nombre, stock, minimo, provSelec);
+                control.guardarProducto(nombre, stock, minimo, provSelec, unidad);
                 if (prodEditar == null) {
                     RegistrarActividad.registrar(
                         "PRODUCTOS",
@@ -157,11 +157,12 @@ public class AltaProductos extends JDialog{
     
     private void cargarDatosProducto() {
         txtNombre.setText(prodEditar.getNombre());
-        String stock = Double.toString(prodEditar.getStock());
-        String minimo = Double.toString(prodEditar.getMinimo());
-        txtStock.setText(stock);
-        txtMinimo.setText(minimo);
-        cboProv.setSelectedItem(prodEditar.getProveedor()); // trae obj Proveedor, usar metodo de crontrol para buscar prov por nombre
+        txtStock.setText(Double.toString(prodEditar.getStock()));
+        txtMinimo.setText(Double.toString(prodEditar.getMinimo()));
+        String unidadVal = prodEditar.getUnidad();
+        cmbUnidad.setSelectedItem(unidadVal != null ? unidadVal : "ml");
+        if (cmbUnidad.getSelectedIndex() < 0) cmbUnidad.setSelectedIndex(0);
+        cboProv.setSelectedItem(prodEditar.getProveedor());
     }
 
     @SuppressWarnings("unchecked")
@@ -179,6 +180,12 @@ public class AltaProductos extends JDialog{
         txtNombre = new javax.swing.JTextField();
         txtMinimo = new javax.swing.JTextField();
         cboProv = new javax.swing.JComboBox<>();
+        cmbUnidad = new javax.swing.JComboBox<>();
+        cmbUnidad.addItem("ml");
+        cmbUnidad.addItem("g");
+        cmbUnidad.addItem("unidades");
+        cmbUnidad.setSelectedIndex(0);
+        jLabel5 = new javax.swing.JLabel();
         panelBtns = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -218,6 +225,10 @@ public class AltaProductos extends JDialog{
 
         cboProv.setToolTipText("");
 
+        cmbUnidad.setPreferredSize(new java.awt.Dimension(145, 30));
+
+        jLabel5.setText("Unidad*");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -225,18 +236,19 @@ public class AltaProductos extends JDialog{
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(42, 42, 42)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
-                        .addComponent(txtStock, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                    .addComponent(txtStock, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txtMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -260,7 +272,11 @@ public class AltaProductos extends JDialog{
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(50, Short.MAX_VALUE))
         );
 
         panelBtns.setBackground(new java.awt.Color(250, 250, 250));
@@ -274,7 +290,7 @@ public class AltaProductos extends JDialog{
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(196, 196, 196)
                 .addComponent(lblCargaEmp)
-                .addContainerGap(205, Short.MAX_VALUE))
+                .addContainerGap(164, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -284,7 +300,7 @@ public class AltaProductos extends JDialog{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelBtns, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE))
+                .addComponent(panelBtns, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -305,7 +321,7 @@ public class AltaProductos extends JDialog{
     private boolean validarCampos() {
         if (
                 txtMinimo.getText().isEmpty() ||
-                txtStock.getText().isEmpty()||
+                txtStock.getText().isEmpty()  ||
                 txtNombre.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
@@ -408,10 +424,12 @@ public class AltaProductos extends JDialog{
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel lblCargaEmp;
     private javax.swing.JPanel panelBtns;
+    private javax.swing.JComboBox<String> cmbUnidad;
     private javax.swing.JTextField txtMinimo;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtStock;

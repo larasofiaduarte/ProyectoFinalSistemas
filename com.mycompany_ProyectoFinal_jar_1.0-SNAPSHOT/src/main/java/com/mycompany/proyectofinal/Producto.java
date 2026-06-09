@@ -24,6 +24,8 @@ public class Producto implements Serializable {
     private String nombre;
     private double stock;
     private double minimo;
+    @Column
+    private String unidad;
     @JoinColumn(name="idProveedor")
     private Proveedor Proveedor;
 
@@ -57,6 +59,14 @@ public class Producto implements Serializable {
 
     public void setMinimo(double minimo) {
         this.minimo = minimo;
+    }
+
+    public String getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(String unidad) {
+        this.unidad = unidad;
     }
 
     public Proveedor getProveedor() {
