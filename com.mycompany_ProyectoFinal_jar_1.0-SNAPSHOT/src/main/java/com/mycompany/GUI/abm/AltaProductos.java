@@ -84,18 +84,18 @@ public class AltaProductos extends JDialog{
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
+                if (!Character.isDigit(c) && c != '.' && c != ',') {
+                    e.consume();
                 }
             }
         });
-        
+
         txtMinimo.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!Character.isDigit(c)) {
-                    e.consume(); // Consume the event if the character is not a digit
+                if (!Character.isDigit(c) && c != '.' && c != ',') {
+                    e.consume();
                 }
             }
         });
@@ -106,6 +106,7 @@ public class AltaProductos extends JDialog{
                     txtNombre.setText("");
                     txtStock.setText("");
                     txtMinimo.setText("");
+                    txtCategoria.setText("");
                     cmbUnidad.setSelectedIndex(0);
                 }
         });
@@ -121,9 +122,15 @@ public class AltaProductos extends JDialog{
     private void guardarProducto() {
 
         String nombre  = txtNombre.getText();
-        Double stock   = Double.parseDouble(txtStock.getText());
-        Double minimo  = Double.parseDouble(txtMinimo.getText());
+        Double stock   = Double.parseDouble(txtStock.getText().replace(",", "."));
+        Double minimo  = Double.parseDouble(txtMinimo.getText().replace(",", "."));
         String unidad  = (String) cmbUnidad.getSelectedItem();
+        // Si el usuario ingresó litros, convierte a ML antes de guardar (1 LT = 1000 ML)
+        if ("lt".equalsIgnoreCase(unidad)) {
+            stock = stock * 1000;
+            unidad = "ml";
+        }
+        String categoria = txtCategoria.getText().trim();
 
         String prov = (String) cboProv.getSelectedItem();
         provSelec = guardarProveedor(prov);
@@ -133,7 +140,7 @@ public class AltaProductos extends JDialog{
                 JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, seleccione un proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
                 return; // Exit the action if prov does not exist
             }else{
-                control.guardarProducto(nombre, stock, minimo, provSelec, unidad);
+                control.guardarProducto(nombre, stock, minimo, provSelec, unidad, categoria.isEmpty() ? null : categoria);
                 if (prodEditar == null) {
                     RegistrarActividad.registrar(
                         "PRODUCTOS",
@@ -162,6 +169,7 @@ public class AltaProductos extends JDialog{
         String unidadVal = prodEditar.getUnidad();
         cmbUnidad.setSelectedItem(unidadVal != null ? unidadVal : "ml");
         if (cmbUnidad.getSelectedIndex() < 0) cmbUnidad.setSelectedIndex(0);
+        txtCategoria.setText(prodEditar.getCategoria() != null ? prodEditar.getCategoria() : "");
         cboProv.setSelectedItem(prodEditar.getProveedor());
     }
 
@@ -182,10 +190,17 @@ public class AltaProductos extends JDialog{
         cboProv = new javax.swing.JComboBox<>();
         cmbUnidad = new javax.swing.JComboBox<>();
         cmbUnidad.addItem("ml");
+        cmbUnidad.addItem("lt");
         cmbUnidad.addItem("g");
         cmbUnidad.addItem("unidades");
         cmbUnidad.setSelectedIndex(0);
         jLabel5 = new javax.swing.JLabel();
+        jLabelCategoria = new javax.swing.JLabel();
+        txtCategoria = new javax.swing.JTextField();
+        txtCategoria.setBackground(new java.awt.Color(242, 242, 242));
+        txtCategoria.setForeground(new java.awt.Color(102, 102, 102));
+        txtCategoria.setBorder(null);
+        txtCategoria.setPreferredSize(new java.awt.Dimension(73, 30));
         panelBtns = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -229,6 +244,8 @@ public class AltaProductos extends JDialog{
 
         jLabel5.setText("Unidad*");
 
+        jLabelCategoria.setText("Categoría");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -240,14 +257,16 @@ public class AltaProductos extends JDialog{
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                    .addComponent(jLabelCategoria, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(txtNombre, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
                     .addComponent(txtStock, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(txtMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtCategoria, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -276,7 +295,11 @@ public class AltaProductos extends JDialog{
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabelCategoria)
+                    .addComponent(txtCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         panelBtns.setBackground(new java.awt.Color(250, 250, 250));
@@ -433,5 +456,7 @@ public class AltaProductos extends JDialog{
     private javax.swing.JTextField txtMinimo;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtStock;
+    private javax.swing.JLabel jLabelCategoria;
+    private javax.swing.JTextField txtCategoria;
     // End of variables declaration//GEN-END:variables
 }

@@ -24,7 +24,13 @@ public class ServicioProducto implements Serializable {
 
     private double cantidadUsada;
 
+    @Column
+    private String categoria;
+
     public ServicioProducto() {}
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
     // getters & setters
     public int getId() {

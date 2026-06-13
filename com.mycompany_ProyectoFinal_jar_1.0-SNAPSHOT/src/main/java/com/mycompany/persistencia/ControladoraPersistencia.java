@@ -309,6 +309,7 @@ public class ControladoraPersistencia {
                     System.err.println("[Stock] WARN: Turno id=" + turno.getId() + " no encontrado");
                     return;
                 }
+                // Evita descontar dos veces el mismo turno
                 if (managed.isStockDescontado()) {
                     System.out.println("[Stock] Turno id=" + turno.getId() + " ya descontado — omitiendo");
                     return;
@@ -321,6 +322,7 @@ public class ControladoraPersistencia {
                     return;
                 }
 
+                // Recarga el servicio desde BD para obtener la lista actualizada de productos
                 Servicio fresh = serJpa.findServicio(servicio.getId());
                 List<ServicioProducto> productos = fresh != null ? fresh.getProductos() : null;
 
@@ -334,26 +336,60 @@ public class ControladoraPersistencia {
                 System.out.println("[Stock] SALIDA — Turno id=" + turno.getId()
                     + " | " + fresh.getNombre() + " | " + productos.size() + " producto(s)");
 
+                // Recorre cada ítem del servicio (puede ser producto específico o categoría)
                 for (ServicioProducto sp : productos) {
-                    Producto p = sp.getProducto();
-                    if (p == null) continue;
-                    Producto fp = prodJpa.findProducto(p.getId());
-                    if (fp == null) continue;
+                    if (sp.getProducto() != null) {
+                        // Descuento directo: producto específico
+                        Producto fp = prodJpa.findProducto(sp.getProducto().getId());
+                        if (fp == null) continue;
 
-                    double antes = fp.getStock();
-                    fp.setStock(antes - sp.getCantidadUsada());
-                    prodJpa.edit(fp);
+                        double antes = fp.getStock();
+                        fp.setStock(antes - sp.getCantidadUsada());
+                        prodJpa.edit(fp);
 
-                    MovimientoStock mov = new MovimientoStock();
-                    mov.setProducto(fp);
-                    mov.setCantidad(sp.getCantidadUsada());
-                    mov.setTipo("SALIDA");
-                    mov.setFecha(LocalDateTime.now());
-                    mov.setTurnoId(turno.getId());
-                    movStockJpa.create(mov);
+                        MovimientoStock mov = new MovimientoStock();
+                        mov.setProducto(fp);
+                        mov.setCantidad(sp.getCantidadUsada());
+                        mov.setTipo("SALIDA");
+                        mov.setFecha(LocalDateTime.now());
+                        mov.setTurnoId(turno.getId());
+                        movStockJpa.create(mov);
 
-                    System.out.printf("[Stock]   SALIDA %-20s: %.4f - %.4f = %.4f%n",
-                        fp.getNombre(), antes, sp.getCantidadUsada(), fp.getStock());
+                        System.out.printf("[Stock]   SALIDA %-20s: %.4f - %.4f = %.4f%n",
+                            fp.getNombre(), antes, sp.getCantidadUsada(), fp.getStock());
+
+                    } else if (sp.getCategoria() != null && !sp.getCategoria().isBlank()) {
+                        // Descuento por categoría: descuenta de a uno empezando por el de mayor stock
+                        List<com.mycompany.proyectofinal.Producto> enCategoria =
+                            prodJpa.findByCategoria(sp.getCategoria());
+                        double remaining = sp.getCantidadUsada();
+                        for (com.mycompany.proyectofinal.Producto cp : enCategoria) {
+                            if (remaining <= 0) break;
+                            Producto fp = prodJpa.findProducto(cp.getId());
+                            if (fp == null || fp.getStock() <= 0) continue;
+                            // Descuenta lo que haya disponible sin pasar a negativo
+                            double deduct = Math.min(fp.getStock(), remaining);
+                            double antes = fp.getStock();
+                            fp.setStock(antes - deduct);
+                            prodJpa.edit(fp);
+                            remaining -= deduct; // Actualiza cuánto falta aún por descontar
+
+                            MovimientoStock mov = new MovimientoStock();
+                            mov.setProducto(fp);
+                            mov.setCantidad(deduct);
+                            mov.setTipo("SALIDA");
+                            mov.setFecha(LocalDateTime.now());
+                            mov.setTurnoId(turno.getId());
+                            movStockJpa.create(mov);
+
+                            System.out.printf("[Stock]   SALIDA-CAT %-20s (cat=%s): %.4f - %.4f = %.4f%n",
+                                fp.getNombre(), sp.getCategoria(), antes, deduct, fp.getStock());
+                        }
+                        if (remaining > 0) {
+                            System.err.printf("[Stock] WARN: Stock insuficiente en categoría '%s', faltaron %.4f ML%n",
+                                sp.getCategoria(), remaining);
+                        }
+                    }
                 }
 
                 managed.setStockDescontado(true);
@@ -379,51 +415,45 @@ public class ControladoraPersistencia {
                     System.err.println("[Stock] WARN: Turno id=" + turno.getId() + " no encontrado");
                     return;
                 }
+                // Evita restaurar si el stock nunca fue descontado
                 if (!managed.isStockDescontado()) {
                     System.out.println("[Stock] Turno id=" + turno.getId() + " sin stock descontado — omitiendo");
                     return;
                 }
 
-                Servicio servicio = managed.getServicio();
-                if (servicio == null) {
-                    managed.setStockDescontado(false);
-                    turJpa.edit(managed);
-                    return;
-                }
+                // Busca los movimientos SALIDA del turno para revertirlos uno a uno.
+                // Funciona tanto para productos específicos como para consumo por categoría.
+                List<MovimientoStock> salidas = movStockJpa.findSalidasByTurnoId(turno.getId());
 
-                Servicio fresh = serJpa.findServicio(servicio.getId());
-                List<ServicioProducto> productos = fresh != null ? fresh.getProductos() : null;
-
-                if (productos == null || productos.isEmpty()) {
-                    System.out.println("[Stock] Servicio id=" + servicio.getId() + " sin productos");
+                if (salidas.isEmpty()) {
                     managed.setStockDescontado(false);
                     turJpa.edit(managed);
                     return;
                 }
 
                 System.out.println("[Stock] ENTRADA — Turno id=" + turno.getId()
-                    + " | " + fresh.getNombre() + " | " + productos.size() + " producto(s)");
+                    + " | " + salidas.size() + " movimiento(s)");
 
-                for (ServicioProducto sp : productos) {
-                    Producto p = sp.getProducto();
-                    if (p == null) continue;
-                    Producto fp = prodJpa.findProducto(p.getId());
+                for (MovimientoStock salida : salidas) {
+                    Producto fp = prodJpa.findProducto(salida.getProducto().getId());
                     if (fp == null) continue;
 
                     double antes = fp.getStock();
-                    fp.setStock(antes + sp.getCantidadUsada());
+                    // Devuelve exactamente la cantidad que se había descontado
+                    fp.setStock(antes + salida.getCantidad());
                     prodJpa.edit(fp);
 
-                    MovimientoStock mov = new MovimientoStock();
-                    mov.setProducto(fp);
-                    mov.setCantidad(sp.getCantidadUsada());
-                    mov.setTipo("ENTRADA");
-                    mov.setFecha(LocalDateTime.now());
-                    mov.setTurnoId(turno.getId());
-                    movStockJpa.create(mov);
+                    // Registra la devolución como ENTRADA en el historial (no borra la SALIDA original)
+                    MovimientoStock entrada = new MovimientoStock();
+                    entrada.setProducto(fp);
+                    entrada.setCantidad(salida.getCantidad());
+                    entrada.setTipo("ENTRADA");
+                    entrada.setFecha(LocalDateTime.now());
+                    entrada.setTurnoId(turno.getId());
+                    movStockJpa.create(entrada);
 
                     System.out.printf("[Stock]   ENTRADA %-20s: %.4f + %.4f = %.4f%n",
-                        fp.getNombre(), antes, sp.getCantidadUsada(), fp.getStock());
+                        fp.getNombre(), antes, salida.getCantidad(), fp.getStock());
                 }
 
                 managed.setStockDescontado(false);

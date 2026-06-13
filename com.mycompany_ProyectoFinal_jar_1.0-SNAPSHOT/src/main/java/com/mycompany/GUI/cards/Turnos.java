@@ -103,20 +103,39 @@ public class Turnos extends MainPanelBase{
         turnoModel.setEntityClass(Turno.class, Map.of(4, "estado", 5, "detalle"));
         turnoModel.setTableName("TURNOS");
         turnoModel.setOnPersist(t -> {
+            // Compara el estado guardado en BD con el nuevo para detectar cambios de estado relevantes
             Turno dbTurno = control.findTurno(t.getId());
             boolean eraFinalizado = dbTurno != null && "Finalizado".equals(dbTurno.getEstado());
             boolean ahoraFinalizado = "Finalizado".equals(t.getEstado());
+
+            // Si el turno pasa de Finalizado a otro estado y ya descontó stock, confirma antes de continuar
+            if (eraFinalizado && !ahoraFinalizado && dbTurno != null && dbTurno.isStockDescontado()) {
+                int confirmStock = JOptionPane.showConfirmDialog(
+                    SwingUtilities.getWindowAncestor(Turnos.this),
+                    "Este turno ya descontó stock. ¿Deseas restaurarlo?",
+                    "Restaurar stock",
+                    JOptionPane.YES_NO_OPTION);
+                if (confirmStock != JOptionPane.YES_OPTION) {
+                    cargarTabla(); // Cancela el cambio y recarga la tabla original
+                    return;
+                }
+            }
 
             control.modificarTurno(t, t.getServicio(), t.getFecha(),
                     t.getCliente(), t.getEstado(), t.getDetalle());
 
             if (!eraFinalizado && ahoraFinalizado) {
+                // Pendiente → Finalizado: registra ingreso en caja y descuenta stock
                 if (!control.existsCajaByTurnoId(t.getId())) {
                     control.registrarIngresoEnCaja(t);
                     ventana.recargarCaja();
                 }
                 control.descontarStockProductos(t);
+                ventana.recargarInventario();
             } else if (eraFinalizado && !ahoraFinalizado) {
+                // Finalizado → Pendiente: restaura stock y ofrece eliminar el ingreso de caja
+                control.revertirStockProductos(t);
+                ventana.recargarInventario();
                 int confirm = JOptionPane.showConfirmDialog(
                     SwingUtilities.getWindowAncestor(Turnos.this),
                     "¿Desea eliminar el ingreso registrado en Caja para este turno?",

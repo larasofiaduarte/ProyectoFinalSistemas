@@ -214,7 +214,7 @@ public class Controladora {
     }
     //PRODUCTO
     //ALTA
-    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor, String unidad){
+    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor, String unidad, String categoria){
         Producto nuevoProducto = new Producto();
 
         nuevoProducto.setNombre(nombre);
@@ -222,6 +222,7 @@ public class Controladora {
         nuevoProducto.setMinimo(minimo);
         nuevoProducto.setProveedor(proveedor);
         nuevoProducto.setUnidad(unidad);
+        nuevoProducto.setCategoria(categoria);
 
         controlPersis.guardarProducto(nuevoProducto);
     }
@@ -258,13 +259,13 @@ public class Controladora {
         return controlPersis.findProducto(numProducto);
     }
     //MODIF
-    public void modificarProducto(Producto prod, String nombre, double stock, double minimo, Proveedor proveedor) {
+    public void modificarProducto(Producto prod, String nombre, double stock, double minimo, Proveedor proveedor, String categoria) {
         prod.setMinimo(minimo);
         prod.setStock(stock);
         prod.setNombre(nombre);
         prod.setProveedor(proveedor);
+        prod.setCategoria(categoria);
         controlPersis.modificarProducto(prod);
-                
     }
     //READ
         public List <Servicio> traerServicios(){

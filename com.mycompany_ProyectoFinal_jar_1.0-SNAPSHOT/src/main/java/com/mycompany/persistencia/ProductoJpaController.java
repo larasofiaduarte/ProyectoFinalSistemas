@@ -185,6 +185,21 @@ public class ProductoJpaController implements Serializable {
         }
     }
 
+    // Trae todos los productos de una categoría, ordenados de mayor a menor stock.
+    // El orden DESC permite el descuento greedy (primero el que más tiene).
+    public List<Producto> findByCategoria(String categoria) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT p FROM Producto p WHERE p.categoria = :cat ORDER BY p.stock DESC",
+                Producto.class)
+                .setParameter("cat", categoria)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Producto> findLowStock() {
         EntityManager em = emf.createEntityManager();
         try {

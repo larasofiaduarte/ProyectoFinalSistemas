@@ -28,6 +28,20 @@ public class MovimientoStockJpaController {
         }
     }
 
+    // Trae solo los movimientos de tipo SALIDA de un turno. Se usa para revertir el stock.
+    public List<MovimientoStock> findSalidasByTurnoId(int turnoId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery(
+                "SELECT m FROM MovimientoStock m WHERE m.turnoId = :tid AND m.tipo = 'SALIDA' ORDER BY m.fecha",
+                MovimientoStock.class)
+                .setParameter("tid", turnoId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     /** Returns all movements recorded for a given turno (for audit / display). */
     public List<MovimientoStock> findByTurnoId(int turnoId) {
         EntityManager em = emf.createEntityManager();

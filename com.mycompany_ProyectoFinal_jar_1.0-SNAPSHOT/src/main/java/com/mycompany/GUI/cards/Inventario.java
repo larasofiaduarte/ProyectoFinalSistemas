@@ -56,7 +56,7 @@ public class Inventario extends MainPanelBase {
         });
     }
     
-    private void cargarTabla(){
+    public void cargarTabla(){
     // data from DB
         java.util.List<Producto> productos = control.traerProductos();
 
@@ -65,6 +65,7 @@ public class Inventario extends MainPanelBase {
             "Nombre",
             "Stock",
             "Minimo",
+            "Categoria",
             "Proveedor"
         };
 
@@ -73,6 +74,7 @@ public class Inventario extends MainPanelBase {
             c -> c.getNombre(),
             c -> formatStock(c.getStock(), c.getUnidad()),
             c -> DoubleVerifier.format(c.getMinimo()),
+            c -> c.getCategoria() != null ? c.getCategoria() : "",
             c -> c.getProveedor()
         );
 
@@ -86,11 +88,12 @@ public class Inventario extends MainPanelBase {
         prodModel.setDecimalColumns(2, 3);
         prodModel.setValueSetter(2, (p, v) -> p.setStock(Double.parseDouble(v.toString())));
         prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
-        prodModel.setValueSetter(4, (p, v) -> p.setProveedor((Proveedor) v));
-        prodModel.setEntityClass(Producto.class, Map.of(1, "nombre"));
+        prodModel.setValueSetter(4, (p, v) -> p.setCategoria(v != null ? v.toString() : null));
+        prodModel.setValueSetter(5, (p, v) -> p.setProveedor((Proveedor) v));
+        prodModel.setEntityClass(Producto.class, Map.of(1, "nombre", 4, "categoria"));
         prodModel.setTableName("PRODUCTOS");
         prodModel.setOnPersist(p -> {
-            control.modificarProducto(p, p.getNombre(), p.getStock(), p.getMinimo(), p.getProveedor());
+            control.modificarProducto(p, p.getNombre(), p.getStock(), p.getMinimo(), p.getProveedor(), p.getCategoria());
             showToast("Cambio guardado");
         });
 

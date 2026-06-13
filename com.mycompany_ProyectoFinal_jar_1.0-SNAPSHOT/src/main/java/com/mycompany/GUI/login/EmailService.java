@@ -7,9 +7,17 @@ import java.nio.charset.StandardCharsets;
 
 public class EmailService {
 
-    private static final String API_KEY = "re_Ai1ZVJei_FeSPEwhsN55SyWUA2a9pjLjK";
-    private static final String FROM    = "onboarding@resend.dev";
+    private static final String API_KEY;
+    private static final String FROM     = "onboarding@resend.dev";
     private static final String ENDPOINT = "https://api.resend.com/emails";
+
+    static {
+        // Lee la clave desde la variable de entorno; nunca se hardcodea en el código
+        API_KEY = System.getenv("RESEND_API_KEY");
+        if (API_KEY == null || API_KEY.isEmpty()) {
+            throw new RuntimeException("La variable de entorno RESEND_API_KEY no está configurada");
+        }
+    }
 
     public static boolean sendRecoveryToken(String toEmail, String token) {
         try {
