@@ -14,8 +14,11 @@ import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
-import com.mycompany.proyectofinal.util.DoubleVerifier;
+import com.mycompany.proyectofinal.util.CategoriaOptions;
+import com.mycompany.proyectofinal.util.StockFormatter;
 import com.mycompany.proyectofinal.Proveedor;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -57,40 +60,68 @@ public class Inventario extends MainPanelBase {
     }
     
     public void cargarTabla(){
-    // data from DB
         java.util.List<Producto> productos = control.traerProductos();
 
         String[] columns = {
-            "ID",
-            "Nombre",
-            "Stock",
-            "Minimo",
-            "Categoria",
-            "Proveedor"
+            "ID", "Nombre", "Stock", "Unidad", "Minimo", "Categoria", "Proveedor"
         };
 
         java.util.List<Function<Producto, Object>> getters = java.util.List.of(
             c -> c.getId(),
             c -> c.getNombre(),
-            c -> formatStock(c.getStock(), c.getUnidad()),
-            c -> DoubleVerifier.format(c.getMinimo()),
+            c -> StockFormatter.format(c.getStock(), c.getUnidad()),
+            c -> {
+                String u = c.getUnidad();
+                // Si el stock supera 1 litro, la unidad efectiva de display es "lt"
+                if ("ml".equals(u) && c.getStock() >= 1000) return "lt";
+                return u != null ? u : "ml";
+            },
+            c -> StockFormatter.format(c.getMinimo(), c.getUnidad()),
             c -> c.getCategoria() != null ? c.getCategoria() : "",
             c -> c.getProveedor()
         );
 
-
-
-        setTableData(productos, columns, getters);
+        // Unidad (col 3) es solo lectura — se actualiza automáticamente cuando se edita stock o mínimo
+        boolean[] editables = new boolean[columns.length];
+        for (int i = 1; i < columns.length; i++) editables[i] = true;
+        editables[0] = false;
+        editables[3] = false;
+        setTableData(productos, columns, getters, editables);
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Producto> prodModel = (CustomTableModel<Producto>) table.getModel();
         prodModel.setValueSetter(1, (p, v) -> p.setNombre(v.toString()));
-        prodModel.setDecimalColumns(2, 3);
-        prodModel.setValueSetter(2, (p, v) -> p.setStock(Double.parseDouble(v.toString())));
-        prodModel.setValueSetter(3, (p, v) -> p.setMinimo(Double.parseDouble(v.toString())));
-        prodModel.setValueSetter(4, (p, v) -> p.setCategoria(v != null ? v.toString() : null));
-        prodModel.setValueSetter(5, (p, v) -> p.setProveedor((Proveedor) v));
-        prodModel.setEntityClass(Producto.class, Map.of(1, "nombre", 4, "categoria"));
+        prodModel.setValueSetter(2, (p, v) -> {
+            try {
+                // Parsea "1000ml", "1lt", "250gr" o número puro (mantiene unidad actual)
+                StockFormatter.ParseResult r = StockFormatter.parseConUnidad(v.toString(), p.getUnidad());
+                p.setStock(r.valor);
+                p.setUnidad(r.unidad);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null,
+                    "Formato inválido. Usá: 1000ml, 1lt, 0.5lt, 250gr",
+                    "Error de validación", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+        // col 3 (Unidad) no tiene setter — es de solo lectura
+        prodModel.setValueSetter(4, (p, v) -> {
+            try {
+                // Igual que stock: parsea con unidad y actualiza el campo de unidad
+                StockFormatter.ParseResult r = StockFormatter.parseConUnidad(v.toString(), p.getUnidad());
+                p.setMinimo(r.valor);
+                p.setUnidad(r.unidad);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null,
+                    "Formato inválido. Usá: 1000ml, 1lt, 0.5lt, 250gr",
+                    "Error de validación", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+        prodModel.setValueSetter(5, (p, v) -> {
+            if (v != null && !"+ Nuevo...".equals(v.toString()))
+                p.setCategoria(v.toString());
+        });
+        prodModel.setValueSetter(6, (p, v) -> p.setProveedor((Proveedor) v));
+        prodModel.setEntityClass(Producto.class, Map.of(1, "nombre", 5, "categoria"));
         prodModel.setTableName("PRODUCTOS");
         prodModel.setOnPersist(p -> {
             control.modificarProducto(p, p.getNombre(), p.getStock(), p.getMinimo(), p.getProveedor(), p.getCategoria());
@@ -100,13 +131,53 @@ public class Inventario extends MainPanelBase {
         List<Proveedor> proveedores = control.traerProveedores();
 
         SwingUtilities.invokeLater(() -> {
+            // Editor de stock — acepta sufijos de unidad: "1000ml", "1lt", "250gr"
             JTextField stockField = new JTextField();
-            stockField.addKeyListener(new DoubleVerifier());
+            stockField.addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override
+                public void keyTyped(java.awt.event.KeyEvent e) {
+                    char c = e.getKeyChar();
+                    if (Character.isISOControl(c)) return;
+                    if (Character.isDigit(c) || c == '.' || c == 'm' || c == 'l' || c == 't' || c == 'g' || c == 'r') return;
+                    e.consume();
+                }
+            });
             table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(stockField));
-            JTextField minimoField = new JTextField();
-            minimoField.addKeyListener(new DoubleVerifier());
-            table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(minimoField));
 
+            // Editor de mínimo — misma lógica de unidades que stock
+            JTextField minimoField = new JTextField();
+            minimoField.addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override
+                public void keyTyped(java.awt.event.KeyEvent e) {
+                    char c = e.getKeyChar();
+                    if (Character.isISOControl(c)) return;
+                    if (Character.isDigit(c) || c == '.' || c == 'm' || c == 'l' || c == 't' || c == 'g' || c == 'r') return;
+                    e.consume();
+                }
+            });
+            table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(minimoField));
+
+            // Editor de categoría: dropdown con opciones predefinidas + opción de nueva categoría
+            List<String> catItems = new ArrayList<>(Arrays.asList(CategoriaOptions.OPCIONES));
+            catItems.add("+ Nuevo...");
+            JComboBox<String> comboCat = new JComboBox<>(catItems.toArray(new String[0]));
+            comboCat.addActionListener(e -> {
+                if ("+ Nuevo...".equals(comboCat.getSelectedItem())) {
+                    comboCat.hidePopup();
+                    String nueva = JOptionPane.showInputDialog(table, "Nombre de la nueva categoría:");
+                    if (nueva != null && !nueva.isBlank()) {
+                        String cat = nueva.trim();
+                        // Inserta la nueva opción antes de "+ Nuevo..." y la selecciona
+                        comboCat.insertItemAt(cat, comboCat.getItemCount() - 1);
+                        comboCat.setSelectedItem(cat);
+                    } else {
+                        comboCat.setSelectedIndex(0);
+                    }
+                }
+            });
+            table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboCat));
+
+            // Editor de proveedor con búsqueda filtrada
             int colProv = colIndex("Proveedor");
             FilteredComboBoxEditor<Proveedor> provEditor = new FilteredComboBoxEditor<>(
                 proveedores,
@@ -175,19 +246,6 @@ public class Inventario extends MainPanelBase {
                 return;
             }
         }
-    }
-
-    private static String formatStock(double stock, String unidad) {
-        if ("ml".equals(unidad)) {
-            if (stock >= 1000) {
-                String formatted = String.format("%.2f", stock / 1000.0);
-                // strip trailing zeros: "1.50" → "1.5", "1.00" → "1"
-                formatted = formatted.replaceAll("0+$", "").replaceAll("\\.$", "");
-                return formatted + " L";
-            }
-            return DoubleVerifier.format(stock) + " ml";
-        }
-        return DoubleVerifier.format(stock);
     }
 
     @Override

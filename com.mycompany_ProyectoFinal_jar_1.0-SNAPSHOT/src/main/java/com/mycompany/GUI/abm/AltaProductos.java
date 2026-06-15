@@ -4,6 +4,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.proyectofinal.util.CategoriaOptions;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Proveedor;
@@ -106,7 +107,7 @@ public class AltaProductos extends JDialog{
                     txtNombre.setText("");
                     txtStock.setText("");
                     txtMinimo.setText("");
-                    txtCategoria.setText("");
+                    cmbCategoria.setSelectedIndex(0);
                     cmbUnidad.setSelectedIndex(0);
                 }
         });
@@ -130,7 +131,9 @@ public class AltaProductos extends JDialog{
             stock = stock * 1000;
             unidad = "ml";
         }
-        String categoria = txtCategoria.getText().trim();
+        // Toma el valor seleccionado o escrito en el combo (soporta opciones predefinidas y texto libre)
+        Object catObj = cmbCategoria.getSelectedItem();
+        String categoria = catObj != null ? catObj.toString().trim() : "";
 
         String prov = (String) cboProv.getSelectedItem();
         provSelec = guardarProveedor(prov);
@@ -169,7 +172,12 @@ public class AltaProductos extends JDialog{
         String unidadVal = prodEditar.getUnidad();
         cmbUnidad.setSelectedItem(unidadVal != null ? unidadVal : "ml");
         if (cmbUnidad.getSelectedIndex() < 0) cmbUnidad.setSelectedIndex(0);
-        txtCategoria.setText(prodEditar.getCategoria() != null ? prodEditar.getCategoria() : "");
+        String cat = prodEditar.getCategoria();
+        if (cat != null && !cat.isEmpty()) {
+            cmbCategoria.setSelectedItem(cat);
+            // Si el valor guardado no está en la lista predefinida, lo muestra igual en el editor
+            cmbCategoria.getEditor().setItem(cat);
+        }
         cboProv.setSelectedItem(prodEditar.getProveedor());
     }
 
@@ -191,16 +199,15 @@ public class AltaProductos extends JDialog{
         cmbUnidad = new javax.swing.JComboBox<>();
         cmbUnidad.addItem("ml");
         cmbUnidad.addItem("lt");
-        cmbUnidad.addItem("g");
+        cmbUnidad.addItem("gr");
         cmbUnidad.addItem("unidades");
         cmbUnidad.setSelectedIndex(0);
         jLabel5 = new javax.swing.JLabel();
         jLabelCategoria = new javax.swing.JLabel();
-        txtCategoria = new javax.swing.JTextField();
-        txtCategoria.setBackground(new java.awt.Color(242, 242, 242));
-        txtCategoria.setForeground(new java.awt.Color(102, 102, 102));
-        txtCategoria.setBorder(null);
-        txtCategoria.setPreferredSize(new java.awt.Dimension(73, 30));
+        // Opciones predefinidas de categoría desde la lista centralizada; editable para valores personalizados
+        cmbCategoria = new javax.swing.JComboBox<>(CategoriaOptions.OPCIONES);
+        cmbCategoria.setEditable(true);
+        cmbCategoria.setPreferredSize(new java.awt.Dimension(145, 30));
         panelBtns = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -266,7 +273,7 @@ public class AltaProductos extends JDialog{
                     .addComponent(txtMinimo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtCategoria, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE))
+                    .addComponent(cmbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -298,7 +305,7 @@ public class AltaProductos extends JDialog{
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelCategoria)
-                    .addComponent(txtCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
@@ -457,6 +464,6 @@ public class AltaProductos extends JDialog{
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtStock;
     private javax.swing.JLabel jLabelCategoria;
-    private javax.swing.JTextField txtCategoria;
+    private javax.swing.JComboBox<String> cmbCategoria;
     // End of variables declaration//GEN-END:variables
 }
