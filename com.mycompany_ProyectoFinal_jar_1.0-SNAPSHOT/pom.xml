@@ -96,7 +96,52 @@
                 <version>2.1.7</version>
             </dependency>
 
+        <!-- JavaFX 21 para WebView embebido en Swing (calendário FullCalendar) -->
+        <!-- Clasificador "win" incluye las librerías nativas de WebKit/OpenGL para Windows -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>21</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>21</version>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>21</version>
+        </dependency>
+
     </dependencies>
+    <build>
+        <plugins>
+            <!--
+                Para ejecutar la app con JavaFX correctamente:
+                  mvn javafx:run
+                Este plugin configura el module-path y add-modules automáticamente.
+
+                En NetBeans: click derecho en el proyecto → Customize → Run
+                  Goals: javafx:run
+            -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>com.mycompany.proyectofinal.ProyectoFinal</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>20</maven.compiler.source>

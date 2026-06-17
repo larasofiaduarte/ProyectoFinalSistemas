@@ -15,6 +15,8 @@ import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.util.CategoriaOptions;
+import com.mycompany.proyectofinal.util.PrediccionStock;
+import com.mycompany.proyectofinal.util.StockAlerta;
 import com.mycompany.proyectofinal.util.StockFormatter;
 import com.mycompany.proyectofinal.Proveedor;
 import java.util.ArrayList;
@@ -27,11 +29,13 @@ public class Inventario extends MainPanelBase {
 
     private Ventana ventana;
     private Controladora control;
+    private JPanel alertasPanel;
 
     public Inventario(Ventana ventana) {
         super("Inventario");
         this.ventana = ventana;
-        this.control = new Controladora(); 
+        this.control = new Controladora();
+        inicializarPanelAlertas(); // debe ir antes de initUI() → cargarTabla()
         initUI();
     }
 
@@ -128,6 +132,9 @@ public class Inventario extends MainPanelBase {
             showToast("Cambio guardado");
         });
 
+        // Recalcula las alertas de predicción cada vez que se recarga la tabla
+        actualizarAlertas();
+
         List<Proveedor> proveedores = control.traerProveedores();
 
         SwingUtilities.invokeLater(() -> {
@@ -195,6 +202,56 @@ public class Inventario extends MainPanelBase {
         });
     }
     
+    /** Crea el panel de alertas y lo ancla encima de la tabla. */
+    private void inicializarPanelAlertas() {
+        alertasPanel = new JPanel();
+        alertasPanel.setLayout(new BoxLayout(alertasPanel, BoxLayout.Y_AXIS));
+        alertasPanel.setBorder(BorderFactory.createEmptyBorder(6, 14, 6, 14));
+        alertasPanel.setVisible(false);
+        tablePanel.add(alertasPanel, BorderLayout.NORTH);
+    }
+
+    /** Recalcula y muestra las alertas de stock basadas en turnos pendientes del próximo 14 días. */
+    private void actualizarAlertas() {
+        if (alertasPanel == null) return;
+        List<StockAlerta> alertas = PrediccionStock.generarAlertas(
+            control.traerTurnos(), control.traerProductos()
+        );
+        alertasPanel.removeAll();
+        if (!alertas.isEmpty()) {
+            JLabel titulo = new JLabel("  Predicción de stock — próximos 14 días:");
+            titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 12f));
+            titulo.setForeground(Color.DARK_GRAY);
+            alertasPanel.add(titulo);
+            alertasPanel.add(Box.createVerticalStrut(4));
+            for (StockAlerta a : alertas) {
+                JLabel lbl = new JLabel("  " + formatearAlerta(a));
+                lbl.setForeground(
+                    a.getNivel() == StockAlerta.Nivel.CRITICAL
+                        ? new Color(185, 28, 28)   // rojo
+                        : new Color(146, 64, 14)   // naranja oscuro
+                );
+                alertasPanel.add(lbl);
+            }
+        }
+        alertasPanel.setVisible(!alertas.isEmpty());
+        alertasPanel.revalidate();
+        alertasPanel.repaint();
+    }
+
+    /** Formatea el texto de una alerta individual para mostrar en el panel. */
+    private String formatearAlerta(StockAlerta a) {
+        String disponible = StockFormatter.format(a.getStockActual(), a.getUnidad());
+        String necesario  = StockFormatter.format(a.getConsumoProyectado(), a.getUnidad());
+        if (a.getNivel() == StockAlerta.Nivel.CRITICAL) {
+            return "⚠ " + a.getProductoNombre()
+                + " — se agota: " + disponible + " disponible, " + necesario + " necesarios";
+        } else {
+            return "⚡ " + a.getProductoNombre()
+                + " — bajo stock: " + disponible + " disponible, " + necesario + " necesarios";
+        }
+    }
+
     private void abrirAltaProducto() {
         AltaProductos dialog =
         new AltaProductos(ventana, true, this::cargarTabla);
