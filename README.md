@@ -1,7 +1,7 @@
-##Sistema de Peluquería
+# Sistema de Peluquería
 Este proyecto es un sistema de gestión para una peluquería desarrollado en Java utilizando Maven para la gestión de dependencias y Swing para la interfaz gráfica, con base de datos MySQL gestionada a través de WAMPServer y el framework de persistencia JPA para la interacción con la base de datos.
 
-##Características del Sistema
+# Características del Sistema
 El sistema permite gestionar las siguientes áreas clave de la empresa:
 
 Gestión de Caja: Control de ingresos y egresos, resumen de operaciones diarias.
