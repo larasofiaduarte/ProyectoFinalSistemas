@@ -20,29 +20,34 @@ import java.net.URL;
  */
 public class CalendarPanel extends JPanel {
 
+    private static final Color DARK_BG  = new Color(43, 43, 45);
+    private static final Color LIGHT_BG = new Color(250, 250, 250);
+
     private volatile WebEngine engine;
-    private volatile boolean pageLoaded = false;
-    private volatile boolean pendingDark = false;
+    private volatile WebView   webView;
+    private volatile boolean   pageLoaded = false;
+    private volatile boolean   pendingDark = false;
+    private JFXPanel           jfxPanel;
+    private volatile Scene     scene;
 
     public CalendarPanel() {
         super(new BorderLayout());
-        setOpaque(false); // capa Swing 1: CalendarPanel transparente
+        setOpaque(false);
 
-        JFXPanel jfxPanel = new JFXPanel();
-        jfxPanel.setOpaque(false);                        // capa Swing 2: JFXPanel transparente
-        jfxPanel.setBackground(new Color(0, 0, 0, 0));
+        jfxPanel = new JFXPanel();
+        jfxPanel.setOpaque(true);
+        jfxPanel.setBackground(LIGHT_BG);
         add(jfxPanel, BorderLayout.CENTER);
 
         Platform.runLater(() -> {
-            WebView webView = new WebView();
-            webView.setStyle("-fx-background-color: transparent;"); // capa JavaFX 1: WebView transparente
+            webView = new WebView();
+            webView.setStyle("-fx-background-color: rgb(250,250,250);");
             engine = webView.getEngine();
 
-            // Aplica el tema pendiente una vez que la página termine de cargar
             engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
                 if (newState == Worker.State.SUCCEEDED) {
                     pageLoaded = true;
-                    execThemeJs(pendingDark);
+                    applyAllLayers(pendingDark);
                 }
             });
 
@@ -53,27 +58,44 @@ public class CalendarPanel extends JPanel {
                 System.err.println("[CalendarPanel] No se encontró /calendar/calendar.html en el classpath");
             }
 
-            Scene scene = new Scene(webView);
-            scene.setFill(javafx.scene.paint.Color.TRANSPARENT); // capa JavaFX 2: Scene transparente
+            scene = new Scene(webView);
+            scene.setFill(javafx.scene.paint.Color.rgb(250, 250, 250));
             jfxPanel.setScene(scene);
         });
     }
 
     public void applyTheme(boolean isDark) {
         pendingDark = isDark;
-        if (!pageLoaded) return; // la página no está lista; el listener lo aplicará al cargar
-        Platform.runLater(() -> execThemeJs(isDark));
+
+        // Capa Swing — se puede llamar desde cualquier hilo
+        SwingUtilities.invokeLater(() -> {
+            jfxPanel.setOpaque(true);
+            jfxPanel.setBackground(isDark ? DARK_BG : LIGHT_BG);
+            jfxPanel.repaint();
+        });
+
+        // Capas JavaFX
+        Platform.runLater(() -> applyAllLayers(isDark));
     }
 
-    private void execThemeJs(boolean isDark) {
-        if (engine == null) return;
-        try {
-            String js = isDark
-                ? "document.body.classList.add('dark-mode')"
-                : "document.body.classList.remove('dark-mode')";
-            engine.executeScript(js);
-        } catch (Exception e) {
-            System.err.println("[CalendarPanel] JS error: " + e.getMessage());
+    // Aplica color en todas las capas JavaFX + HTML. Siempre en hilo JavaFX.
+    private void applyAllLayers(boolean isDark) {
+        Color bg   = isDark ? DARK_BG  : LIGHT_BG;
+        String hex = isDark ? "rgb(43,43,45)" : "rgb(250,250,250)";
+
+        if (scene   != null) scene.setFill(javafx.scene.paint.Color.rgb(bg.getRed(), bg.getGreen(), bg.getBlue()));
+        if (webView != null) webView.setStyle("-fx-background-color: " + hex + ";");
+
+        if (engine != null && pageLoaded) {
+            try {
+                engine.executeScript(
+                    isDark
+                        ? "document.documentElement.classList.add('dark-mode'); document.body.classList.add('dark-mode');"
+                        : "document.documentElement.classList.remove('dark-mode'); document.body.classList.remove('dark-mode');"
+                );
+            } catch (Exception e) {
+                System.err.println("[CalendarPanel] JS error: " + e.getMessage());
+            }
         }
     }
 }
