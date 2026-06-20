@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
@@ -254,8 +256,18 @@ import javax.swing.border.EmptyBorder;
             }
         });
         
+        // Enter en cualquier campo dispara el login
+        KeyAdapter enterLogin = new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) Login();
+            }
+        };
+        txtUser.addKeyListener(enterLogin);
+        txtPass.addKeyListener(enterLogin);
+
         //abrir dialog contraseña olvidada
-        
+
         lblForgotPass.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
