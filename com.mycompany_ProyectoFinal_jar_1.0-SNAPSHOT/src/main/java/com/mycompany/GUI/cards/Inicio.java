@@ -1,5 +1,6 @@
 package com.mycompany.GUI.cards;
 
+import com.mycompany.GUI.calendar.CalendarPanel;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.components.ImagePanel;
@@ -18,6 +19,7 @@ public class Inicio extends JPanel {
     private JScrollPane scrollPane;
     private JLabel calendarLabel;
     private JLabel estadisticasLabel;
+    private CalendarPanel calendarPanel;
 
     public Inicio(Ventana ventana, Usuario user) {
         this.ventana = ventana;
@@ -88,13 +90,11 @@ public class Inicio extends JPanel {
         content.add(calendarLabel);
 
         // ===== CALENDAR CARD =====
-        JPanel calendarCard = createCard(250);
+        JPanel calendarCard = createCard(550);
         calendarCard.setLayout(new BorderLayout());
 
-        JLabel calendarPlaceholder = new JLabel("Aquí va el calendario");
-        calendarPlaceholder.setHorizontalAlignment(SwingConstants.CENTER);
-
-        calendarCard.add(calendarPlaceholder, BorderLayout.CENTER);
+        calendarPanel = new CalendarPanel();
+        calendarCard.add(calendarPanel, BorderLayout.CENTER);
 
         content.add(calendarCard);
         content.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -150,7 +150,8 @@ public class Inicio extends JPanel {
 
         card.setOpaque(false);
         card.setPreferredSize(new Dimension(0, height));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+        card.setMinimumSize(new Dimension(0, height));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         return card;
@@ -167,5 +168,6 @@ public class Inicio extends JPanel {
         }
         calendarLabel.setForeground(Styles.fontDark);
         estadisticasLabel.setForeground(Styles.fontDark);
+        calendarPanel.applyTheme(Styles.bgLight.getRed() < 128);
     }
 }

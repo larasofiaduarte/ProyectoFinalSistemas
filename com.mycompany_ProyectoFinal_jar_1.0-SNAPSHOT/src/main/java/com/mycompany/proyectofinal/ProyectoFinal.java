@@ -6,6 +6,7 @@ package com.mycompany.proyectofinal;
 
 import com.mycompany.GUI.login.Login;
 import com.mycompany.GUI.*;
+import javafx.application.Platform;
 import javax.swing.*;
 
 import com.mycompany.GUI.Ventana;
@@ -13,7 +14,9 @@ import com.mycompany.GUI.Ventana;
 public class ProyectoFinal {
 
     public static void main(String[] args) {
-        
+        // Inicializa el runtime de JavaFX antes de cualquier componente Swing que lo use
+        Platform.startup(() -> {});
+
         SwingUtilities.invokeLater(() -> {
             Styles.applyLightTheme();
             Login login = new Login(null); // no parent yet — Ventana doesn't exist until login succeeds
