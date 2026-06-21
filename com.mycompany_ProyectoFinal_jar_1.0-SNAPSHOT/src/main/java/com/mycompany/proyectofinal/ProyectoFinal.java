@@ -6,8 +6,11 @@ package com.mycompany.proyectofinal;
 
 import com.mycompany.GUI.login.Login;
 import com.mycompany.GUI.*;
+import com.mycompany.proyectofinal.server.TurnoServer;
 import javafx.application.Platform;
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import com.mycompany.GUI.Ventana;
 
@@ -24,8 +27,15 @@ public class ProyectoFinal {
             login.setVisible(true); // modal → blocks
 
             if (login.isLoginExitoso()) {
+                TurnoServer.start(); // inicia el servidor HTTP local para el calendario
                 Ventana ventana = new Ventana(); // created AFTER session is set by login
                 ventana.setVisible(true);
+                ventana.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        TurnoServer.stop();
+                    }
+                });
             } else {
                 System.exit(0);
             }

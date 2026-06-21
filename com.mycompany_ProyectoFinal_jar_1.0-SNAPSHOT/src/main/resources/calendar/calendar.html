@@ -120,9 +120,15 @@
         slotMinTime: '08:00:00',
         slotMaxTime: '21:00:00',
         allDaySlot: false,
-        events: [],
 
-        // Placeholder: se conectará a JavaBridge en la siguiente fase
+        // Carga los turnos del empleado logueado desde el servidor local
+        events: {
+          url: 'http://localhost:8080/turnos',
+          failure: function () {
+            console.error('[Calendar] No se pudo conectar con el servidor de turnos');
+          }
+        },
+
         eventClick: function (info) {
           if (window.javaBridge) {
             window.javaBridge.onEventClicked(String(info.event.id));
