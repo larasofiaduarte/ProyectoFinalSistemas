@@ -12,9 +12,11 @@ import com.mycompany.proyectofinal.Cliente;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.Turno;
+import com.mycompany.proyectofinal.Usuario;
 import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -36,6 +38,7 @@ public class AltaTurnos extends JDialog {
     Cliente clienteSeleccionado;
     private Runnable onSave;
     private Turno turnoEditar;
+    private List<Usuario> listaUsuarios;
     
     //MODO ALTA
     public AltaTurnos(Frame parent, boolean modal, Runnable onSave) {
@@ -77,6 +80,16 @@ public class AltaTurnos extends JDialog {
         cboEstado.setSelectedItem(turnoEditar.getEstado());
         cboClientes.setSelectedItem(turnoEditar.getCliente().getNombre()+" "+turnoEditar.getCliente().getApellido());
         txtDetalle.setText(turnoEditar.getDetalle());
+
+        // Preselecciona el empleado actual del turno en el combo
+        Usuario empActual = turnoEditar.getEmpleado();
+        if (empActual == null && turnoEditar.getServicio() != null) {
+            empActual = turnoEditar.getServicio().getEmpleado(); // fallback para datos viejos
+        }
+        if (empActual != null) {
+            cboEmpleado.setSelectedItem(empActual.getNombre() + " " + empActual.getApellido());
+            cboEmpleado.setEnabled(true);
+        }
         
         if (turnoEditar != null && turnoEditar.getFecha() != null) {
 
@@ -127,9 +140,16 @@ public class AltaTurnos extends JDialog {
             return;
         }
 
+        // Resuelve el empleado seleccionado en el combo, con fallback al empleado del servicio
+        String empStr = (String) cboEmpleado.getSelectedItem();
+        Usuario empleadoSeleccionado = encontrarEmpleado(empStr);
+        if (empleadoSeleccionado == null && servicioSeleccionado != null) {
+            empleadoSeleccionado = servicioSeleccionado.getEmpleado();
+        }
+
         if (turnoEditar == null) {
             // 🔹 ALTA
-            control.guardarTurno(servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
+            control.guardarTurno(servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle, empleadoSeleccionado);
             RegistrarActividad.registrar(
                 "TURNOS",
                 "nuevo registro",
@@ -149,6 +169,7 @@ public class AltaTurnos extends JDialog {
 
             turnoEditar.setServicio(servicioSeleccionado);
             turnoEditar.setCliente(clienteSeleccionado);
+            turnoEditar.setEmpleado(empleadoSeleccionado);
             control.modificarTurno(turnoEditar, servicioSeleccionado, fechaFinal, clienteSeleccionado, estado, detalle);
 
             if (!eraFinalizado && ahoraFinalizado) {
@@ -215,6 +236,8 @@ public class AltaTurnos extends JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtDetalle = new javax.swing.JTextArea();
         cboClientes = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        cboEmpleado = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -259,7 +282,7 @@ public class AltaTurnos extends JDialog {
 
         jLabel4.setText("Horario*");
 
-        cboHora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30" }));
+        // Los horarios se cargan dinámicamente en actualizarHorariosDisponibles() según servicio/empleado/fecha
 
         jLabel5.setText("Estado*");
 
@@ -271,33 +294,40 @@ public class AltaTurnos extends JDialog {
         txtDetalle.setRows(5);
         jScrollPane1.setViewportView(txtDetalle);
 
+        jLabel7.setText("Empleado*");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(51, 51, 51)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cboEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(calendar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(cboServicio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(196, 196, 196)))
+                        .addComponent(cboEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(jScrollPane1))
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(18, 18, 18)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cboEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(calendar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(cboServicio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(196, 196, 196))))
                 .addContainerGap(70, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -305,29 +335,47 @@ public class AltaTurnos extends JDialog {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboClientes))
                 .addGap(38, 38, 38)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(cboServicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboServicio))
                 .addGap(31, 31, 31)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addComponent(calendar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(calendar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(34, 34, 34)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboHora))
                 .addGap(28, 28, 28)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(cboEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboEstado))
                 .addGap(26, 26, 26)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cboEmpleado))
+                .addGap(31, 31, 31)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(96, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(70, 70, 70))
+                    .addComponent(jScrollPane1))
+                .addGap(115, 115, 115))
         );
 
         getContentPane().add(jPanel3, java.awt.BorderLayout.CENTER);
@@ -353,20 +401,43 @@ public class AltaTurnos extends JDialog {
         
         obtenerServicios();
         obtenerClientes();
-        
-        
+        obtenerEmpleados();
+
+        // Cuando se elige un servicio, habilita cboEmpleado, preselecciona su empleado y recarga slots
+        cboServicio.addActionListener(e -> {
+            String servicioStr = (String) cboServicio.getSelectedItem();
+            Servicio serv = guardarServicio(servicioStr);
+            if (serv != null) {
+                cboEmpleado.setEnabled(true);
+                Usuario defEmpleado = serv.getEmpleado();
+                if (defEmpleado != null) {
+                    cboEmpleado.setSelectedItem(defEmpleado.getNombre() + " " + defEmpleado.getApellido());
+                } else {
+                    cboEmpleado.setSelectedIndex(-1);
+                }
+            } else {
+                cboEmpleado.setEnabled(false);
+                cboEmpleado.setSelectedIndex(-1);
+            }
+            actualizarHorariosDisponibles();
+        });
+
+        // Cuando cambia el empleado manualmente, recarga los slots disponibles
+        cboEmpleado.addActionListener(e -> actualizarHorariosDisponibles());
+
         calendar.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if ("date".equals(evt.getPropertyName())) {
+                    if (calendar.getDate() == null) return;
                     Calendar selectedDate = Calendar.getInstance();
                     selectedDate.setTime(calendar.getDate());
-                    
-                    // Check if the selected day is a Sunday (Sunday = 7)
                     if (selectedDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                         JOptionPane.showMessageDialog(null, "No se pueden seleccionar los domingos. Por favor, elija otro día.", "Error", JOptionPane.ERROR_MESSAGE);
-                        calendar.setDate(null); // Reset the selected date
+                        calendar.setDate(null);
+                        return;
                     }
+                    actualizarHorariosDisponibles();
                 }
             }
         });
@@ -381,6 +452,8 @@ public class AltaTurnos extends JDialog {
                     calendar.setDate(new java.util.Date());
                     cboEstado.setSelectedIndex(-1);
                     txtDetalle.setText("");
+                    cboEmpleado.setSelectedIndex(-1);
+                    cboEmpleado.setEnabled(false);
                 }
         });
         
@@ -430,6 +503,24 @@ public class AltaTurnos extends JDialog {
     return true;
 }
 
+    // Recarga cboHora con slots disponibles según servicio, empleado y fecha actuales
+    private void actualizarHorariosDisponibles() {
+        Servicio serv = guardarServicio((String) cboServicio.getSelectedItem());
+        Usuario emp   = encontrarEmpleado((String) cboEmpleado.getSelectedItem());
+        Date fecha    = calendar.getDate();
+
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        if (serv != null && emp != null && fecha != null) {
+            LocalDate localFecha = fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            int excludeId = (turnoEditar != null) ? turnoEditar.getId() : -1;
+            List<LocalTime> slots = control.generarHorariosDisponibles(localFecha, serv, emp, excludeId);
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+            for (LocalTime t : slots) model.addElement(t.format(fmt));
+        }
+        cboHora.setModel(model);
+        cboHora.setSelectedIndex(-1);
+    }
+
     //cargar servicios a cbo
     public void obtenerServicios(){
         List<Servicio> servicios = control.traerServicios();
@@ -455,6 +546,25 @@ public class AltaTurnos extends JDialog {
         Styles.addAutoComplete(cboClientes, nombres);
     }
     
+    private void obtenerEmpleados() {
+        listaUsuarios = control.traerUsuarios();
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        for (Usuario u : listaUsuarios) {
+            model.addElement(u.getNombre() + " " + u.getApellido());
+        }
+        cboEmpleado.setModel(model);
+        cboEmpleado.setSelectedIndex(-1);
+        cboEmpleado.setEnabled(false);
+    }
+
+    private Usuario encontrarEmpleado(String nombre) {
+        if (nombre == null || listaUsuarios == null) return null;
+        for (Usuario u : listaUsuarios) {
+            if ((u.getNombre() + " " + u.getApellido()).equals(nombre)) return u;
+        }
+        return null;
+    }
+
     //encontrar servicio por nombre y guardar
     public Servicio guardarServicio(String ser){
         List<Servicio> servicios = control.traerServicios();
@@ -499,6 +609,7 @@ public class AltaTurnos extends JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.toedter.calendar.JDateChooser calendar;
     private javax.swing.JComboBox<String> cboClientes;
+    private javax.swing.JComboBox<String> cboEmpleado;
     private javax.swing.JComboBox<String> cboEstado;
     private javax.swing.JComboBox<String> cboHora;
     private javax.swing.JComboBox<String> cboServicio;
@@ -508,6 +619,7 @@ public class AltaTurnos extends JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;

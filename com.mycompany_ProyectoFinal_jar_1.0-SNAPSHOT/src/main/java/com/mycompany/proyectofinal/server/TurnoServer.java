@@ -73,11 +73,15 @@ public class TurnoServer {
 
         List<Turno> todos = new Controladora().traerTurnos();
 
-        // Los turnos del empleado se identifican por servicio.empleado
+        // Usa el empleado directo del turno; si no existe (datos viejos), cae al servicio
         List<Turno> misTurnos = todos.stream()
-            .filter(t -> t.getServicio() != null
-                      && t.getServicio().getEmpleado() != null
-                      && t.getServicio().getEmpleado().getId() == currentUser.getId())
+            .filter(t -> {
+                Usuario emp = t.getEmpleado();
+                if (emp == null && t.getServicio() != null) {
+                    emp = t.getServicio().getEmpleado();
+                }
+                return emp != null && emp.getId() == currentUser.getId();
+            })
             .collect(Collectors.toList());
 
         System.out.println("[TurnoServer] Enviando " + misTurnos.size() + " turno(s) para " + currentUser.getUsername());
@@ -93,7 +97,9 @@ public class TurnoServer {
 
     private static String turnoToJson(Turno t) {
         LocalDateTime start = t.getFecha();
-        LocalDateTime end   = (start != null) ? start.plusHours(1) : null;
+        int duracion = (t.getServicio() != null && t.getServicio().getDuracionMinutos() > 0)
+            ? t.getServicio().getDuracionMinutos() : 60;
+        LocalDateTime end = (start != null) ? start.plusMinutes(duracion) : null;
 
         return "{"
             + "\"id\":"     + jsonStr(String.valueOf(t.getId())) + ","

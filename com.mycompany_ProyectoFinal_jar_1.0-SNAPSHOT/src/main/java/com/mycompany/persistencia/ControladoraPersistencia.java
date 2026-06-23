@@ -11,6 +11,7 @@ import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.MovimientoStock;
 import com.mycompany.proyectofinal.ServicioProducto;
 import com.mycompany.proyectofinal.Turno;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -216,8 +217,12 @@ public class ControladoraPersistencia {
         }
         
         public boolean turnoYaExiste2(Servicio servicio, LocalDateTime fechahora, int id){
-            
+
             return turJpa.turnoYaExiste2(servicio,fechahora,id);
+        }
+
+        public List<Turno> traerTurnosPorEmpleadoYFecha(int empleadoId, LocalDate fecha, int excludeId) {
+            return turJpa.findByEmpleadoAndFecha(empleadoId, fecha, excludeId);
         }
 
     

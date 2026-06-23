@@ -72,6 +72,7 @@ public class Servicios extends MainPanelBase {
             "Nombre",
             "Precio",
             "Empleado",
+            "Duración (min)",
             "Productos"
         };
 
@@ -80,6 +81,7 @@ public class Servicios extends MainPanelBase {
             c -> c.getNombre(),
             c -> LocalDoubleVerifier.format(c.getPrecio()),
             c -> c.getEmpleado(),
+            c -> c.getDuracionMinutos(),
             c -> {
                 if (c.getProductos() == null || c.getProductos().isEmpty()) {
                     return "";
@@ -105,7 +107,7 @@ public class Servicios extends MainPanelBase {
 
 
 
-        setTableData(servicios, columns, getters, new boolean[]{false, true, true, true, true});
+        setTableData(servicios, columns, getters, new boolean[]{false, true, true, true, false, true});
 
         setColumnComparator(colIndex("Precio"), (a, b) -> Double.compare(
             Double.parseDouble(LocalDoubleVerifier.normalize(a.toString())),

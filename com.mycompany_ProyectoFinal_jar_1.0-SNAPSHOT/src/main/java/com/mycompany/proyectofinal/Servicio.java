@@ -27,6 +27,8 @@ public class Servicio implements Serializable {
     private List<Turno> turnos = new ArrayList<>();
     @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ServicioProducto> productos = new ArrayList<>();
+    @Column(name = "duracion_minutos")
+    private int duracionMinutos = 60;
 
     public List<ServicioProducto> getProductos() {
         return productos;
@@ -76,6 +78,9 @@ public class Servicio implements Serializable {
         this.empleado = emp;
     }
     
+    public int getDuracionMinutos() { return duracionMinutos; }
+    public void setDuracionMinutos(int duracionMinutos) { this.duracionMinutos = duracionMinutos; }
+
     public void addProducto(ServicioProducto sp) {
         productos.add(sp);
         sp.setServicio(this);

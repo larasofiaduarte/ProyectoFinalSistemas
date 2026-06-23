@@ -5,6 +5,7 @@
 package com.mycompany.persistencia;
 
 import com.mycompany.proyectofinal.Turno;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -270,6 +271,28 @@ public class TurnoJpaController {
                 "SELECT t FROM Turno t WHERE t.servicio.empleado.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')",
                 Turno.class)
                 .setParameter("id", usuarioId)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    // Retorna turnos activos de un empleado en una fecha dada, excluyendo el turno con excludeId (usa -1 para no excluir ninguno)
+    public List<Turno> findByEmpleadoAndFecha(int empleadoId, LocalDate fecha, int excludeId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            LocalDateTime inicio = fecha.atStartOfDay();
+            LocalDateTime fin    = fecha.plusDays(1).atStartOfDay();
+            return em.createQuery(
+                "SELECT t FROM Turno t WHERE t.empleado.id = :empId" +
+                " AND t.fecha >= :inicio AND t.fecha < :fin" +
+                " AND t.estado NOT IN ('CANCELADO','Cancelado')" +
+                " AND t.id != :excludeId",
+                Turno.class)
+                .setParameter("empId",     empleadoId)
+                .setParameter("inicio",    inicio)
+                .setParameter("fin",       fin)
+                .setParameter("excludeId", excludeId)
                 .getResultList();
         } finally {
             em.close();

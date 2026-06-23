@@ -83,7 +83,7 @@ public class Inicio extends JPanel {
         content.add(Box.createRigidArea(new Dimension(0, 20)));
 
         // ===== CALENDAR TITLE =====
-        calendarLabel = new JLabel("Calendario");
+        calendarLabel = new JLabel("Mis Turnos");
         calendarLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         calendarLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
 

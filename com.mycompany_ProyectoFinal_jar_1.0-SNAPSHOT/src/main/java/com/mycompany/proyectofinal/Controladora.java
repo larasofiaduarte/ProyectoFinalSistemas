@@ -6,6 +6,7 @@ import java.util.List;
 import com.mycompany.proyectofinal.Cliente;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -282,17 +283,22 @@ public class Controladora {
         
     //TURNOS
         //ALTA
-        public void guardarTurno(Servicio servicio, LocalDateTime fecha, Cliente cliente, String estado, String detalle){
+        public void guardarTurno(Servicio servicio, LocalDateTime fecha, Cliente cliente, String estado, String detalle, Usuario empleado){
         Turno nuevoTurno = new Turno();
-        
+
         nuevoTurno.setServicio(servicio);
         nuevoTurno.setFecha(fecha);
         nuevoTurno.setCliente(cliente);
         nuevoTurno.setEstado(estado);
         nuevoTurno.setDetalle(detalle);
-        
+        // Usa el empleado explícito; si es null, cae al empleado del servicio
+        Usuario emp = (empleado != null) ? empleado : (servicio != null ? servicio.getEmpleado() : null);
+        nuevoTurno.setEmpleado(emp);
+        System.out.println("[Turno] Creado: servicio=" + (servicio != null ? servicio.getNombre() : "null")
+            + ", empleado=" + (emp != null ? emp.getNombre() : "null"));
+
         controlPersis.guardarTurno(nuevoTurno);
-        
+
     }
         
         //READ
@@ -331,10 +337,44 @@ public class Controladora {
         tur.setFecha(fechafinal);
         tur.setEstado(estado);
         tur.setDetalle(detalle);
-        
+        // empleado NO se auto-asigna desde servicio — el caller lo setea explícitamente en el turno
+
         controlPersis.modificarTurno(tur);
         
     
+    }
+
+    public List<Turno> traerTurnosPorEmpleadoYFecha(int empleadoId, LocalDate fecha, int excludeId) {
+        return controlPersis.traerTurnosPorEmpleadoYFecha(empleadoId, fecha, excludeId);
+    }
+
+    // Devuelve horarios libres para el empleado y servicio en la fecha dada, en intervalos de 15 min (9:00–18:00)
+    public List<LocalTime> generarHorariosDisponibles(LocalDate fecha, Servicio servicio, Usuario empleado, int excludeId) {
+        List<LocalTime> disponibles = new ArrayList<>();
+        if (fecha == null || servicio == null || empleado == null) return disponibles;
+
+        int duracion = servicio.getDuracionMinutos() > 0 ? servicio.getDuracionMinutos() : 60;
+        List<Turno> ocupados = traerTurnosPorEmpleadoYFecha(empleado.getId(), fecha, excludeId);
+
+        LocalTime apertura = LocalTime.of(9, 0);
+        LocalTime cierre   = LocalTime.of(18, 0);
+        LocalTime slot = apertura;
+
+        while (!slot.plusMinutes(duracion).isAfter(cierre)) {
+            final LocalTime slotInicio = slot;
+            final LocalTime slotFin    = slot.plusMinutes(duracion);
+            boolean ocupado = ocupados.stream().anyMatch(t -> {
+                if (t.getFecha() == null) return false;
+                LocalTime tInicio = t.getFecha().toLocalTime();
+                int dur = (t.getServicio() != null && t.getServicio().getDuracionMinutos() > 0)
+                    ? t.getServicio().getDuracionMinutos() : 60;
+                LocalTime tFin = tInicio.plusMinutes(dur);
+                return slotInicio.isBefore(tFin) && slotFin.isAfter(tInicio);
+            });
+            if (!ocupado) disponibles.add(slot);
+            slot = slot.plusMinutes(15);
+        }
+        return disponibles;
     }
 
     public Servicio findServicio(int numServicio) {

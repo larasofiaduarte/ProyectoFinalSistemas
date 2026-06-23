@@ -6,7 +6,6 @@ package com.mycompany.proyectofinal;
 
 
 import java.time.*;
-import java.util.Date;
 import javax.persistence.*;
 
 /**
@@ -32,6 +31,9 @@ public class Turno {
     private String detalle;
     @Column(name = "stock_descontado", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean stockDescontado = false;
+    @ManyToOne
+    @JoinColumn(name = "empleado_id", nullable = true)
+    private Usuario empleado;
 
     public String getDetalle() {
         return detalle;
@@ -91,5 +93,13 @@ public class Turno {
 
     public void setStockDescontado(boolean stockDescontado) {
         this.stockDescontado = stockDescontado;
+    }
+
+    public Usuario getEmpleado() {
+        return empleado;
+    }
+
+    public void setEmpleado(Usuario empleado) {
+        this.empleado = empleado;
     }
 }
