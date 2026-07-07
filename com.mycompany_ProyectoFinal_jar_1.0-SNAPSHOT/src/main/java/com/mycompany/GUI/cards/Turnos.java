@@ -16,6 +16,7 @@ import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Turno;
+import com.mycompany.proyectofinal.Usuario;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -52,7 +53,8 @@ public class Turnos extends MainPanelBase{
                 if (!table.isEditing() && row >= 0 && table.isCellEditable(row, col)) {
                     int c1 = colIndex("Cliente");
                     int c2 = colIndex("Servicio");
-                    if (col == c1 || col == c2) {
+                    int c3 = colIndex("Empleado");
+                    if (col == c1 || col == c2 || col == c3) {
                         table.editCellAt(row, col, e);
                         Component comp = table.getEditorComponent();
                         if (comp != null) comp.requestFocusInWindow();
@@ -72,6 +74,7 @@ public class Turnos extends MainPanelBase{
             "Fecha",
             "Cliente",
             "Servicio",
+            "Empleado",
             "Estado",
             "Detalle",
         };
@@ -81,11 +84,13 @@ public class Turnos extends MainPanelBase{
             c -> c.getFecha() != null ? c.getFecha().format(Styles.DATE_TIME) : "",
             c -> c.getCliente(),
             c -> c.getServicio(),
+            c -> c.getEmpleado(),
             c -> c.getEstado(),
             c -> c.getDetalle()
         );
 
-        setTableData(turnos, columns, getters);
+        setTableData(turnos, columns, getters,
+            new boolean[]{false, true, true, true, true, true, true});
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Turno> turnoModel = (CustomTableModel<Turno>) table.getModel();
@@ -98,9 +103,10 @@ public class Turnos extends MainPanelBase{
         });
         turnoModel.setValueSetter(2, (t, v) -> t.setCliente((Cliente) v));
         turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
-        turnoModel.setValueSetter(4, (t, v) -> t.setEstado(v.toString()));
-        turnoModel.setValueSetter(5, (t, v) -> t.setDetalle(v.toString()));
-        turnoModel.setEntityClass(Turno.class, Map.of(4, "estado", 5, "detalle"));
+        turnoModel.setValueSetter(4, (t, v) -> t.setEmpleado((Usuario) v));
+        turnoModel.setValueSetter(5, (t, v) -> t.setEstado(v.toString()));
+        turnoModel.setValueSetter(6, (t, v) -> t.setDetalle(v.toString()));
+        turnoModel.setEntityClass(Turno.class, Map.of(5, "estado", 6, "detalle"));
         turnoModel.setTableName("TURNOS");
         turnoModel.setOnPersist(t -> {
             // Compara el estado guardado en BD con el nuevo para detectar cambios de estado relevantes
@@ -151,12 +157,14 @@ public class Turnos extends MainPanelBase{
 
         List<Cliente> clientes = control.traerClientes();
         List<Servicio> servicios = control.traerServicios();
+        List<Usuario> empleados = control.traerUsuarios();
 
         SwingUtilities.invokeLater(() -> {
             table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateTimeCellEditor());
 
             int colCliente = colIndex("Cliente");
             int colServicio = colIndex("Servicio");
+            int colEmpleado = colIndex("Empleado");
 
             FilteredComboBoxEditor<Cliente> clienteEditor = new FilteredComboBoxEditor<>(
                 clientes,
@@ -185,6 +193,20 @@ public class Turnos extends MainPanelBase{
             );
             table.getColumnModel().getColumn(colServicio).setCellEditor(servicioEditor);
             table.getColumnModel().getColumn(colServicio).setCellRenderer(servicioEditor.getRenderer());
+
+            FilteredComboBoxEditor<Usuario> empleadoEditor = new FilteredComboBoxEditor<>(
+                empleados,
+                u -> u.getNombre() + " " + u.getApellido(),
+                Usuario::getId,
+                control::traerUsuarios,
+                () -> {
+                    AltaEmpleados d = new AltaEmpleados(ventana, true, () -> {});
+                    d.setLocationRelativeTo(this);
+                    d.setVisible(true);
+                }
+            );
+            table.getColumnModel().getColumn(colEmpleado).setCellEditor(empleadoEditor);
+            table.getColumnModel().getColumn(colEmpleado).setCellRenderer(empleadoEditor.getRenderer());
 
             int colEstado = colIndex("Estado");
             JComboBox<String> estadoCombo = new JComboBox<>();

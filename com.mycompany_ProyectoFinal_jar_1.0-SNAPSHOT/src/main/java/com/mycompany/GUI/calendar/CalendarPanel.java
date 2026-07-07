@@ -10,6 +10,8 @@ import javafx.scene.web.WebView;
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Panel Swing que embebe un WebView de JavaFX para mostrar el calendario HTML.
@@ -20,6 +22,7 @@ import java.net.URL;
  */
 public class CalendarPanel extends JPanel {
 
+    private static final Logger logger = LogManager.getLogger(CalendarPanel.class);
     private static final Color DARK_BG  = new Color(43, 43, 45);
     private static final Color LIGHT_BG = new Color(250, 250, 250);
 
@@ -55,7 +58,7 @@ public class CalendarPanel extends JPanel {
             if (url != null) {
                 engine.load(url.toExternalForm());
             } else {
-                System.err.println("[CalendarPanel] No se encontró /calendar/calendar.html en el classpath");
+                logger.error("[CalendarPanel] No se encontró /calendar/calendar.html en el classpath");
             }
 
             scene = new Scene(webView);
@@ -94,7 +97,7 @@ public class CalendarPanel extends JPanel {
                         : "document.documentElement.classList.remove('dark-mode'); document.body.classList.remove('dark-mode');"
                 );
             } catch (Exception e) {
-                System.err.println("[CalendarPanel] JS error: " + e.getMessage());
+                logger.warn("[CalendarPanel] JS error: {}", e.getMessage());
             }
         }
     }

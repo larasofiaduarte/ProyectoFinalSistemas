@@ -3,8 +3,12 @@ package com.mycompany.persistencia;
 import com.mycompany.proyectofinal.MovimientoStock;
 import java.util.List;
 import javax.persistence.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MovimientoStockJpaController {
+
+    private static final Logger logger = LogManager.getLogger(MovimientoStockJpaController.class);
 
     private final EntityManagerFactory emf;
 
@@ -22,6 +26,7 @@ public class MovimientoStockJpaController {
             tx.commit();
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
+            logger.error("Error persistiendo MovimientoStock", e);
             throw new RuntimeException("Error persisting MovimientoStock", e);
         } finally {
             em.close();

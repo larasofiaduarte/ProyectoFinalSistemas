@@ -13,12 +13,16 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class ClienteJpaController implements Serializable {
+
+    private static final Logger logger = LogManager.getLogger(ClienteJpaController.class);
     private EntityManagerFactory emf;
 
     public ClienteJpaController(EntityManagerFactory emf) {
@@ -44,6 +48,7 @@ public class ClienteJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error cargando cliente", e);
             throw new RuntimeException("Error cargando cliente", e);
         } finally {
             if (em != null) {
@@ -95,6 +100,7 @@ public class ClienteJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error actualizando cliente", e);
             throw new RuntimeException("Error actualizando cliente", e);
         } finally {
             if (em != null) {
@@ -119,6 +125,7 @@ public class ClienteJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error eliminando cliente", e);
             throw new RuntimeException("Error al eliminar client", e);
         } finally {
             if (em != null) {
@@ -143,6 +150,7 @@ public class ClienteJpaController implements Serializable {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error soft-deleting cliente", e);
             throw new RuntimeException("Error soft-deleting cliente", e);
         } finally {
             if (em != null) em.close();

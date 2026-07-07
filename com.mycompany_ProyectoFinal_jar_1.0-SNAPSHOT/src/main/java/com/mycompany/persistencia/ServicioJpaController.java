@@ -15,12 +15,16 @@ import javax.persistence.*;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class ServicioJpaController implements Serializable {
+
+    private static final Logger logger = LogManager.getLogger(ServicioJpaController.class);
     private EntityManagerFactory emf;
 
     public ServicioJpaController(EntityManagerFactory emf) {
@@ -47,6 +51,7 @@ public class ServicioJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error cargando servicio", e);
             throw new RuntimeException("Error cargando servicio", e);
         } finally {
             if (em != null) {
@@ -99,6 +104,7 @@ public class ServicioJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error actualizando servicio", e);
             throw new RuntimeException("Error updating servicio", e);
         } finally {
             if (em != null) {
@@ -124,6 +130,7 @@ public class ServicioJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error eliminando servicio", e);
             throw new RuntimeException("Error deleting servicio", e);
         } finally {
             if (em != null) {
@@ -157,6 +164,7 @@ public class ServicioJpaController implements Serializable {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error nullifying empleado on servicios", e);
             throw new RuntimeException("Error nullifying empleado on servicios", e);
         } finally {
             if (em != null) em.close();
@@ -179,6 +187,7 @@ public class ServicioJpaController implements Serializable {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error reassigning empleado on servicios", e);
             throw new RuntimeException("Error reassigning empleado on servicios", e);
         } finally {
             if (em != null) em.close();

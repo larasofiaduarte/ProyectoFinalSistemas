@@ -25,8 +25,12 @@ import javax.swing.*;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Styles {
+
+    private static final Logger logger = LogManager.getLogger(Styles.class);
     //COLORS
     public static Color bgDark;  //Petrol grey, sidebar
     public static Color bgDarkHover;
@@ -184,8 +188,7 @@ public class Styles {
             customFontL = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(40f);
             
         } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
-            // Handle the exception as needed
+            logger.error("Error cargando fuente personalizada", e);
         }
     }
     

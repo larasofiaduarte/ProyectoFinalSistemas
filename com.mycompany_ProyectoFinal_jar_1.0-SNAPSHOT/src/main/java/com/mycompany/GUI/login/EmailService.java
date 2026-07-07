@@ -4,8 +4,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EmailService {
+
+    private static final Logger logger = LogManager.getLogger(EmailService.class);
 
     private static final String API_KEY;
     private static final String FROM     = "onboarding@resend.dev";
@@ -44,12 +48,12 @@ public class EmailService {
                 System.out.println("Email enviado correctamente a " + toEmail);
                 return true;
             } else {
-                System.err.println("Error al enviar email. HTTP status: " + status);
+                logger.warn("Error al enviar email. HTTP status: {}", status);
                 return false;
             }
 
         } catch (Exception e) {
-            System.err.println("Error al enviar email: " + e.getMessage());
+            logger.error("Error al enviar email", e);
             return false;
         }
     }

@@ -14,13 +14,11 @@ import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
-import com.mycompany.proyectofinal.util.CategoriaOptions;
+import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.util.PrediccionStock;
 import com.mycompany.proyectofinal.util.StockAlerta;
 import com.mycompany.proyectofinal.util.StockFormatter;
 import com.mycompany.proyectofinal.Proveedor;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -81,7 +79,7 @@ public class Inventario extends MainPanelBase {
                 return u != null ? u : "ml";
             },
             c -> StockFormatter.format(c.getMinimo(), c.getUnidad()),
-            c -> c.getCategoria() != null ? c.getCategoria() : "",
+            c -> c.getCategoria() != null ? c.getCategoria().getNombre() : "",
             c -> c.getProveedor()
         );
 
@@ -97,23 +95,20 @@ public class Inventario extends MainPanelBase {
         prodModel.setValueSetter(1, (p, v) -> p.setNombre(v.toString()));
         prodModel.setValueSetter(2, (p, v) -> {
             try {
-                // Parsea "1000ml", "1lt", "250gr" o número puro (mantiene unidad actual)
+                // Parsea "1000ml", "1lt", "250gr" o número puro; la unidad viene de la categoría
                 StockFormatter.ParseResult r = StockFormatter.parseConUnidad(v.toString(), p.getUnidad());
                 p.setStock(r.valor);
-                p.setUnidad(r.unidad);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null,
                     "Formato inválido. Usá: 1000ml, 1lt, 0.5lt, 250gr",
                     "Error de validación", JOptionPane.WARNING_MESSAGE);
             }
         });
-        // col 3 (Unidad) no tiene setter — es de solo lectura
+        // col 3 (Unidad) no tiene setter — se deriva de la categoría
         prodModel.setValueSetter(4, (p, v) -> {
             try {
-                // Igual que stock: parsea con unidad y actualiza el campo de unidad
                 StockFormatter.ParseResult r = StockFormatter.parseConUnidad(v.toString(), p.getUnidad());
                 p.setMinimo(r.valor);
-                p.setUnidad(r.unidad);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(null,
                     "Formato inválido. Usá: 1000ml, 1lt, 0.5lt, 250gr",
@@ -121,8 +116,7 @@ public class Inventario extends MainPanelBase {
             }
         });
         prodModel.setValueSetter(5, (p, v) -> {
-            if (v != null && !"+ Nuevo...".equals(v.toString()))
-                p.setCategoria(v.toString());
+            if (v instanceof Categoria cat) p.setCategoria(cat);
         });
         prodModel.setValueSetter(6, (p, v) -> p.setProveedor((Proveedor) v));
         prodModel.setEntityClass(Producto.class, Map.of(1, "nombre", 5, "categoria"));
@@ -164,24 +158,9 @@ public class Inventario extends MainPanelBase {
             });
             table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(minimoField));
 
-            // Editor de categoría: dropdown con opciones predefinidas + opción de nueva categoría
-            List<String> catItems = new ArrayList<>(Arrays.asList(CategoriaOptions.OPCIONES));
-            catItems.add("+ Nuevo...");
-            JComboBox<String> comboCat = new JComboBox<>(catItems.toArray(new String[0]));
-            comboCat.addActionListener(e -> {
-                if ("+ Nuevo...".equals(comboCat.getSelectedItem())) {
-                    comboCat.hidePopup();
-                    String nueva = JOptionPane.showInputDialog(table, "Nombre de la nueva categoría:");
-                    if (nueva != null && !nueva.isBlank()) {
-                        String cat = nueva.trim();
-                        // Inserta la nueva opción antes de "+ Nuevo..." y la selecciona
-                        comboCat.insertItemAt(cat, comboCat.getItemCount() - 1);
-                        comboCat.setSelectedItem(cat);
-                    } else {
-                        comboCat.setSelectedIndex(0);
-                    }
-                }
-            });
+            // Editor de categoría: dropdown con entidades Categoria desde la BD
+            List<Categoria> cats = control.traerCategorias();
+            JComboBox<Categoria> comboCat = new JComboBox<>(cats.toArray(new Categoria[0]));
             table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboCat));
 
             // Editor de proveedor con búsqueda filtrada

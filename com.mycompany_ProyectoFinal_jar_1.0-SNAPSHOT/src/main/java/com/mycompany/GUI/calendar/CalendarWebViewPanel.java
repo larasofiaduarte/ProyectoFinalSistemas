@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.net.URL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Panel Swing que embebe un WebView de JavaFX con FullCalendar.
@@ -29,6 +31,7 @@ import java.net.URL;
  */
 public class CalendarWebViewPanel extends JPanel {
 
+    private static final Logger logger = LogManager.getLogger(CalendarWebViewPanel.class);
     private final JFXPanel jfxPanel;
     private final JavaBridge javaBridge;
     private WebEngine webEngine;
@@ -59,12 +62,12 @@ public class CalendarWebViewPanel extends JPanel {
             if (newState == Worker.State.SUCCEEDED) {
                 injectarBridge();
             } else if (newState == Worker.State.FAILED) {
-                System.err.println("[Calendar] Falló la carga del HTML");
+                logger.error("[Calendar] Falló la carga del HTML");
             }
         });
 
         webEngine.setOnError(e ->
-            System.err.println("[Calendar] Error WebEngine: " + e.getMessage())
+            logger.warn("[Calendar] Error WebEngine: {}", e.getMessage())
         );
 
         cargarHTML();
@@ -77,9 +80,9 @@ public class CalendarWebViewPanel extends JPanel {
         URL htmlUrl = getClass().getResource("/calendar/calendar.html");
         if (htmlUrl != null) {
             webEngine.load(htmlUrl.toExternalForm());
-            System.out.println("[Calendar] Cargando: " + htmlUrl.toExternalForm());
+            logger.info("[Calendar] Cargando: {}", htmlUrl.toExternalForm());
         } else {
-            System.err.println("[Calendar] Error crítico: no se encontró /calendar/calendar.html");
+            logger.error("[Calendar] Error crítico: no se encontró /calendar/calendar.html");
             // Muestra un fallback en el panel Swing
             SwingUtilities.invokeLater(() -> {
                 removeAll();
@@ -100,13 +103,13 @@ public class CalendarWebViewPanel extends JPanel {
         try {
             JSObject window = (JSObject) webEngine.executeScript("window");
             window.setMember("javaBridge", javaBridge);
-            System.out.println("[Calendar] Bridge JS↔Java inyectado");
+            logger.info("[Calendar] Bridge JS↔Java inyectado");
             // Notifica al JS que el bridge está listo
             webEngine.executeScript(
                 "if (typeof onJavaBridgeReady === 'function') onJavaBridgeReady();"
             );
         } catch (Exception e) {
-            System.err.println("[Calendar] Error al inyectar bridge: " + e.getMessage());
+            logger.error("[Calendar] Error al inyectar bridge", e);
         }
     }
 

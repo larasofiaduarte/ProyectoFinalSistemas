@@ -9,12 +9,16 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.*;
 import javax.persistence.Persistence;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class ProveedorJpaController implements Serializable {
+
+    private static final Logger logger = LogManager.getLogger(ProveedorJpaController.class);
     private EntityManagerFactory emf;
 
     public ProveedorJpaController(EntityManagerFactory emf) {
@@ -40,6 +44,7 @@ public class ProveedorJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error creando proveedor", e);
             throw new RuntimeException("Error creating proveedor", e);
         } finally {
             if (em != null) {
@@ -91,6 +96,7 @@ public class ProveedorJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error actualizando proveedor", e);
             throw new RuntimeException("Error updating proveedor", e);
         } finally {
             if (em != null) {
@@ -116,6 +122,7 @@ public class ProveedorJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error eliminando proveedor", e);
             throw new RuntimeException("Error deleting proveedor", e);
         } finally {
             if (em != null) {

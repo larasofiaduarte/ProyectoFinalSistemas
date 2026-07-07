@@ -123,6 +123,9 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
             boolean isSelected, int row, int column) {
         this.currentTable = table;
         lastValid = value;
+        // Actualizar la lista antes de abrir el combo para reflejar datos recientes
+        allItems.clear();
+        allItems.addAll(refresher.get());
         suppress = true;
         try {
             populateModel(allItems);

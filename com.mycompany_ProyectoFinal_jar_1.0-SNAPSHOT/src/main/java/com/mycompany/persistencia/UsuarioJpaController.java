@@ -14,12 +14,16 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class UsuarioJpaController implements Serializable {
+
+    private static final Logger logger = LogManager.getLogger(UsuarioJpaController.class);
     private EntityManagerFactory emf;
 
     public UsuarioJpaController(EntityManagerFactory emf) {
@@ -159,8 +163,8 @@ public class UsuarioJpaController implements Serializable {
             // If the count is greater than 0, the username exists
             return ((Long) query.getSingleResult()) > 0;
         } catch (Exception e) {
-            e.printStackTrace(); // Log the exception for debugging
-            return false; // Return false if there's an error
+            logger.error("Error verificando username", e);
+            return false;
         } finally {
             if (em != null) {
                 em.close(); // Ensure the EntityManager is closed properly

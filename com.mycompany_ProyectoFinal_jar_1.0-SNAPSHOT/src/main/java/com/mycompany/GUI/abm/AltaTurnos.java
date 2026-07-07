@@ -29,9 +29,13 @@ import java.time.format.DateTimeParseException;
 import javax.swing.JOptionPane;
 import java.util.*;
 import javax.swing.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class AltaTurnos extends JDialog {
+
+    private static final Logger logger = LogManager.getLogger(AltaTurnos.class);
 
     Controladora control = new Controladora();
     Servicio servicioSeleccionado;
@@ -209,7 +213,7 @@ public class AltaTurnos extends JDialog {
                 "Ocurrió un error al guardar el turno.",
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
-        ex.printStackTrace();
+        logger.error("Error al guardar el turno", ex);
     }
 }
 
@@ -404,26 +408,15 @@ public class AltaTurnos extends JDialog {
         obtenerEmpleados();
 
         // Cuando se elige un servicio, habilita cboEmpleado, preselecciona su empleado y recarga slots
-        cboServicio.addActionListener(e -> {
-            String servicioStr = (String) cboServicio.getSelectedItem();
-            Servicio serv = guardarServicio(servicioStr);
-            if (serv != null) {
-                cboEmpleado.setEnabled(true);
-                Usuario defEmpleado = serv.getEmpleado();
-                if (defEmpleado != null) {
-                    cboEmpleado.setSelectedItem(defEmpleado.getNombre() + " " + defEmpleado.getApellido());
-                } else {
-                    cboEmpleado.setSelectedIndex(-1);
-                }
-            } else {
-                cboEmpleado.setEnabled(false);
-                cboEmpleado.setSelectedIndex(-1);
-            }
-            actualizarHorariosDisponibles();
-        });
+        cboServicio.addActionListener(e -> onServicioSelected());
 
         // Cuando cambia el empleado manualmente, recarga los slots disponibles
         cboEmpleado.addActionListener(e -> actualizarHorariosDisponibles());
+
+        // Dispara la lógica del primer ítem sin esperar interacción del usuario
+        if (cboServicio.getItemCount() > 0) {
+            onServicioSelected();
+        }
 
         calendar.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -502,6 +495,24 @@ public class AltaTurnos extends JDialog {
     }
     return true;
 }
+
+    private void onServicioSelected() {
+        String servicioStr = (String) cboServicio.getSelectedItem();
+        Servicio serv = guardarServicio(servicioStr);
+        if (serv != null) {
+            cboEmpleado.setEnabled(true);
+            Usuario defEmpleado = serv.getEmpleado();
+            if (defEmpleado != null) {
+                cboEmpleado.setSelectedItem(defEmpleado.getNombre() + " " + defEmpleado.getApellido());
+            } else {
+                cboEmpleado.setSelectedIndex(-1);
+            }
+        } else {
+            cboEmpleado.setEnabled(false);
+            cboEmpleado.setSelectedIndex(-1);
+        }
+        actualizarHorariosDisponibles();
+    }
 
     // Recarga cboHora con slots disponibles según servicio, empleado y fecha actuales
     private void actualizarHorariosDisponibles() {

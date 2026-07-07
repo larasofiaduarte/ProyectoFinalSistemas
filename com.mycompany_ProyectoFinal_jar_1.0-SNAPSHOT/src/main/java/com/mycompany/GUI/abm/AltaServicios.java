@@ -5,9 +5,12 @@
 package com.mycompany.GUI.abm;
 
 import com.mycompany.GUI.Styles;
+import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Usuario;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -34,6 +37,8 @@ public class AltaServicios extends JDialog {
     Usuario empleadoSelec;
     private JTable tablaProductos;
     private DefaultTableModel modeloProductos;
+    private JTable tablaCategorias;
+    private DefaultTableModel modeloCategorias;
     private Servicio servEditar;
     
   //MODO ALTA
@@ -47,29 +52,28 @@ public class AltaServicios extends JDialog {
         //obtenerProductos();
         inicializarTablaProductos();
         cargarProductos();
-        
-        
+        cargarCategorias();
+
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         btnPanel.add(btnAlta);
-        
-        initUI();
-        
-        btnAlta.addActionListener(e -> guardarServicio());
 
-        
-        
+        initUI();
+
+        btnAlta.addActionListener(e -> guardarServicio());
     }
+
     //MODO MODIFICAR
     public AltaServicios(Frame parent, boolean modal, Servicio serv, Runnable onSave) {
         super(parent, modal);
         initComponents();
         this.servEditar = serv;
         this.onSave = onSave;
-        
+
         obtenerUsuarios();
         inicializarTablaProductos();
         cargarProductos();
+        cargarCategorias();
 
         cargarDatosServicio(); // cargar datos en los campos
         
@@ -304,28 +308,55 @@ public class AltaServicios extends JDialog {
     }//GEN-LAST:event_txtNombreActionPerformed
 
     private void inicializarTablaProductos() {
+        modeloProductos = new DefaultTableModel(
+            new Object[]{"Sel.", "Nombre", "Cant."}, 0
+        ) {
+            @Override public Class<?> getColumnClass(int col) {
+                if (col == 0) return Boolean.class;
+                if (col == 2) return Double.class;
+                return Object.class;
+            }
+            @Override public boolean isCellEditable(int row, int col) { return col == 0 || col == 2; }
+        };
+        tablaProductos = new JTable(modeloProductos);
+        tablaProductos.setRowHeight(25);
 
-    modeloProductos = new DefaultTableModel(
-        new Object[]{"Sel.", "Nombre", "Cant. (ML)"}, 0
-    ) {
-        @Override
-        public Class<?> getColumnClass(int col) {
-            if (col == 0) return Boolean.class;
-            if (col == 2) return Double.class;
-            return String.class;
-        }
+        modeloCategorias = new DefaultTableModel(
+            new Object[]{"Sel.", "Categoría", "Cant."}, 0
+        ) {
+            @Override public Class<?> getColumnClass(int col) {
+                if (col == 0) return Boolean.class;
+                if (col == 2) return Double.class;
+                return Object.class;
+            }
+            @Override public boolean isCellEditable(int row, int col) { return col == 0 || col == 2; }
+        };
+        tablaCategorias = new JTable(modeloCategorias);
+        tablaCategorias.setRowHeight(25);
 
-        @Override
-        public boolean isCellEditable(int row, int col) {
-            return col == 0 || col == 2;
-        }
-    };
+        // Ambas tablas apiladas verticalmente dentro de un único scrollPane
+        JPanel combinedPanel = new JPanel();
+        combinedPanel.setLayout(new BoxLayout(combinedPanel, BoxLayout.Y_AXIS));
+        combinedPanel.setBackground(Color.WHITE);
 
-    tablaProductos = new JTable(modeloProductos);
-    tablaProductos.setRowHeight(25);
+        JLabel lblProds = new JLabel("Productos específicos:");
+        lblProds.setFont(lblProds.getFont().deriveFont(Font.BOLD));
+        combinedPanel.add(lblProds);
+        combinedPanel.add(Box.createVerticalStrut(4));
+        combinedPanel.add(tablaProductos.getTableHeader());
+        combinedPanel.add(tablaProductos);
 
-    scrollProd.setViewportView(tablaProductos);
-}
+        combinedPanel.add(Box.createVerticalStrut(14));
+
+        JLabel lblCats = new JLabel("Por categoría:");
+        lblCats.setFont(lblCats.getFont().deriveFont(Font.BOLD));
+        combinedPanel.add(lblCats);
+        combinedPanel.add(Box.createVerticalStrut(4));
+        combinedPanel.add(tablaCategorias.getTableHeader());
+        combinedPanel.add(tablaCategorias);
+
+        scrollProd.setViewportView(combinedPanel);
+    }
 
     private boolean validarCampos() {
         if (
@@ -380,41 +411,46 @@ public class AltaServicios extends JDialog {
     
     
     private void cargarProductos() {
-
-    modeloProductos.setRowCount(0);
-
-    List<Producto> lista = control.traerProductos();
-
-    for (Producto p : lista) {
-        modeloProductos.addRow(new Object[]{
-            false,
-            p,
-            0.0
-        });
-    }
-}
-
-   private boolean validarProductos() {
-
-    if (tablaProductos.isEditing()) {
-        tablaProductos.getCellEditor().stopCellEditing();
-    }
-
-    for (int i = 0; i < modeloProductos.getRowCount(); i++) {
-        Boolean seleccionado = (Boolean) modeloProductos.getValueAt(i, 0);
-        Object cantidadObj = modeloProductos.getValueAt(i, 2);
-        double cantidad = cantidadObj instanceof Number ? ((Number) cantidadObj).doubleValue() : 0;
-
-        if (seleccionado != null && seleccionado && cantidad <= 0) {
-            JOptionPane.showMessageDialog(this,
-                "Si selecciona un ítem, la cantidad debe ser mayor a 0.",
-                "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
-            return false;
+        modeloProductos.setRowCount(0);
+        for (Producto p : control.traerProductos()) {
+            modeloProductos.addRow(new Object[]{false, p, 0.0});
         }
     }
 
-    return true;
-}
+    private void cargarCategorias() {
+        modeloCategorias.setRowCount(0);
+        for (Categoria c : control.traerCategorias()) {
+            modeloCategorias.addRow(new Object[]{false, c, 0.0});
+        }
+    }
+
+    private boolean validarProductos() {
+        if (tablaProductos.isEditing()) tablaProductos.getCellEditor().stopCellEditing();
+        for (int i = 0; i < modeloProductos.getRowCount(); i++) {
+            Boolean sel = (Boolean) modeloProductos.getValueAt(i, 0);
+            Object cantObj = modeloProductos.getValueAt(i, 2);
+            double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
+            if (sel != null && sel && cantidad <= 0) {
+                JOptionPane.showMessageDialog(this,
+                    "Si selecciona un producto, la cantidad debe ser mayor a 0.",
+                    "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        }
+        if (tablaCategorias.isEditing()) tablaCategorias.getCellEditor().stopCellEditing();
+        for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
+            Boolean sel = (Boolean) modeloCategorias.getValueAt(i, 0);
+            Object cantObj = modeloCategorias.getValueAt(i, 2);
+            double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
+            if (sel != null && sel && cantidad <= 0) {
+                JOptionPane.showMessageDialog(this,
+                    "Si selecciona una categoría, la cantidad debe ser mayor a 0.",
+                    "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     
@@ -464,20 +500,35 @@ public class AltaServicios extends JDialog {
             servicio.setEmpleado(empleadoSelec);
         }
 
-    // Recorre la tabla y crea un ServicioProducto por cada ítem seleccionado
+    // Productos específicos seleccionados
     for (int i = 0; i < modeloProductos.getRowCount(); i++) {
-        Boolean seleccionado = (Boolean) modeloProductos.getValueAt(i, 0);
-        if (seleccionado == null || !seleccionado) continue;
-
+        Boolean sel = (Boolean) modeloProductos.getValueAt(i, 0);
+        if (sel == null || !sel) continue;
         Object ref = modeloProductos.getValueAt(i, 1);
         Object cantObj = modeloProductos.getValueAt(i, 2);
         double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
         if (cantidad <= 0) continue;
-
         if (ref instanceof Producto prod) {
             ServicioProducto sp = new ServicioProducto();
             sp.setCantidadUsada(cantidad);
             sp.setProducto(prod);
+            servicio.addProducto(sp);
+        }
+    }
+
+    // Categorías seleccionadas — el descuento greedy elige el producto con más stock
+    if (tablaCategorias.isEditing()) tablaCategorias.getCellEditor().stopCellEditing();
+    for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
+        Boolean sel = (Boolean) modeloCategorias.getValueAt(i, 0);
+        if (sel == null || !sel) continue;
+        Object ref = modeloCategorias.getValueAt(i, 1);
+        Object cantObj = modeloCategorias.getValueAt(i, 2);
+        double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
+        if (cantidad <= 0) continue;
+        if (ref instanceof Categoria cat) {
+            ServicioProducto sp = new ServicioProducto();
+            sp.setCantidadUsada(cantidad);
+            sp.setCategoria(cat);
             servicio.addProducto(sp);
         }
     }
@@ -527,15 +578,25 @@ public class AltaServicios extends JDialog {
             }
         }
 
-        // Marca los productos del servicio en la tabla
+        // Carga filas del servicio en la tabla correspondiente según tipo
         for (ServicioProducto sp : servEditar.getProductos()) {
-            if (sp.getProducto() == null) continue; // se ignoran filas de categoría antiguas
-            for (int i = 0; i < modeloProductos.getRowCount(); i++) {
-                Object ref = modeloProductos.getValueAt(i, 1);
-                if (ref instanceof Producto prodTabla && prodTabla.getId() == sp.getProducto().getId()) {
-                    modeloProductos.setValueAt(true, i, 0);
-                    modeloProductos.setValueAt(sp.getCantidadUsada(), i, 2);
-                    break;
+            if (sp.getProducto() != null) {
+                for (int i = 0; i < modeloProductos.getRowCount(); i++) {
+                    Object ref = modeloProductos.getValueAt(i, 1);
+                    if (ref instanceof Producto pt && pt.getId() == sp.getProducto().getId()) {
+                        modeloProductos.setValueAt(true, i, 0);
+                        modeloProductos.setValueAt(sp.getCantidadUsada(), i, 2);
+                        break;
+                    }
+                }
+            } else if (sp.getCategoria() != null) {
+                for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
+                    Object ref = modeloCategorias.getValueAt(i, 1);
+                    if (ref instanceof Categoria ct && ct.getId() == sp.getCategoria().getId()) {
+                        modeloCategorias.setValueAt(true, i, 0);
+                        modeloCategorias.setValueAt(sp.getCantidadUsada(), i, 2);
+                        break;
+                    }
                 }
             }
         }

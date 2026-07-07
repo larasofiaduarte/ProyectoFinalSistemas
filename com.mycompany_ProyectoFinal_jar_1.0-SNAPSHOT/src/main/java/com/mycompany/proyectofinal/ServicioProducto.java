@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.proyectofinal;
 
 import java.io.Serializable;
@@ -24,44 +20,24 @@ public class ServicioProducto implements Serializable {
 
     private double cantidadUsada;
 
-    @Column
-    private String categoria;
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 
     public ServicioProducto() {}
 
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    // getters & setters
-    public int getId() {
-        return id;
-    }
+    public Servicio getServicio() { return servicio; }
+    public void setServicio(Servicio servicio) { this.servicio = servicio; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public Producto getProducto() { return producto; }
+    public void setProducto(Producto producto) { this.producto = producto; }
 
-    public Servicio getServicio() {
-        return servicio;
-    }
+    public double getCantidadUsada() { return cantidadUsada; }
+    public void setCantidadUsada(double cantidadUsada) { this.cantidadUsada = cantidadUsada; }
 
-    public void setServicio(Servicio servicio) {
-        this.servicio = servicio;
-    }
-
-    public Producto getProducto() {
-        return producto;
-    }
-
-    public void setProducto(Producto producto) {
-        this.producto = producto;
-    }
-
-    public double getCantidadUsada() {
-        return cantidadUsada;
-    }
-
-    public void setCantidadUsada(double cantidadUsada) {
-        this.cantidadUsada = cantidadUsada;
-    }
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 }

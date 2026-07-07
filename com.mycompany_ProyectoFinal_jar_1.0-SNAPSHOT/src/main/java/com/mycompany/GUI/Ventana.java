@@ -88,6 +88,11 @@ public class Ventana extends JFrame implements Navigator {
         public void goTo(String cardName) {
             CardLayout cl = (CardLayout) cardPanel.getLayout();
             cl.show(cardPanel, cardName);
+            if ("INICIO".equals(cardName)) {
+                for (Component c : cardPanel.getComponents()) {
+                    if (c instanceof Inicio i) { i.refreshStats(); break; }
+                }
+            }
         }
         
         //main temporal for testing

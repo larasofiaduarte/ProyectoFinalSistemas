@@ -14,8 +14,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TurnoServer {
+
+    private static final Logger logger = LogManager.getLogger(TurnoServer.class);
 
     private static final int PORT = 8080;
     private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -27,16 +31,16 @@ public class TurnoServer {
             server.createContext("/turnos", TurnoServer::handleTurnos);
             server.setExecutor(java.util.concurrent.Executors.newSingleThreadExecutor());
             server.start();
-            System.out.println("[TurnoServer] Escuchando en http://localhost:" + PORT + "/turnos");
+            logger.info("[TurnoServer] Escuchando en http://localhost:{}/turnos", PORT);
         } catch (IOException e) {
-            System.err.println("[TurnoServer] No se pudo iniciar en el puerto " + PORT + ": " + e.getMessage());
+            logger.error("[TurnoServer] No se pudo iniciar en el puerto {}", PORT, e);
         }
     }
 
     public static void stop() {
         if (server != null) {
             server.stop(0);
-            System.out.println("[TurnoServer] Detenido");
+            logger.info("[TurnoServer] Detenido");
         }
     }
 
@@ -67,7 +71,7 @@ public class TurnoServer {
     private static String buildTurnosJson() {
         Usuario currentUser = Session.getCurrentUser();
         if (currentUser == null) {
-            System.err.println("[TurnoServer] Sin usuario en sesión — devolviendo lista vacía");
+            logger.warn("[TurnoServer] Sin usuario en sesión — devolviendo lista vacía");
             return "[]";
         }
 
@@ -84,7 +88,7 @@ public class TurnoServer {
             })
             .collect(Collectors.toList());
 
-        System.out.println("[TurnoServer] Enviando " + misTurnos.size() + " turno(s) para " + currentUser.getUsername());
+        logger.info("[TurnoServer] Enviando {} turno(s) para {}", misTurnos.size(), currentUser.getUsername());
 
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < misTurnos.size(); i++) {

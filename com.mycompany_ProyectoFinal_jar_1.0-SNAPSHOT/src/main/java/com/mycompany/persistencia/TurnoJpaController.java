@@ -12,12 +12,16 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.*;
 import com.mycompany.proyectofinal.Servicio;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class TurnoJpaController {
+
+    private static final Logger logger = LogManager.getLogger(TurnoJpaController.class);
     private EntityManagerFactory emf;
 
     public TurnoJpaController(EntityManagerFactory emf) {
@@ -43,6 +47,7 @@ public class TurnoJpaController {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error cargando turno", e);
             throw new RuntimeException("Error cargando turno", e);
         } finally {
             if (em != null) {
@@ -94,6 +99,7 @@ public class TurnoJpaController {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error actualizando turno", e);
             throw new RuntimeException("Error actualizando turno", e);
         } finally {
             if (em != null) {
@@ -118,6 +124,7 @@ public class TurnoJpaController {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error eliminando turno", e);
             throw new RuntimeException("Error al eliminar turno", e);
         } finally {
             if (em != null) {
@@ -203,6 +210,7 @@ public class TurnoJpaController {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error cancelando turnos por servicio", e);
             throw new RuntimeException("Error cancelling turnos by servicio", e);
         } finally {
             if (em != null) em.close();
@@ -225,6 +233,7 @@ public class TurnoJpaController {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error reasignando servicio en turnos", e);
             throw new RuntimeException("Error reassigning servicio on turnos", e);
         } finally {
             if (em != null) em.close();
@@ -258,6 +267,7 @@ public class TurnoJpaController {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error cancelando turnos por cliente", e);
             throw new RuntimeException("Error cancelling turnos by cliente", e);
         } finally {
             if (em != null) em.close();
@@ -313,6 +323,7 @@ public class TurnoJpaController {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error cancelando turnos por empleado", e);
             throw new RuntimeException("Error cancelling turnos by empleado", e);
         } finally {
             if (em != null) em.close();

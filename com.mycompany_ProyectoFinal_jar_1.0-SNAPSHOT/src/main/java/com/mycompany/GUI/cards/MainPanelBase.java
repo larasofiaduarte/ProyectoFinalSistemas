@@ -88,40 +88,28 @@ public abstract class MainPanelBase extends JPanel {
         filterDropPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 6, 20));
         filterDropPanel.setVisible(false);
 
-        Btn btnIdAsc    = Btn.filterOption("ID Ascendente");
-        Btn btnIdDesc   = Btn.filterOption("ID Descendente");
         Btn btnReciente = Btn.filterOption("Más reciente");
         Btn btnAntiguo  = Btn.filterOption("Más antiguo");
 
-        filterOptionsList.addAll(List.of(btnIdAsc, btnIdDesc, btnReciente, btnAntiguo));
+        filterOptionsList.addAll(List.of(btnReciente, btnAntiguo));
 
         for (Btn b : filterOptionsList) {
             b.setPreferredSize(new Dimension(150, 28));
             filterDropPanel.add(b);
         }
 
-        btnIdAsc.addActionListener(e -> {
-            filterOptionsList.forEach(b -> b.setSelectedState(false));
-            btnIdAsc.setSelectedState(true);
-            applySortKey(0, SortOrder.ASCENDING);
-        });
-        btnIdDesc.addActionListener(e -> {
-            filterOptionsList.forEach(b -> b.setSelectedState(false));
-            btnIdDesc.setSelectedState(true);
-            applySortKey(0, SortOrder.DESCENDING);
-        });
         btnReciente.addActionListener(e -> {
             filterOptionsList.forEach(b -> b.setSelectedState(false));
             btnReciente.setSelectedState(true);
-            int col = findDateColumn(); if (col >= 0) applySortKey(col, SortOrder.DESCENDING);
+            applySortKey(0, SortOrder.DESCENDING);
         });
         btnAntiguo.addActionListener(e -> {
             filterOptionsList.forEach(b -> b.setSelectedState(false));
             btnAntiguo.setSelectedState(true);
-            int col = findDateColumn(); if (col >= 0) applySortKey(col, SortOrder.ASCENDING);
+            applySortKey(0, SortOrder.ASCENDING);
         });
 
-        btnIdAsc.setSelectedState(true);
+        btnAntiguo.setSelectedState(true);
 
         topPanel.add(filterDropPanel);
 
@@ -292,14 +280,6 @@ public abstract class MainPanelBase extends JPanel {
         filterOptionsList.add(b);
         filterDropPanel.add(b);
         filterDropPanel.revalidate();
-    }
-
-    private int findDateColumn() {
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            String name = table.getColumnName(i).toLowerCase();
-            if (name.contains("fecha") || name.contains("date")) return i;
-        }
-        return -1;
     }
 
     protected void showToast(String message) {

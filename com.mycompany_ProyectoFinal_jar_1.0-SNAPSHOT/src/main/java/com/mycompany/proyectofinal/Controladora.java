@@ -3,6 +3,7 @@ package com.mycompany.proyectofinal;
 
 import com.mycompany.persistencia.ControladoraPersistencia;
 import java.util.List;
+import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Cliente;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -213,16 +214,32 @@ public class Controladora {
         controlPersis.modificarProveedor(prov);
     
     }
+    //CATEGORIA
+    public List<Categoria> traerCategorias() {
+        return controlPersis.traerCategorias();
+    }
+
+    public void guardarCategoria(Categoria c) {
+        controlPersis.guardarCategoria(c);
+    }
+
+    public void modificarCategoria(Categoria c) {
+        controlPersis.modificarCategoria(c);
+    }
+
+    public void borrarCategoria(int id) {
+        controlPersis.borrarCategoria(id);
+    }
+
     //PRODUCTO
     //ALTA
-    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor, String unidad, String categoria){
+    public void guardarProducto(String nombre, double stock, double minimo, Proveedor proveedor, Categoria categoria) {
         Producto nuevoProducto = new Producto();
 
         nuevoProducto.setNombre(nombre);
         nuevoProducto.setStock(stock);
         nuevoProducto.setMinimo(minimo);
         nuevoProducto.setProveedor(proveedor);
-        nuevoProducto.setUnidad(unidad);
         nuevoProducto.setCategoria(categoria);
 
         controlPersis.guardarProducto(nuevoProducto);
@@ -260,7 +277,7 @@ public class Controladora {
         return controlPersis.findProducto(numProducto);
     }
     //MODIF
-    public void modificarProducto(Producto prod, String nombre, double stock, double minimo, Proveedor proveedor, String categoria) {
+    public void modificarProducto(Producto prod, String nombre, double stock, double minimo, Proveedor proveedor, Categoria categoria) {
         prod.setMinimo(minimo);
         prod.setStock(stock);
         prod.setNombre(nombre);
@@ -348,7 +365,7 @@ public class Controladora {
         return controlPersis.traerTurnosPorEmpleadoYFecha(empleadoId, fecha, excludeId);
     }
 
-    // Devuelve horarios libres para el empleado y servicio en la fecha dada, en intervalos de 15 min (9:00–18:00)
+    // Devuelve horarios libres para el empleado y servicio en la fecha dada (8:00–20:00, intervalos = duracionMinutos)
     public List<LocalTime> generarHorariosDisponibles(LocalDate fecha, Servicio servicio, Usuario empleado, int excludeId) {
         List<LocalTime> disponibles = new ArrayList<>();
         if (fecha == null || servicio == null || empleado == null) return disponibles;
@@ -356,23 +373,23 @@ public class Controladora {
         int duracion = servicio.getDuracionMinutos() > 0 ? servicio.getDuracionMinutos() : 60;
         List<Turno> ocupados = traerTurnosPorEmpleadoYFecha(empleado.getId(), fecha, excludeId);
 
-        LocalTime apertura = LocalTime.of(9, 0);
-        LocalTime cierre   = LocalTime.of(18, 0);
-        LocalTime slot = apertura;
-
-        while (!slot.plusMinutes(duracion).isAfter(cierre)) {
-            final LocalTime slotInicio = slot;
-            final LocalTime slotFin    = slot.plusMinutes(duracion);
-            boolean ocupado = ocupados.stream().anyMatch(t -> {
-                if (t.getFecha() == null) return false;
-                LocalTime tInicio = t.getFecha().toLocalTime();
-                int dur = (t.getServicio() != null && t.getServicio().getDuracionMinutos() > 0)
-                    ? t.getServicio().getDuracionMinutos() : 60;
-                LocalTime tFin = tInicio.plusMinutes(dur);
-                return slotInicio.isBefore(tFin) && slotFin.isAfter(tInicio);
-            });
-            if (!ocupado) disponibles.add(slot);
-            slot = slot.plusMinutes(15);
+        for (LocalTime[] intervalo : HorarioConfig.getIntervalos()) {
+            LocalTime slot   = intervalo[0];
+            LocalTime cierre = intervalo[1];
+            while (!slot.plusMinutes(duracion).isAfter(cierre)) {
+                final LocalTime slotInicio = slot;
+                final LocalTime slotFin    = slot.plusMinutes(duracion);
+                boolean ocupado = ocupados.stream().anyMatch(t -> {
+                    if (t.getFecha() == null) return false;
+                    LocalTime tInicio = t.getFecha().toLocalTime();
+                    int dur = (t.getServicio() != null && t.getServicio().getDuracionMinutos() > 0)
+                        ? t.getServicio().getDuracionMinutos() : 60;
+                    LocalTime tFin = tInicio.plusMinutes(dur);
+                    return slotInicio.isBefore(tFin) && slotFin.isAfter(tInicio);
+                });
+                if (!ocupado) disponibles.add(slot);
+                slot = slot.plusMinutes(duracion);
+            }
         }
         return disponibles;
     }

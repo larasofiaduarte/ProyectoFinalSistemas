@@ -1,96 +1,53 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.proyectofinal;
 
-/**
- *
- * @author duart
- */
 import java.io.Serializable;
 import javax.persistence.*;
-import javax.persistence.Id;
-
 
 @Entity
-@Table(name="productos")
+@Table(name = "productos")
 public class Producto implements Serializable {
-    
+
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false)
     private String nombre;
+
     private double stock;
     private double minimo;
-    @Column
-    private String unidad;
-    @Column
-    private String categoria;
-    @JoinColumn(name="idProveedor")
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "idProveedor")
     private Proveedor Proveedor;
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public double getStock() { return stock; }
+    public void setStock(double stock) { this.stock = stock; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public double getMinimo() { return minimo; }
+    public void setMinimo(double minimo) { this.minimo = minimo; }
 
-    public double getStock() {
-        return stock;
-    }
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 
-    public void setStock(double stock) {
-        this.stock = stock;
-    }
-
-    public double getMinimo() {
-        return minimo;
-    }
-
-    public void setMinimo(double minimo) {
-        this.minimo = minimo;
-    }
-
+    /** Unidad derivada de la categoría; "ml" como fallback si no hay categoría asignada. */
     public String getUnidad() {
-        return unidad;
+        return categoria != null ? categoria.getUnidad() : "ml";
     }
 
-    public void setUnidad(String unidad) {
-        this.unidad = unidad;
-    }
+    public Proveedor getProveedor() { return Proveedor; }
+    public void setProveedor(Proveedor proveedor) { this.Proveedor = proveedor; }
 
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
-
-    public Proveedor getProveedor() {
-        return Proveedor;
-    }
-
-    public void setProveedor(Proveedor Proveedor) {
-        this.Proveedor = Proveedor;
-    }
-    
     @Override
-    public String toString() {
-        return nombre;
-    }
-    
-    
+    public String toString() { return nombre; }
 }

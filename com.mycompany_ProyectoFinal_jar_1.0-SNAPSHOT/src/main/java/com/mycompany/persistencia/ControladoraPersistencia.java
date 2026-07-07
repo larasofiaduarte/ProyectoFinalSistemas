@@ -3,6 +3,7 @@ package com.mycompany.persistencia;
 
 import com.mycompany.GUI.exceptions.NonexistentEntityException;
 import com.mycompany.proyectofinal.Caja;
+import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Usuario;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Proveedor;
@@ -16,10 +17,12 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ControladoraPersistencia {
+
+    private static final Logger logger = LogManager.getLogger(ControladoraPersistencia.class);
     //USUARIO
     UsuarioJpaController usuJpa = new UsuarioJpaController();
 
@@ -117,8 +120,27 @@ public class ControladoraPersistencia {
             provJpa.edit(prov);
         }
         
+    //CATEGORIA
+    CategoriaJpaController catJpa = new CategoriaJpaController();
+
+        public List<Categoria> traerCategorias() {
+            return catJpa.findAll();
+        }
+
+        public void guardarCategoria(Categoria c) {
+            catJpa.create(c);
+        }
+
+        public void modificarCategoria(Categoria c) {
+            catJpa.edit(c);
+        }
+
+        public void borrarCategoria(int id) {
+            catJpa.destroy(id);
+        }
+
     //PRODUCTO
-    
+
     ProductoJpaController prodJpa = new ProductoJpaController();
 
         //CREATE
@@ -311,12 +333,12 @@ public class ControladoraPersistencia {
             try {
                 Turno managed = turJpa.findTurno(turno.getId());
                 if (managed == null) {
-                    System.err.println("[Stock] WARN: Turno id=" + turno.getId() + " no encontrado");
+                    logger.warn("[Stock] Turno id={} no encontrado", turno.getId());
                     return;
                 }
                 // Evita descontar dos veces el mismo turno
                 if (managed.isStockDescontado()) {
-                    System.out.println("[Stock] Turno id=" + turno.getId() + " ya descontado — omitiendo");
+                    logger.info("[Stock] Turno id={} ya descontado — omitiendo", turno.getId());
                     return;
                 }
 
@@ -332,14 +354,14 @@ public class ControladoraPersistencia {
                 List<ServicioProducto> productos = fresh != null ? fresh.getProductos() : null;
 
                 if (productos == null || productos.isEmpty()) {
-                    System.out.println("[Stock] Servicio id=" + servicio.getId() + " sin productos");
+                    logger.info("[Stock] Servicio id={} sin productos", servicio.getId());
                     managed.setStockDescontado(true);
                     turJpa.edit(managed);
                     return;
                 }
 
-                System.out.println("[Stock] SALIDA — Turno id=" + turno.getId()
-                    + " | " + fresh.getNombre() + " | " + productos.size() + " producto(s)");
+                logger.info("[Stock] SALIDA — Turno id={} | {} | {} producto(s)",
+                    turno.getId(), fresh.getNombre(), productos.size());
 
                 // Recorre cada ítem del servicio (puede ser producto específico o categoría)
                 for (ServicioProducto sp : productos) {
@@ -360,15 +382,15 @@ public class ControladoraPersistencia {
                         mov.setTurnoId(turno.getId());
                         movStockJpa.create(mov);
 
-                        System.out.printf("[Stock]   SALIDA %-20s: %.4f - %.4f = %.4f%n",
+                        logger.info("[Stock]   SALIDA {}: {} - {} = {}",
                             fp.getNombre(), antes, sp.getCantidadUsada(), fp.getStock());
 
-                    } else if (sp.getCategoria() != null && !sp.getCategoria().isBlank()) {
+                    } else if (sp.getCategoria() != null) {
                         // Descuento por categoría: descuenta de a uno empezando por el de mayor stock
-                        List<com.mycompany.proyectofinal.Producto> enCategoria =
-                            prodJpa.findByCategoria(sp.getCategoria());
+                        Categoria cat = sp.getCategoria();
+                        List<Producto> enCategoria = prodJpa.findByCategoria(cat);
                         double remaining = sp.getCantidadUsada();
-                        for (com.mycompany.proyectofinal.Producto cp : enCategoria) {
+                        for (Producto cp : enCategoria) {
                             if (remaining <= 0) break;
                             Producto fp = prodJpa.findProducto(cp.getId());
                             if (fp == null || fp.getStock() <= 0) continue;
@@ -387,23 +409,22 @@ public class ControladoraPersistencia {
                             mov.setTurnoId(turno.getId());
                             movStockJpa.create(mov);
 
-                            System.out.printf("[Stock]   SALIDA-CAT %-20s (cat=%s): %.4f - %.4f = %.4f%n",
-                                fp.getNombre(), sp.getCategoria(), antes, deduct, fp.getStock());
+                            logger.info("[Stock]   SALIDA-CAT {} (cat={}): {} - {} = {}",
+                                fp.getNombre(), cat.getNombre(), antes, deduct, fp.getStock());
                         }
                         if (remaining > 0) {
-                            System.err.printf("[Stock] WARN: Stock insuficiente en categoría '%s', faltaron %.4f ML%n",
-                                sp.getCategoria(), remaining);
+                            logger.warn("[Stock] Stock insuficiente en categoría '{}', faltaron {} unidades",
+                                cat.getNombre(), remaining);
                         }
                     }
                 }
 
                 managed.setStockDescontado(true);
                 turJpa.edit(managed);
-                System.out.println("[Stock] Completado SALIDA — Turno id=" + turno.getId());
+                logger.info("[Stock] Completado SALIDA — Turno id={}", turno.getId());
 
             } catch (Exception e) {
-                System.err.println("[Stock] ERROR descontar turno id=" + turno.getId() + ": " + e.getMessage());
-                e.printStackTrace();
+                logger.error("[Stock] Error descontando turno id={}", turno.getId(), e);
             }
         }
 
@@ -417,12 +438,12 @@ public class ControladoraPersistencia {
             try {
                 Turno managed = turJpa.findTurno(turno.getId());
                 if (managed == null) {
-                    System.err.println("[Stock] WARN: Turno id=" + turno.getId() + " no encontrado");
+                    logger.warn("[Stock] Turno id={} no encontrado para revertir", turno.getId());
                     return;
                 }
                 // Evita restaurar si el stock nunca fue descontado
                 if (!managed.isStockDescontado()) {
-                    System.out.println("[Stock] Turno id=" + turno.getId() + " sin stock descontado — omitiendo");
+                    logger.info("[Stock] Turno id={} sin stock descontado — omitiendo", turno.getId());
                     return;
                 }
 
@@ -436,8 +457,8 @@ public class ControladoraPersistencia {
                     return;
                 }
 
-                System.out.println("[Stock] ENTRADA — Turno id=" + turno.getId()
-                    + " | " + salidas.size() + " movimiento(s)");
+                logger.info("[Stock] ENTRADA — Turno id={} | {} movimiento(s)",
+                    turno.getId(), salidas.size());
 
                 for (MovimientoStock salida : salidas) {
                     Producto fp = prodJpa.findProducto(salida.getProducto().getId());
@@ -457,17 +478,16 @@ public class ControladoraPersistencia {
                     entrada.setTurnoId(turno.getId());
                     movStockJpa.create(entrada);
 
-                    System.out.printf("[Stock]   ENTRADA %-20s: %.4f + %.4f = %.4f%n",
+                    logger.info("[Stock]   ENTRADA {}: {} + {} = {}",
                         fp.getNombre(), antes, salida.getCantidad(), fp.getStock());
                 }
 
                 managed.setStockDescontado(false);
                 turJpa.edit(managed);
-                System.out.println("[Stock] Completado ENTRADA — Turno id=" + turno.getId());
+                logger.info("[Stock] Completado ENTRADA — Turno id={}", turno.getId());
 
             } catch (Exception e) {
-                System.err.println("[Stock] ERROR revertir turno id=" + turno.getId() + ": " + e.getMessage());
-                e.printStackTrace();
+                logger.error("[Stock] Error revirtiendo turno id={}", turno.getId(), e);
             }
         }
 

@@ -4,6 +4,7 @@
  */
 package com.mycompany.persistencia;
 
+import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Proveedor;
 import java.io.Serializable;
@@ -13,12 +14,16 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class ProductoJpaController implements Serializable {
+
+    private static final Logger logger = LogManager.getLogger(ProductoJpaController.class);
     private EntityManagerFactory emf;
 
     public ProductoJpaController(EntityManagerFactory emf) {
@@ -45,6 +50,7 @@ public class ProductoJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error cargando producto", e);
             throw new RuntimeException("Error cargando producto", e);
         } finally {
             if (em != null) {
@@ -98,6 +104,7 @@ public class ProductoJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error actualizando producto", e);
             throw new RuntimeException("Error updating producto", e);
         } finally {
             if (em != null) {
@@ -123,6 +130,7 @@ public class ProductoJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error eliminando producto", e);
             throw new RuntimeException("Error deleting product", e);
         } finally {
             if (em != null) {
@@ -159,6 +167,7 @@ public class ProductoJpaController implements Serializable {
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) transaction.rollback();
+            logger.error("Error nullifying proveedor on productos", e);
             throw new RuntimeException("Error nullifying proveedor on productos", e);
         } finally {
             if (em != null) em.close();
@@ -179,6 +188,7 @@ public class ProductoJpaController implements Serializable {
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) transaction.rollback();
+            logger.error("Error reassigning proveedor on productos", e);
             throw new RuntimeException("Error reassigning proveedor on productos", e);
         } finally {
             if (em != null) em.close();
@@ -187,7 +197,7 @@ public class ProductoJpaController implements Serializable {
 
     // Trae todos los productos de una categoría, ordenados de mayor a menor stock.
     // El orden DESC permite el descuento greedy (primero el que más tiene).
-    public List<Producto> findByCategoria(String categoria) {
+    public List<Producto> findByCategoria(Categoria categoria) {
         EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(

@@ -2,51 +2,47 @@
 package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
-import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Controladora;
-import com.mycompany.proyectofinal.util.CategoriaOptions;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Proveedor;
-import com.mycompany.proyectofinal.Usuario;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
-import javax.swing.JOptionPane;
 
 
 public class AltaProductos extends JDialog{
-    
-    private static final String NUEVA_OPCION = "+ Nuevo proveedor...";
+
+    private static final String NUEVA_PROV_OPCION    = "+ Nuevo proveedor...";
+    private static final String NUEVA_CAT_OPCION     = "+ Nueva categoría...";
 
     Controladora control = new Controladora();
     private Runnable onSave;
     Proveedor provSelec;
     private Producto prodEditar;
-    private final java.util.List<String> nombresProveedores = new ArrayList<>();
+    private final List<String> nombresProveedores = new ArrayList<>();
 
     //MODO ALTA
     public AltaProductos(Frame parent, boolean modal, Runnable onSave) {
         super(parent, modal);
         this.onSave = onSave;
-        
+
         initComponents();
-        
-        obtenerProveedores(); // carga cbo
-        
-        
-        //UI
+        obtenerProveedores();
+        obtenerCategorias();
+
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
-        
+
         initUI();
-        
+
         btnAlta.addActionListener(e -> guardarProducto());
-        
     }
-    
+
     // MODO MODIFICAR
     public AltaProductos(Frame parent, boolean modal, Producto prod, Runnable onSave) {
         super(parent, modal);
@@ -54,131 +50,178 @@ public class AltaProductos extends JDialog{
         this.prodEditar = prod;
         this.onSave = onSave;
         obtenerProveedores();
-        cargarDatosProducto(); // cargar datos en los campos
-        
-        //UI
+        obtenerCategorias();
+        cargarDatosProducto();
+
         Btn btnAlta = Btn.primary("Guardar");
         btnAlta.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnAlta);
-        
+
         initUI();
-        
+
         btnAlta.addActionListener(e -> guardarProducto());
     }
-    
-    //BOTONES
+
     private void initUI(){
-    
         Btn btnLimpiar = Btn.secondary("Limpiar");
         btnLimpiar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnLimpiar);
-        
+
         Btn btnCerrar = Btn.secondary("Cerrar");
         btnCerrar.setPreferredSize(Styles.btnSizeSm);
         panelBtns.add(btnCerrar);
-        
+
         jPanel2.setBackground(Styles.bgLight);
         jPanel1.setBackground(Styles.bgLight);
         panelBtns.setBackground(Styles.bgLight);
-        
+
         txtStock.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
+            @Override public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!Character.isDigit(c) && c != '.' && c != ',') {
-                    e.consume();
-                }
+                if (!Character.isDigit(c) && c != '.' && c != ',') e.consume();
             }
         });
-
         txtMinimo.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
+            @Override public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!Character.isDigit(c) && c != '.' && c != ',') {
-                    e.consume();
-                }
+                if (!Character.isDigit(c) && c != '.' && c != ',') e.consume();
             }
         });
-        
-        btnLimpiar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    txtNombre.setText("");
-                    txtStock.setText("");
-                    txtMinimo.setText("");
-                    cmbCategoria.setSelectedIndex(0);
-                    cmbUnidad.setSelectedIndex(0);
-                }
+
+        // Actualiza cmbUnidad según la categoría seleccionada
+        cmbCategoria.addActionListener(e -> {
+            Object sel = cmbCategoria.getSelectedItem();
+            if (NUEVA_CAT_OPCION.equals(sel)) {
+                cmbCategoria.hidePopup();
+                crearNuevaCategoria();
+            } else if (sel instanceof Categoria cat) {
+                actualizarCmbUnidad(cat.getUnidad());
+            }
         });
-        
-        btnCerrar.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
+
+        btnLimpiar.addActionListener(e -> {
+            txtNombre.setText("");
+            txtStock.setText("");
+            txtMinimo.setText("");
+            if (cmbCategoria.getItemCount() > 0) cmbCategoria.setSelectedIndex(0);
+            cmbUnidad.setSelectedIndex(0);
         });
+
+        btnCerrar.addActionListener(e -> dispose());
     }
-    
+
+    private void actualizarCmbUnidad(String unidad) {
+        cmbUnidad.removeAllItems();
+        if ("ml".equals(unidad)) {
+            cmbUnidad.addItem("ml");
+            cmbUnidad.addItem("lt");
+            cmbUnidad.setEnabled(true);
+        } else {
+            cmbUnidad.addItem(unidad != null ? unidad : "ml");
+            cmbUnidad.setEnabled(false);
+        }
+        cmbUnidad.setSelectedIndex(0);
+    }
+
     private void guardarProducto() {
+        String nombre = txtNombre.getText().trim();
+        if (!validarCampos()) return;
 
-        String nombre  = txtNombre.getText();
-        Double stock   = Double.parseDouble(txtStock.getText().replace(",", "."));
-        Double minimo  = Double.parseDouble(txtMinimo.getText().replace(",", "."));
-        String unidad  = (String) cmbUnidad.getSelectedItem();
-        // Si el usuario ingresó litros, convierte a ML antes de guardar (1 LT = 1000 ML)
-        if ("lt".equalsIgnoreCase(unidad)) {
-            stock = stock * 1000;
-            unidad = "ml";
-        }
-        // Toma el valor seleccionado o escrito en el combo (soporta opciones predefinidas y texto libre)
+        double stock  = Double.parseDouble(txtStock.getText().replace(",", "."));
+        double minimo = Double.parseDouble(txtMinimo.getText().replace(",", "."));
+
         Object catObj = cmbCategoria.getSelectedItem();
-        String categoria = catObj != null ? catObj.toString().trim() : "";
+        if (!(catObj instanceof Categoria)) {
+            JOptionPane.showMessageDialog(this,
+                "Por favor seleccione una categoría válida.",
+                "Categoría requerida", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Categoria categoriaSelec = (Categoria) catObj;
 
-        String prov = (String) cboProv.getSelectedItem();
-        provSelec = guardarProveedor(prov);
-
-        if (validarCampos()){
-            if (provSelec == null) {
-                JOptionPane.showMessageDialog(null, "Proveedor no encontrado. Por favor, seleccione un proveedor válido.", "Error", JOptionPane.ERROR_MESSAGE);
-                return; // Exit the action if prov does not exist
-            }else{
-                control.guardarProducto(nombre, stock, minimo, provSelec, unidad, categoria.isEmpty() ? null : categoria);
-                if (prodEditar == null) {
-                    RegistrarActividad.registrar(
-                        "PRODUCTOS",
-                        "nuevo registro",
-                        "alta",
-                        null,
-                        "Nombre: " + nombre + " | Stock: " + stock + " | Mínimo: " + minimo + " | Proveedor: " + (provSelec != null ? provSelec.getNombre() : "N/A"),
-                        "ALTA"
-                    );
-                }
-                JOptionPane.showMessageDialog(null, "Producto guardado correctamente.", "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
-                if (onSave != null) {
-                    onSave.run();   // 👈 refresh table
-                }
-                dispose();
-            }
-                        
+        // Convierte litros → ml si la categoría usa ml como unidad base
+        String inputUnidad = (String) cmbUnidad.getSelectedItem();
+        if ("lt".equalsIgnoreCase(inputUnidad) && "ml".equals(categoriaSelec.getUnidad())) {
+            stock = stock * 1000;
         }
 
+        String provNombre = (String) cboProv.getSelectedItem();
+        provSelec = guardarProveedor(provNombre);
+        if (provSelec == null) {
+            JOptionPane.showMessageDialog(this,
+                "Proveedor no encontrado. Por favor, seleccione un proveedor válido.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        control.guardarProducto(nombre, stock, minimo, provSelec, categoriaSelec);
+        if (prodEditar == null) {
+            RegistrarActividad.registrar(
+                "PRODUCTOS", "nuevo registro", "alta", null,
+                "Nombre: " + nombre + " | Stock: " + stock + " | Mínimo: " + minimo
+                    + " | Categoría: " + categoriaSelec.getNombre()
+                    + " | Proveedor: " + provSelec.getNombre(),
+                "ALTA"
+            );
+        }
+        JOptionPane.showMessageDialog(this, "Producto guardado correctamente.",
+            "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
+        if (onSave != null) onSave.run();
+        dispose();
     }
-    
+
     private void cargarDatosProducto() {
         txtNombre.setText(prodEditar.getNombre());
         txtStock.setText(Double.toString(prodEditar.getStock()));
         txtMinimo.setText(Double.toString(prodEditar.getMinimo()));
-        String unidadVal = prodEditar.getUnidad();
-        cmbUnidad.setSelectedItem(unidadVal != null ? unidadVal : "ml");
-        if (cmbUnidad.getSelectedIndex() < 0) cmbUnidad.setSelectedIndex(0);
-        String cat = prodEditar.getCategoria();
-        if (cat != null && !cat.isEmpty()) {
-            cmbCategoria.setSelectedItem(cat);
-            // Si el valor guardado no está en la lista predefinida, lo muestra igual en el editor
-            cmbCategoria.getEditor().setItem(cat);
+
+        Categoria cat = prodEditar.getCategoria();
+        if (cat != null) {
+            for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
+                Object item = cmbCategoria.getItemAt(i);
+                if (item instanceof Categoria c && c.getId() == cat.getId()) {
+                    cmbCategoria.setSelectedIndex(i);
+                    break;
+                }
+            }
+            actualizarCmbUnidad(cat.getUnidad());
         }
-        cboProv.setSelectedItem(prodEditar.getProveedor());
+        cboProv.setSelectedItem(prodEditar.getProveedor() != null
+            ? prodEditar.getProveedor().getNombre() : null);
+    }
+
+    /** Abre un diálogo para crear una nueva categoría y recarga el combo. */
+    private void crearNuevaCategoria() {
+        String nombre = JOptionPane.showInputDialog(this, "Nombre de la nueva categoría:");
+        if (nombre == null || nombre.isBlank()) {
+            reseleccionarPrimeraCat();
+            return;
+        }
+        String[] unidades = {"ml", "gr", "unidades"};
+        String unidad = (String) JOptionPane.showInputDialog(
+            this, "Unidad de medida:", "Nueva Categoría",
+            JOptionPane.QUESTION_MESSAGE, null, unidades, "ml");
+        if (unidad == null) {
+            reseleccionarPrimeraCat();
+            return;
+        }
+        control.guardarCategoria(new Categoria(nombre.trim(), unidad));
+        obtenerCategorias();
+        // Seleccionar la recién creada
+        for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
+            Object item = cmbCategoria.getItemAt(i);
+            if (item instanceof Categoria c && c.getNombre().equals(nombre.trim())) {
+                cmbCategoria.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private void reseleccionarPrimeraCat() {
+        if (cmbCategoria.getItemCount() > 0
+                && cmbCategoria.getItemAt(0) instanceof Categoria) {
+            cmbCategoria.setSelectedIndex(0);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -199,14 +242,10 @@ public class AltaProductos extends JDialog{
         cmbUnidad = new javax.swing.JComboBox<>();
         cmbUnidad.addItem("ml");
         cmbUnidad.addItem("lt");
-        cmbUnidad.addItem("gr");
-        cmbUnidad.addItem("unidades");
         cmbUnidad.setSelectedIndex(0);
         jLabel5 = new javax.swing.JLabel();
         jLabelCategoria = new javax.swing.JLabel();
-        // Opciones predefinidas de categoría desde la lista centralizada; editable para valores personalizados
-        cmbCategoria = new javax.swing.JComboBox<>(CategoriaOptions.OPCIONES);
-        cmbCategoria.setEditable(true);
+        cmbCategoria = new javax.swing.JComboBox<>();
         cmbCategoria.setPreferredSize(new java.awt.Dimension(145, 30));
         panelBtns = new javax.swing.JPanel();
 
@@ -300,12 +339,12 @@ public class AltaProductos extends JDialog{
                         .addComponent(cboProv, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelCategoria)
                     .addComponent(cmbCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(cmbUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
@@ -347,25 +386,52 @@ public class AltaProductos extends JDialog{
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    private boolean validarCampos() {
-        if (
-                txtMinimo.getText().isEmpty() ||
-                txtStock.getText().isEmpty()  ||
-                txtNombre.getText().isEmpty()) {
 
-            JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-            return false; // Indicate validation failure
+    private boolean validarCampos() {
+        if (txtMinimo.getText().isEmpty() ||
+            txtStock.getText().isEmpty()  ||
+            txtNombre.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Por favor, complete todos los campos obligatorios.",
+                "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
-        return true; // Indicate validation success
+        return true;
     }
-    
-    //cargar servicios a cbo
+
+    /** Carga categorías desde la BD y arma el combo con la opción "+ Nueva categoría...". */
+    public void obtenerCategorias() {
+        List<Categoria> cats = control.traerCategorias();
+        DefaultComboBoxModel<Object> model = new DefaultComboBoxModel<>();
+        for (Categoria c : cats) model.addElement(c);
+        model.addElement(NUEVA_CAT_OPCION);
+        cmbCategoria.setModel(model);
+
+        cmbCategoria.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (NUEVA_CAT_OPCION.equals(value)) {
+                    setFont(getFont().deriveFont(Font.ITALIC));
+                    if (!isSelected) setForeground(new Color(70, 130, 200));
+                }
+                return this;
+            }
+        });
+
+        // Selecciona la primera categoría y sincroniza cmbUnidad
+        if (!cats.isEmpty()) {
+            cmbCategoria.setSelectedIndex(0);
+            actualizarCmbUnidad(cats.get(0).getUnidad());
+        }
+    }
+
     public void obtenerProveedores() {
         nombresProveedores.clear();
-        java.util.List<Proveedor> proveedores = control.traerProveedores();
+        List<Proveedor> proveedores = control.traerProveedores();
         for (Proveedor p : proveedores) nombresProveedores.add(p.getNombre());
-        nombresProveedores.add(NUEVA_OPCION);
+        nombresProveedores.add(NUEVA_PROV_OPCION);
 
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         for (String n : nombresProveedores) model.addElement(n);
@@ -376,7 +442,7 @@ public class AltaProductos extends JDialog{
             public Component getListCellRendererComponent(JList<?> list, Object value,
                     int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (NUEVA_OPCION.equals(value)) {
+                if (NUEVA_PROV_OPCION.equals(value)) {
                     setFont(getFont().deriveFont(Font.ITALIC));
                     if (!isSelected) setForeground(new Color(70, 130, 200));
                 }
@@ -386,7 +452,6 @@ public class AltaProductos extends JDialog{
 
         Styles.addAutoComplete(cboProv, nombresProveedores);
 
-        // addAutoComplete replaces the model on each key release — re-append sentinel afterward
         JTextField editor = (JTextField) cboProv.getEditor().getEditorComponent();
         editor.addKeyListener(new KeyAdapter() {
             @Override
@@ -395,12 +460,12 @@ public class AltaProductos extends JDialog{
                 if (key == KeyEvent.VK_ENTER || key == KeyEvent.VK_ESCAPE ||
                     key == KeyEvent.VK_UP    || key == KeyEvent.VK_DOWN) return;
                 DefaultComboBoxModel<String> m = (DefaultComboBoxModel<String>) cboProv.getModel();
-                if (m.getIndexOf(NUEVA_OPCION) < 0) m.addElement(NUEVA_OPCION);
+                if (m.getIndexOf(NUEVA_PROV_OPCION) < 0) m.addElement(NUEVA_PROV_OPCION);
             }
         });
 
         cboProv.addActionListener(e -> {
-            if (NUEVA_OPCION.equals(cboProv.getSelectedItem())) {
+            if (NUEVA_PROV_OPCION.equals(cboProv.getSelectedItem())) {
                 cboProv.hidePopup();
                 Frame parent = (Frame) SwingUtilities.getWindowAncestor(cboProv);
                 AltaProveedores dialog = new AltaProveedores(parent, true, () -> {});
@@ -412,40 +477,23 @@ public class AltaProductos extends JDialog{
     }
 
     private void recargarProveedores() {
-        java.util.List<Proveedor> actualizados = control.traerProveedores();
-
+        List<Proveedor> actualizados = control.traerProveedores();
         nombresProveedores.clear();
         for (Proveedor p : actualizados) nombresProveedores.add(p.getNombre());
-        nombresProveedores.add(NUEVA_OPCION);
-
+        nombresProveedores.add(NUEVA_PROV_OPCION);
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
         for (String n : nombresProveedores) model.addElement(n);
         cboProv.setModel(model);
-
         if (!actualizados.isEmpty()) {
             cboProv.setSelectedItem(actualizados.get(actualizados.size() - 1).getNombre());
         }
     }
-    //encontrar servicio por nombre y guardar el seleccionado
-    public Proveedor guardarProveedor(String proveedor){
-        java.util.List<Proveedor> proveedores = control.traerProveedores();
-        Proveedor proveedorSeleccionado = null;
 
-        for (Proveedor prov : proveedores) {
-            String nombre = prov.getNombre();
-
-                if (nombre.equals(proveedor)) {
-                    proveedorSeleccionado = prov;
-                    break;
-                }
+    public Proveedor guardarProveedor(String proveedor) {
+        for (Proveedor prov : control.traerProveedores()) {
+            if (prov.getNombre().equals(proveedor)) return prov;
         }
-
-        
-        if (proveedorSeleccionado != null) {
-            return proveedorSeleccionado;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -464,6 +512,6 @@ public class AltaProductos extends JDialog{
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtStock;
     private javax.swing.JLabel jLabelCategoria;
-    private javax.swing.JComboBox<String> cmbCategoria;
+    private javax.swing.JComboBox<Object> cmbCategoria;
     // End of variables declaration//GEN-END:variables
 }

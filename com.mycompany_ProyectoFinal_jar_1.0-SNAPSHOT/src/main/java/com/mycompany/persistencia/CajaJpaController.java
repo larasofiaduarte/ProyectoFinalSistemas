@@ -12,12 +12,16 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author duart
  */
 public class CajaJpaController implements Serializable {
+
+    private static final Logger logger = LogManager.getLogger(CajaJpaController.class);
     
     
     private EntityManagerFactory emf;
@@ -45,6 +49,7 @@ public class CajaJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback(); //con rollback en el catch. Transacciones con JPA. garantiza que si algo falla a mitad de una operación, los datos no quedan a medias.
             }
+            logger.error("Error cargando caja", e);
             throw new RuntimeException("Error cargando cliente", e);
         } finally {
             if (em != null) {
@@ -96,6 +101,7 @@ public class CajaJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error actualizando caja", e);
             throw new RuntimeException("Error actualizando caja", e);
         } finally {
             if (em != null) {
@@ -129,6 +135,7 @@ public class CajaJpaController implements Serializable {
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) transaction.rollback();
+            logger.error("Error eliminando caja por turnoId", e);
             throw new RuntimeException("Error deleting caja by turnoId", e);
         } finally {
             if (em != null) em.close();
@@ -151,6 +158,7 @@ public class CajaJpaController implements Serializable {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
+            logger.error("Error eliminando caja", e);
             throw new RuntimeException("Error deleting caja", e);
         } finally {
             if (em != null) {

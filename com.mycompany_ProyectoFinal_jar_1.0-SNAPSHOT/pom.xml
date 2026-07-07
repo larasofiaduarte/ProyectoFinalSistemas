@@ -82,6 +82,11 @@
             <artifactId>jcalendar</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.4</version>
+        </dependency>
         <!-- JasperReports -->
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
@@ -95,6 +100,18 @@
                 <artifactId>itext</artifactId>
                 <version>2.1.7</version>
             </dependency>
+
+        <!-- Log4j2 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.22.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.22.1</version>
+        </dependency>
 
         <!-- JavaFX 21 para WebView embebido en Swing (calendário FullCalendar) -->
         <!-- Clasificador "win" incluye las librerías nativas de WebKit/OpenGL para Windows -->
