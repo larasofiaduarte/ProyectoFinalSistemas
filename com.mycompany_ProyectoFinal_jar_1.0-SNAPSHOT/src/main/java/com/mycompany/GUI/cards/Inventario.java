@@ -45,6 +45,8 @@ public class Inventario extends MainPanelBase {
         // btnEdit.addActionListener(e -> modificarProducto()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
 
+        enableUltimoModificadoSort(control, "PRODUCTOS");
+
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {

@@ -5,9 +5,12 @@ import com.mycompany.proyectofinal.ServicioProducto;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ServicioProductoJpaController implements Serializable {
 
+    private static final Logger logger = LogManager.getLogger(ServicioProductoJpaController.class);
     private EntityManagerFactory emf;
 
     public ServicioProductoJpaController() {
@@ -40,6 +43,7 @@ public class ServicioProductoJpaController implements Serializable {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error deleting ServicioProducto by producto", e);
             throw new RuntimeException("Error deleting ServicioProducto by producto", e);
         } finally {
             if (em != null) em.close();
@@ -62,6 +66,7 @@ public class ServicioProductoJpaController implements Serializable {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error replacing producto in ServicioProducto", e);
             throw new RuntimeException("Error replacing producto in ServicioProducto", e);
         } finally {
             if (em != null) em.close();

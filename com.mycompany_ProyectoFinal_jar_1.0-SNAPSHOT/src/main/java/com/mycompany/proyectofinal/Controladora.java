@@ -10,12 +10,21 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Controladora {
+    private static final Logger logger = LogManager.getLogger(Controladora.class);
     ControladoraPersistencia controlPersis = new ControladoraPersistencia();
     private int loggedInUserId = -1;
     public String userRole;
     private Usuario loggedUser;
+
+    // Deriva "ultimo modificado" por fila a partir del historial de actividad (auditoría) ya existente
+    public Map<Integer, LocalDateTime> findUltimosModificadosPorTabla(String tablaAfectada) {
+        return controlPersis.findUltimosModificadosPorTabla(tablaAfectada);
+    }
     
     //USUARIO
     //LOGICA DE VALIDAR USUARIO PARA LOGIN
@@ -223,6 +232,13 @@ public class Controladora {
         controlPersis.guardarCategoria(c);
     }
 
+    // Valida, crea y persiste una categoría; lanza IllegalStateException si el nombre ya existe
+    public void crearCategoria(String nombre, String unidad) {
+        if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("El nombre no puede estar vacío");
+        if (unidad == null || unidad.isBlank()) throw new IllegalArgumentException("La unidad no puede estar vacía");
+        controlPersis.guardarCategoria(new Categoria(nombre.trim(), unidad));
+    }
+
     public void modificarCategoria(Categoria c) {
         controlPersis.modificarCategoria(c);
     }
@@ -298,21 +314,63 @@ public class Controladora {
             controlPersis.borrarServicio(id);
         }
         
+    // Valida que la hora del turno caiga dentro de algún intervalo de HorarioConfig.
+    // Centralizado acá para que tanto el alta como la modificación pasen por la misma regla.
+    private void validarHorario(LocalDateTime fecha) {
+        if (fecha == null) return;
+        LocalTime hora = fecha.toLocalTime();
+        boolean dentroDeHorario = HorarioConfig.getIntervalos().stream()
+            .anyMatch(intervalo -> !hora.isBefore(intervalo[0]) && !hora.isAfter(intervalo[1]));
+        if (!dentroDeHorario) {
+            throw new IllegalArgumentException("Hora fuera del horario de apertura.");
+        }
+    }
+
+    // Bloquea turnos superpuestos para el mismo empleado + mismo servicio (usa la duración del servicio
+    // para calcular el fin, igual que generarHorariosDisponibles). excludeId=-1 para altas (no excluye ninguno).
+    private void validarSuperposicion(Servicio servicio, LocalDateTime fecha, Usuario empleado, int excludeId) {
+        if (fecha == null || servicio == null || empleado == null) return;
+
+        int duracion = servicio.getDuracionMinutos() > 0 ? servicio.getDuracionMinutos() : 60;
+        LocalDateTime nuevoInicio = fecha;
+        LocalDateTime nuevoFin = nuevoInicio.plusMinutes(duracion);
+
+        List<Turno> delDia = traerTurnosPorEmpleadoYFecha(empleado.getId(), nuevoInicio.toLocalDate(), excludeId);
+
+        boolean superpuesto = delDia.stream()
+            .filter(t -> t.getServicio() != null && t.getServicio().getId() == servicio.getId())
+            .anyMatch(t -> {
+                LocalDateTime existenteInicio = t.getFecha();
+                if (existenteInicio == null) return false;
+                int durExistente = t.getServicio().getDuracionMinutos() > 0
+                    ? t.getServicio().getDuracionMinutos() : 60;
+                LocalDateTime existenteFin = existenteInicio.plusMinutes(durExistente);
+                return nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
+            });
+
+        if (superpuesto) {
+            throw new IllegalStateException("Ya existe un turno para ese servicio en ese horario. Elegí otro horario para continuar.");
+        }
+    }
+
     //TURNOS
         //ALTA
         public void guardarTurno(Servicio servicio, LocalDateTime fecha, Cliente cliente, String estado, String detalle, Usuario empleado){
-        Turno nuevoTurno = new Turno();
+        validarHorario(fecha);
+        // Usa el empleado explícito; si es null, cae al empleado del servicio
+        Usuario emp = (empleado != null) ? empleado : (servicio != null ? servicio.getEmpleado() : null);
+        validarSuperposicion(servicio, fecha, emp, -1);
 
+        Turno nuevoTurno = new Turno();
         nuevoTurno.setServicio(servicio);
         nuevoTurno.setFecha(fecha);
         nuevoTurno.setCliente(cliente);
         nuevoTurno.setEstado(estado);
         nuevoTurno.setDetalle(detalle);
-        // Usa el empleado explícito; si es null, cae al empleado del servicio
-        Usuario emp = (empleado != null) ? empleado : (servicio != null ? servicio.getEmpleado() : null);
         nuevoTurno.setEmpleado(emp);
-        System.out.println("[Turno] Creado: servicio=" + (servicio != null ? servicio.getNombre() : "null")
-            + ", empleado=" + (emp != null ? emp.getNombre() : "null"));
+        logger.info("[Turno] Creado: servicio={}, empleado={}",
+            servicio != null ? servicio.getNombre() : "null",
+            emp != null ? emp.getNombre() : "null");
 
         controlPersis.guardarTurno(nuevoTurno);
 
@@ -347,14 +405,16 @@ public class Controladora {
         }
         
     public void modificarTurno(Turno tur, Servicio servicio, LocalDateTime fechafinal, Cliente clienteEnt, String estado, String detalle) {
-        
-        
+
+        validarHorario(fechafinal);
+        // empleado NO se auto-asigna desde servicio — el caller ya lo setea en tur antes de llamar,
+        // por eso validarSuperposicion puede leerlo de tur.getEmpleado() acá.
+        validarSuperposicion(servicio, fechafinal, tur.getEmpleado(), tur.getId());
         tur.setServicio(servicio);
         tur.setCliente(clienteEnt);
         tur.setFecha(fechafinal);
         tur.setEstado(estado);
         tur.setDetalle(detalle);
-        // empleado NO se auto-asigna desde servicio — el caller lo setea explícitamente en el turno
 
         controlPersis.modificarTurno(tur);
         

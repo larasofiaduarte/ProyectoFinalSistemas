@@ -9,7 +9,8 @@ import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.GUI.components.CustomTableModel;
-import com.mycompany.GUI.components.DateTimeCellEditor;
+import com.mycompany.GUI.components.DateCellEditor;
+import com.mycompany.GUI.components.TimeCellEditor;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
@@ -20,8 +21,11 @@ import com.mycompany.proyectofinal.Usuario;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import javax.swing.table.DefaultTableCellRenderer;
 
 
 
@@ -45,6 +49,8 @@ public class Turnos extends MainPanelBase{
         // btnEdit.addActionListener(e -> modificarTurno()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
 
+        enableUltimoModificadoSort(control, "TURNOS");
+
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
@@ -66,12 +72,21 @@ public class Turnos extends MainPanelBase{
     
     
     
+    /** Aplica la fecha/hora combinada al turno y re-evalúa el estado, igual que antes de separar Fecha/Hora. */
+    private void aplicarFecha(Turno t, LocalDateTime ldt) {
+        t.setFecha(ldt);
+        if (ldt.isBefore(LocalDateTime.now())) {
+            t.setEstado("Finalizado");
+        }
+    }
+
     private void cargarTabla(){
         List<Turno> turnos = control.traerTurnos();
 
         String[] columns = {
             "ID",
             "Fecha",
+            "Hora",
             "Cliente",
             "Servicio",
             "Empleado",
@@ -81,7 +96,8 @@ public class Turnos extends MainPanelBase{
 
         List<Function<Turno, Object>> getters = List.of(
             c -> c.getId(),
-            c -> c.getFecha() != null ? c.getFecha().format(Styles.DATE_TIME) : "",
+            c -> c.getFecha() != null ? c.getFecha().format(Styles.DATE) : "",
+            c -> c.getFecha() != null ? c.getFecha().format(Styles.TIME) : "",
             c -> c.getCliente(),
             c -> c.getServicio(),
             c -> c.getEmpleado(),
@@ -89,24 +105,28 @@ public class Turnos extends MainPanelBase{
             c -> c.getDetalle()
         );
 
+        // Fecha y Hora editan por separado pero ambas escriben el mismo campo t.fecha (single datetime).
         setTableData(turnos, columns, getters,
-            new boolean[]{false, true, true, true, true, true, true});
+            new boolean[]{false, true, true, true, true, true, true, true});
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Turno> turnoModel = (CustomTableModel<Turno>) table.getModel();
         turnoModel.setValueSetter(1, (t, v) -> {
-            LocalDateTime ldt = LocalDateTime.parse(v.toString(), Styles.DATE_TIME);
-            t.setFecha(ldt);
-            if (ldt.isBefore(LocalDateTime.now())) {
-                t.setEstado("Finalizado");
-            }
+            LocalDate fecha = LocalDate.parse(v.toString(), Styles.DATE);
+            LocalTime horaActual = t.getFecha() != null ? t.getFecha().toLocalTime() : LocalTime.MIDNIGHT;
+            aplicarFecha(t, LocalDateTime.of(fecha, horaActual));
         });
-        turnoModel.setValueSetter(2, (t, v) -> t.setCliente((Cliente) v));
-        turnoModel.setValueSetter(3, (t, v) -> t.setServicio((Servicio) v));
-        turnoModel.setValueSetter(4, (t, v) -> t.setEmpleado((Usuario) v));
-        turnoModel.setValueSetter(5, (t, v) -> t.setEstado(v.toString()));
-        turnoModel.setValueSetter(6, (t, v) -> t.setDetalle(v.toString()));
-        turnoModel.setEntityClass(Turno.class, Map.of(5, "estado", 6, "detalle"));
+        turnoModel.setValueSetter(2, (t, v) -> {
+            LocalTime hora = LocalTime.parse(v.toString(), Styles.TIME);
+            LocalDate fechaActual = t.getFecha() != null ? t.getFecha().toLocalDate() : LocalDate.now();
+            aplicarFecha(t, LocalDateTime.of(fechaActual, hora));
+        });
+        turnoModel.setValueSetter(3, (t, v) -> t.setCliente((Cliente) v));
+        turnoModel.setValueSetter(4, (t, v) -> t.setServicio((Servicio) v));
+        turnoModel.setValueSetter(5, (t, v) -> t.setEmpleado((Usuario) v));
+        turnoModel.setValueSetter(6, (t, v) -> t.setEstado(v.toString()));
+        turnoModel.setValueSetter(7, (t, v) -> t.setDetalle(v.toString()));
+        turnoModel.setEntityClass(Turno.class, Map.of(6, "estado", 7, "detalle"));
         turnoModel.setTableName("TURNOS");
         turnoModel.setOnPersist(t -> {
             // Compara el estado guardado en BD con el nuevo para detectar cambios de estado relevantes
@@ -127,8 +147,18 @@ public class Turnos extends MainPanelBase{
                 }
             }
 
-            control.modificarTurno(t, t.getServicio(), t.getFecha(),
-                    t.getCliente(), t.getEstado(), t.getDetalle());
+            try {
+                control.modificarTurno(t, t.getServicio(), t.getFecha(),
+                        t.getCliente(), t.getEstado(), t.getDetalle());
+            } catch (IllegalArgumentException | IllegalStateException ex) {
+                JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(Turnos.this),
+                    ex.getMessage(),
+                    "No se puede guardar",
+                    JOptionPane.WARNING_MESSAGE);
+                cargarTabla(); // Revierte la edición en memoria al último valor persistido
+                return;
+            }
 
             if (!eraFinalizado && ahoraFinalizado) {
                 // Pendiente → Finalizado: registra ingreso en caja y descuenta stock
@@ -160,7 +190,12 @@ public class Turnos extends MainPanelBase{
         List<Usuario> empleados = control.traerUsuarios();
 
         SwingUtilities.invokeLater(() -> {
-            table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateTimeCellEditor());
+            table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateCellEditor());
+
+            table.getColumnModel().getColumn(colIndex("Hora")).setCellEditor(new TimeCellEditor());
+            DefaultTableCellRenderer horaRenderer = new DefaultTableCellRenderer();
+            horaRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+            table.getColumnModel().getColumn(colIndex("Hora")).setCellRenderer(horaRenderer);
 
             int colCliente = colIndex("Cliente");
             int colServicio = colIndex("Servicio");

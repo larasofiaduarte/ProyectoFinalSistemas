@@ -18,10 +18,13 @@ import java.util.Map;
 import java.util.function.Function;
 import com.mycompany.proyectofinal.Cliente;
 import javax.swing.table.TableCellRenderer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class Clientes extends MainPanelBase {
 
+    private static final Logger logger = LogManager.getLogger(Clientes.class);
     private Ventana ventana;
     private Controladora control;
 
@@ -45,11 +48,12 @@ public class Clientes extends MainPanelBase {
 
         addFilterOption("Nombre A → Z", () -> applySortKey(colIndex("Nombre"), SortOrder.ASCENDING));
         addFilterOption("Nombre Z → A", () -> applySortKey(colIndex("Nombre"), SortOrder.DESCENDING));
+        enableUltimoModificadoSort(control, "CLIENTES");
     }
 
     private void cargarTabla() {
         List<Cliente> clientes = control.traerClientes();
-        System.out.println("Clientes loaded: " + clientes.size());
+        logger.debug("Clientes loaded: {}", clientes.size());
 
         String[] columns = {
             "ID", "Nombre", "Apellido", "Teléfono", "Género", "Historial"
@@ -189,7 +193,7 @@ public class Clientes extends MainPanelBase {
                 
 
                 button.addActionListener(e -> {
-                    System.out.println("BOTON CLICKEADO, fila: " + currentRow); 
+                    logger.debug("Boton Ver Turnos clickeado, fila: {}", currentRow);
                     // usa currentRow en vez de tabla.getSelectedRow()
                     int clienteId = ((Number) tabla.getValueAt(currentRow, 0)).intValue();
                     String nombre = tabla.getValueAt(currentRow, 1) + " " + tabla.getValueAt(currentRow, 2);

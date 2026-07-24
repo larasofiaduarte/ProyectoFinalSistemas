@@ -27,6 +27,14 @@ public class CategoriaJpaController implements Serializable {
             tx.commit();
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
+            // Detecta violación de UNIQUE KEY (nombre duplicado)
+            Throwable cause = e;
+            while (cause != null) {
+                if (cause instanceof java.sql.SQLIntegrityConstraintViolationException) {
+                    throw new IllegalStateException("La categoría ya existe", e);
+                }
+                cause = cause.getCause();
+            }
             logger.error("Error creando categoria", e);
             throw new RuntimeException("Error creando categoria", e);
         } finally {
@@ -48,8 +56,33 @@ public class CategoriaJpaController implements Serializable {
         try {
             return em.createQuery("SELECT c FROM Categoria c ORDER BY c.nombre", Categoria.class)
                      .getResultList();
+        } catch (Exception e) {
+            logger.error("Error buscando categorias — tabla ausente o BD no disponible", e);
+            return java.util.Collections.emptyList();
         } finally {
             em.close();
+        }
+    }
+
+    // Inserta categorías base si la tabla está vacía (solo se ejecuta en primer inicio)
+    public void seedDefaults() {
+        try {
+            if (!findAll().isEmpty()) return;
+            String[][] defaults = {
+                {"Shampoo",        "ml"},
+                {"Acondicionador", "ml"},
+                {"Tintura",        "ml"},
+                {"Tratamiento",    "ml"},
+                {"Styling",        "ml"},
+                {"Herramientas",   "unidades"},
+                {"Otros",          "ml"}
+            };
+            for (String[] d : defaults) {
+                create(new Categoria(d[0], d[1]));
+            }
+            logger.info("Categorías por defecto insertadas ({} registros)", defaults.length);
+        } catch (Exception e) {
+            logger.warn("No se pudieron insertar categorías por defecto: {}", e.getMessage());
         }
     }
 

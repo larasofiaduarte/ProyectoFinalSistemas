@@ -42,6 +42,8 @@ public class Proveedores extends MainPanelBase {
         btnElim.addActionListener(e -> eliminarProveedor());
         // btnEdit.addActionListener(e -> editarProveedor()); // disabled — editing is handled inline
         titlePanel.addReportButtonListener(e -> generarReport());
+
+        enableUltimoModificadoSort(control, "PROVEEDORES");
     }
     
     private void cargarTabla(){

@@ -15,6 +15,7 @@ import com.mycompany.proyectofinal.Turno;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Map;
 
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,12 @@ public class ControladoraPersistencia {
     private static final Logger logger = LogManager.getLogger(ControladoraPersistencia.class);
     //USUARIO
     UsuarioJpaController usuJpa = new UsuarioJpaController();
+    ActividadUsuarioJpaController actividadJpa = new ActividadUsuarioJpaController();
+
+    // ACTIVIDAD (auditoría) — fuente única para derivar "ultimo modificado" por fila
+    public Map<Integer, LocalDateTime> findUltimosModificadosPorTabla(String tablaAfectada) {
+        return actividadJpa.findUltimosModificadosPorTabla(tablaAfectada);
+    }
 
         public List<Usuario> traerUsuarios() {
             return usuJpa.findUsuarioEntities();
@@ -123,8 +130,17 @@ public class ControladoraPersistencia {
     //CATEGORIA
     CategoriaJpaController catJpa = new CategoriaJpaController();
 
+        public ControladoraPersistencia() {
+            catJpa.seedDefaults();
+        }
+
         public List<Categoria> traerCategorias() {
-            return catJpa.findAll();
+            try {
+                return catJpa.findAll();
+            } catch (Exception e) {
+                logger.error("Error trayendo categorias", e);
+                return java.util.Collections.emptyList();
+            }
         }
 
         public void guardarCategoria(Categoria c) {

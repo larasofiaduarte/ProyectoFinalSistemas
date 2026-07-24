@@ -10,12 +10,18 @@ import java.awt.*;
 import java.awt.event.KeyListener;
 import com.mycompany.GUI.Styles;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.mycompany.GUI.components.ReportBtn;
 import com.mycompany.GUI.components.*;
+import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.util.TelefonoVerifier;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.function.Function;
 
 public abstract class MainPanelBase extends JPanel {
@@ -29,7 +35,12 @@ public abstract class MainPanelBase extends JPanel {
     protected JPanel filterDropPanel;
     protected Btn btnFilter;
     protected List<Btn> filterOptionsList = new ArrayList<>();
-    
+
+    // Soporte para el sort "Ultimo modificado": derivado en memoria desde el historial de
+    // actividad (auditoría) existente — sin nueva tabla/columna. Ver enableUltimoModificadoSort().
+    private Map<Integer, LocalDateTime> ultimoModificadoMap = new HashMap<>();
+    private int ultimoModificadoColumnIndex = -1;
+
     protected Btn btnAlta;
     protected Btn btnEdit;
     protected Btn btnElim;
@@ -193,18 +204,70 @@ public abstract class MainPanelBase extends JPanel {
         List<Function<T, Object>> getters,
         boolean[] editables) {
 
-        Function<T, Object>[] getterArray = getters.toArray(new Function[0]);
+        // Columna oculta "Ultimo Modificado": no se agrega a la vista, pero permite ordenar
+        // con el mismo mecanismo (applySortKey) que ya se usa para ID. Su valor sale de
+        // ultimoModificadoMap, poblado on-demand por enableUltimoModificadoSort() desde el
+        // historial de actividad existente — no depende de ninguna columna nueva en la entidad.
+        ultimoModificadoColumnIndex = columns.length;
+        String[] allColumns = Arrays.copyOf(columns, columns.length + 1);
+        allColumns[ultimoModificadoColumnIndex] = "Ultimo Modificado";
+
+        List<Function<T, Object>> allGetters = new ArrayList<>(getters);
+        allGetters.add(this::lookupUltimoModificado);
+
+        boolean[] allEditables = Arrays.copyOf(editables, editables.length + 1);
+
+        Function<T, Object>[] getterArray = allGetters.toArray(new Function[0]);
         CustomTableModel<T> model = new CustomTableModel<>(
             data,
-            columns,
+            allColumns,
             getterArray,
             null,
-            editables  // ← usá el array que pasás
+            allEditables  // ← usá el array que pasás
         );
         table.setModel(model);
+        table.getColumnModel().removeColumn(table.getColumnModel().getColumn(ultimoModificadoColumnIndex));
         titlePanel.setTable(table);
         attachPhoneVerifier(columns);
         TableUtils.applyDefaultIdSorting(table);
+
+        Comparator<Object> ultimoModComparator = (a, b) -> {
+            LocalDateTime da = (LocalDateTime) a;
+            LocalDateTime db = (LocalDateTime) b;
+            if (da == null && db == null) return 0;
+            if (da == null) return -1;
+            if (db == null) return 1;
+            return da.compareTo(db);
+        };
+        setColumnComparator(ultimoModificadoColumnIndex, ultimoModComparator);
+    }
+
+    /** Busca en ultimoModificadoMap usando el ID (reflexivo, como el resto del modelo) de la entidad. */
+    private Object lookupUltimoModificado(Object entity) {
+        Integer id = getEntityIdReflective(entity);
+        return id == null ? null : ultimoModificadoMap.get(id);
+    }
+
+    private Integer getEntityIdReflective(Object entity) {
+        try {
+            Method m = entity.getClass().getMethod("getId");
+            Object result = m.invoke(entity);
+            return result instanceof Number ? ((Number) result).intValue() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Agrega la opción de orden "Ultimo modificado", reusando el historial de actividad
+     * (auditoría) ya registrado por RegistrarActividad — no crea tabla ni columna nueva.
+     * Al seleccionarla, recalcula el mapa id→fecha para tablaAfectada y ordena DESC.
+     */
+    protected void enableUltimoModificadoSort(Controladora control, String tablaAfectada) {
+        addFilterOption("Ultimo modificado", () -> {
+            ultimoModificadoMap = control.findUltimosModificadosPorTabla(tablaAfectada);
+            applySortKey(ultimoModificadoColumnIndex, SortOrder.DESCENDING);
+        });
     }
 
     private void attachPhoneVerifier(String[] columns) {
@@ -287,8 +350,8 @@ public abstract class MainPanelBase extends JPanel {
         JLabel label = new JLabel(message);
         label.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
         label.setOpaque(true);
-        label.setBackground(new Color(60, 60, 60));
-        label.setForeground(Color.WHITE);
+        label.setBackground(new Color(144, 238, 144));
+        label.setForeground(new Color(30, 30, 30));
         toast.getContentPane().add(label);
         toast.pack();
         if (isShowing()) {

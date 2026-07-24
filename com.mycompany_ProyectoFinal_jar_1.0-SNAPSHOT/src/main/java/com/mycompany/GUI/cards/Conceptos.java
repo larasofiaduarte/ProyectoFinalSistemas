@@ -13,9 +13,12 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.*;
 import com.mycompany.proyectofinal.Controladora;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import com.mycompany.GUI.components.CustomTableModel;
-import com.mycompany.GUI.components.DateTimeCellEditor;
+import com.mycompany.GUI.components.DateCellEditor;
+import com.mycompany.GUI.components.TimeCellEditor;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -25,6 +28,7 @@ import java.util.Map;
 import java.util.function.Function;
 import javax.persistence.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import java.io.File;
 import java.io.InputStream;
@@ -36,10 +40,13 @@ import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class Conceptos extends MainPanelBase {
 
+    private static final Logger logger = LogManager.getLogger(Conceptos.class);
     private Ventana ventana;
     private Controladora control;
     private Usuario currentUser;
@@ -61,9 +68,10 @@ public class Conceptos extends MainPanelBase {
         btnAlta.addActionListener(e -> abrirAltaCaja());
         btnElim.addActionListener(e -> eliminarConcepto());
         // btnEdit.addActionListener(e -> modificarConcepto()); // disabled — editing is handled inline
-        
+
         titlePanel.addReportButtonListener(e -> generarReport());
-        
+
+        enableUltimoModificadoSort(control, "caja");
     }
     
     public  void cargarTabla(){
@@ -76,7 +84,8 @@ public class Conceptos extends MainPanelBase {
             "Monto",
             "Medio",
             "Fecha",
-            "Detalle"  
+            "Hora",
+            "Detalle"
         };
 
         java.util.List<Function<Caja, Object>> getters = java.util.List.of(
@@ -85,12 +94,17 @@ public class Conceptos extends MainPanelBase {
             c -> LocalDoubleVerifier.format(c.getMonto()),
             c -> c.getMedio(),
             c -> c.getFecha() != null
-            ? c.getFecha().format(Styles.DATE_TIME)
+            ? c.getFecha().format(Styles.DATE)
+            : "",
+            c -> c.getFecha() != null
+            ? c.getFecha().format(Styles.TIME)
             : "",
             c -> c.getDetalle()
         );
 
-        setTableData(conceptos, columns, getters);
+        // Fecha y Hora editan por separado pero ambas escriben el mismo campo c.fecha (single datetime).
+        setTableData(conceptos, columns, getters,
+            new boolean[]{false, true, true, true, true, true, true});
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Caja> cajaModel = (CustomTableModel<Caja>) table.getModel();
@@ -98,8 +112,17 @@ public class Conceptos extends MainPanelBase {
         cajaModel.setLocalDecimalColumns(2);
         cajaModel.setValueSetter(2, (c, v) -> c.setMonto(Double.parseDouble(v.toString())));
         cajaModel.setValueSetter(3, (c, v) -> c.setMedio(v.toString()));
-        cajaModel.setValueSetter(4, (c, v) -> c.setFecha(LocalDateTime.parse(v.toString(), Styles.DATE_TIME)));
-        cajaModel.setValueSetter(5, (c, v) -> c.setDetalle(v.toString()));
+        cajaModel.setValueSetter(4, (c, v) -> {
+            LocalDate fecha = LocalDate.parse(v.toString(), Styles.DATE);
+            LocalTime horaActual = c.getFecha() != null ? c.getFecha().toLocalTime() : LocalTime.MIDNIGHT;
+            c.setFecha(LocalDateTime.of(fecha, horaActual));
+        });
+        cajaModel.setValueSetter(5, (c, v) -> {
+            LocalTime hora = LocalTime.parse(v.toString(), Styles.TIME);
+            LocalDate fechaActual = c.getFecha() != null ? c.getFecha().toLocalDate() : LocalDate.now();
+            c.setFecha(LocalDateTime.of(fechaActual, hora));
+        });
+        cajaModel.setValueSetter(6, (c, v) -> c.setDetalle(v.toString()));
         cajaModel.setEntityClass(Caja.class, Map.of(1, "tipo", 3, "medio"));
         cajaModel.setTableName("caja");
         cajaModel.setOnPersist(c -> {
@@ -108,7 +131,12 @@ public class Conceptos extends MainPanelBase {
         });
 
         SwingUtilities.invokeLater(() -> {
-            table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateTimeCellEditor());
+            table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateCellEditor());
+
+            table.getColumnModel().getColumn(colIndex("Hora")).setCellEditor(new TimeCellEditor());
+            DefaultTableCellRenderer horaRenderer = new DefaultTableCellRenderer();
+            horaRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+            table.getColumnModel().getColumn(colIndex("Hora")).setCellRenderer(horaRenderer);
 
             int colTipo = colIndex("Tipo");
             JComboBox<String> tipoCombo = new JComboBox<>();
@@ -140,9 +168,10 @@ public class Conceptos extends MainPanelBase {
     
     private void eliminarConcepto() {
          Usuario currentUser = Session.getCurrentUser(); // obtenerlo acá, no en constructor
-    
-        System.out.println("Rol del usuario: '" + currentUser.getRol() + "'");
+
         if (currentUser == null || !currentUser.getRol().equalsIgnoreCase("Administrador")) {
+            logger.debug("Acceso denegado a eliminarConcepto, rol: '{}'",
+                currentUser != null ? currentUser.getRol() : "null");
             JOptionPane.showMessageDialog(
                     this,
                     "Solamente el administrador puede eliminar movimientos de caja.",

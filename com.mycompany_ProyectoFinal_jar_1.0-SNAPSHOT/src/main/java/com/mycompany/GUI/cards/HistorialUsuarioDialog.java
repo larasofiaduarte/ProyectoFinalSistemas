@@ -4,6 +4,7 @@
  */
 package com.mycompany.GUI.cards;
 
+import com.mycompany.GUI.Styles;
 import com.mycompany.persistencia.ActividadUsuarioJpaController;
 import com.mycompany.persistencia.TurnoJpaController;
 import com.mycompany.proyectofinal.ActividadUsuario;
@@ -57,8 +58,8 @@ public class HistorialUsuarioDialog extends JDialog {
             model.addRow(new Object[]{"-", "Sin actividad registrada", "", "", "", "", "", "", ""});
         } else {
             for (ActividadUsuario a : actividades) {
-                String fecha = a.getFechaHora() != null ? a.getFechaHora().toLocalDate().toString() : "-";
-                String hora  = a.getFechaHora() != null ? a.getFechaHora().toLocalTime().toString() : "-";
+                String fecha = a.getFechaHora() != null ? a.getFechaHora().format(Styles.DATE) : "-";
+                String hora  = a.getFechaHora() != null ? a.getFechaHora().format(Styles.TIME) : "-";
                 model.addRow(new Object[]{
                     a.getId(),
                     fecha,

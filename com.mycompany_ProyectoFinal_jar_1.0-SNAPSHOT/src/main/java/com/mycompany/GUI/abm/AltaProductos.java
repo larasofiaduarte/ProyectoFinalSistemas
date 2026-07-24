@@ -12,10 +12,13 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class AltaProductos extends JDialog{
 
+    private static final Logger logger = LogManager.getLogger(AltaProductos.class);
     private static final String NUEVA_PROV_OPCION    = "+ Nuevo proveedor...";
     private static final String NUEVA_CAT_OPCION     = "+ Nueva categoría...";
 
@@ -154,20 +157,27 @@ public class AltaProductos extends JDialog{
             return;
         }
 
-        control.guardarProducto(nombre, stock, minimo, provSelec, categoriaSelec);
-        if (prodEditar == null) {
-            RegistrarActividad.registrar(
-                "PRODUCTOS", "nuevo registro", "alta", null,
-                "Nombre: " + nombre + " | Stock: " + stock + " | Mínimo: " + minimo
-                    + " | Categoría: " + categoriaSelec.getNombre()
-                    + " | Proveedor: " + provSelec.getNombre(),
-                "ALTA"
-            );
+        try {
+            control.guardarProducto(nombre, stock, minimo, provSelec, categoriaSelec);
+            if (prodEditar == null) {
+                RegistrarActividad.registrar(
+                    "PRODUCTOS", "nuevo registro", "alta", null,
+                    "Nombre: " + nombre + " | Stock: " + stock + " | Mínimo: " + minimo
+                        + " | Categoría: " + categoriaSelec.getNombre()
+                        + " | Proveedor: " + provSelec.getNombre(),
+                    "ALTA"
+                );
+            }
+            JOptionPane.showMessageDialog(this, "Producto guardado correctamente.",
+                "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
+            if (onSave != null) onSave.run();
+            dispose();
+        } catch (Exception e) {
+            logger.error("Error al guardar el producto", e);
+            JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar el producto.",
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
-        JOptionPane.showMessageDialog(this, "Producto guardado correctamente.",
-            "Producto guardado.", JOptionPane.INFORMATION_MESSAGE);
-        if (onSave != null) onSave.run();
-        dispose();
     }
 
     private void cargarDatosProducto() {
@@ -205,9 +215,24 @@ public class AltaProductos extends JDialog{
             reseleccionarPrimeraCat();
             return;
         }
-        control.guardarCategoria(new Categoria(nombre.trim(), unidad));
+        try {
+            control.crearCategoria(nombre.trim(), unidad);
+        } catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(this,
+                "La categoría \"" + nombre.trim() + "\" ya existe.",
+                "Categoría duplicada", JOptionPane.WARNING_MESSAGE);
+            reseleccionarPrimeraCat();
+            return;
+        } catch (Exception e) {
+            logger.error("Error al guardar la categoría '{}'", nombre.trim(), e);
+            JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar la categoría.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+            reseleccionarPrimeraCat();
+            return;
+        }
         obtenerCategorias();
-        // Seleccionar la recién creada
+        // Auto-seleccionar la recién creada
         for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
             Object item = cmbCategoria.getItemAt(i);
             if (item instanceof Categoria c && c.getNombre().equals(nombre.trim())) {

@@ -46,6 +46,7 @@ public class Servicios extends MainPanelBase {
 
         addFilterOption("Precio menor a mayor", () -> applySortKey(colIndex("Precio"), SortOrder.ASCENDING));
         addFilterOption("Precio mayor a menor", () -> applySortKey(colIndex("Precio"), SortOrder.DESCENDING));
+        enableUltimoModificadoSort(control, "SERVICIOS");
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -107,7 +108,7 @@ public class Servicios extends MainPanelBase {
 
 
 
-        setTableData(servicios, columns, getters, new boolean[]{false, true, true, true, false, true});
+        setTableData(servicios, columns, getters, new boolean[]{false, true, true, true, true, true});
 
         setColumnComparator(colIndex("Precio"), (a, b) -> Double.compare(
             Double.parseDouble(LocalDoubleVerifier.normalize(a.toString())),
@@ -120,6 +121,15 @@ public class Servicios extends MainPanelBase {
         servModel.setLocalDecimalColumns(2);
         servModel.setValueSetter(2, (s, v) -> s.setPrecio(Double.parseDouble(v.toString())));
         servModel.setValueSetter(3, (s, v) -> s.setEmpleado((Usuario) v));
+        servModel.setValueSetter(4, (s, v) -> {
+            try {
+                s.setDuracionMinutos(Integer.parseInt(v.toString().trim()));
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null,
+                    "La duración debe ser un número entero de minutos.",
+                    "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            }
+        });
         servModel.setEntityClass(Servicio.class, Map.of(1, "nombre"));
         servModel.setTableName("SERVICIOS");
         servModel.setOnPersist(s -> {
@@ -130,6 +140,17 @@ public class Servicios extends MainPanelBase {
         List<Usuario> empleados = control.traerUsuarios();
 
         SwingUtilities.invokeLater(() -> {
+            int colDuracion = colIndex("Duración (min)");
+            JTextField duracionField = new JTextField();
+            duracionField.addKeyListener(new java.awt.event.KeyAdapter() {
+                @Override public void keyTyped(java.awt.event.KeyEvent e) {
+                    char c = e.getKeyChar();
+                    if (Character.isISOControl(c)) return;
+                    if (!Character.isDigit(c)) e.consume();
+                }
+            });
+            table.getColumnModel().getColumn(colDuracion).setCellEditor(new DefaultCellEditor(duracionField));
+
             int colPrecio = colIndex("Precio");
             JTextField precioField = new JTextField();
             precioField.addKeyListener(new LocalDoubleVerifier());

@@ -23,8 +23,12 @@ import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.engine.export.ooxml.*;
 import net.sf.jasperreports.export.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ReportManager {
+
+    private static final Logger logger = LogManager.getLogger(ReportManager.class);
 
     private static final String DB_URL  = "jdbc:mysql://localhost:3306/peluqueria";
     private static final String DB_USER = "root";
@@ -116,16 +120,19 @@ public class ReportManager {
             }
 
         } catch (ClassNotFoundException e) {
+            logger.error("Driver MySQL no encontrado al generar reporte '{}'", reportName, e);
             JOptionPane.showMessageDialog(parent,
-                "MySQL Driver no encontrado: " + e.getMessage(),
+                "No se pudo generar el reporte por un error de configuración.",
                 "Error de controlador", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException e) {
+            logger.error("Error de conexión a la base de datos al generar reporte '{}'", reportName, e);
             JOptionPane.showMessageDialog(parent,
-                "Error de conexión a la base de datos: " + e.getMessage(),
+                "Ocurrió un error al conectar con la base de datos.",
                 "Error de base de datos", JOptionPane.ERROR_MESSAGE);
         } catch (JRException e) {
+            logger.error("Error generando reporte '{}'", reportName, e);
             JOptionPane.showMessageDialog(parent,
-                "Error generando reporte: " + e.getMessage(),
+                "Ocurrió un error al generar el reporte.",
                 "Error de reporte", JOptionPane.ERROR_MESSAGE);
         } finally {
             if (conn != null) {

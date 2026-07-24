@@ -20,9 +20,12 @@ import java.util.Date;
 import javax.swing.*;
 import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AltaEmpleados extends JDialog {
 
+    private static final Logger logger = LogManager.getLogger(AltaEmpleados.class);
     Controladora control = new Controladora();
     private Runnable onSave;
     private Usuario userEditar;
@@ -171,26 +174,33 @@ public class AltaEmpleados extends JDialog {
 
         }
 
-        if (userEditar == null) {
-            // MODO ALTA
-            control.guardarUser(user, pass, nombre, apellido, tel, rol, dni, email);
-            RegistrarActividad.registrar(
-                "USUARIOS",
-                "nuevo registro",
-                "alta",
-                null,
-                "Usuario: " + user + " | Nombre: " + nombre + " | Apellido: " + apellido + " | Rol: " + rol,
-                "ALTA"
-            );
-            JOptionPane.showMessageDialog(this, "Usuario creado correctamente.");
-        } else {
-            //MODO MODIFICAR
-            control.modificarUsuario(userEditar, user, pass, nombre, apellido, tel, rol, dni, email);
-            JOptionPane.showMessageDialog(this, "Usuario modificado correctamente.");
-        }
+        try {
+            if (userEditar == null) {
+                // MODO ALTA
+                control.guardarUser(user, pass, nombre, apellido, tel, rol, dni, email);
+                RegistrarActividad.registrar(
+                    "USUARIOS",
+                    "nuevo registro",
+                    "alta",
+                    null,
+                    "Usuario: " + user + " | Nombre: " + nombre + " | Apellido: " + apellido + " | Rol: " + rol,
+                    "ALTA"
+                );
+                JOptionPane.showMessageDialog(this, "Usuario creado correctamente.");
+            } else {
+                //MODO MODIFICAR
+                control.modificarUsuario(userEditar, user, pass, nombre, apellido, tel, rol, dni, email);
+                JOptionPane.showMessageDialog(this, "Usuario modificado correctamente.");
+            }
 
-        onSave.run();
-        dispose();
+            onSave.run();
+            dispose();
+        } catch (Exception e) {
+            logger.error("Error al guardar el usuario", e);
+            JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar el usuario.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     

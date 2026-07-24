@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.GUI.cards;
+import com.mycompany.GUI.Styles;
 import com.mycompany.persistencia.TurnoJpaController;
 import com.mycompany.proyectofinal.Turno;
 import java.awt.BorderLayout;
@@ -45,9 +46,9 @@ public class HistorialTurnosDialog extends JDialog {
         } else {
             for (Turno t : turnos) {
                 String fecha = t.getFecha() != null
-                    ? t.getFecha().toLocalDate().toString() : "-";
+                    ? t.getFecha().format(Styles.DATE) : "-";
                 String hora = t.getFecha() != null
-                    ? t.getFecha().toLocalTime().toString() : "-";
+                    ? t.getFecha().format(Styles.TIME) : "-";
                 String servicio = t.getServicio() != null
                     ? t.getServicio().getNombre() : "-";
 

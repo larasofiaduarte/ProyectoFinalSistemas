@@ -20,9 +20,12 @@ import javax.swing.table.AbstractTableModel;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CustomTableModel<T> extends AbstractTableModel {
 
+    private static final Logger logger = LogManager.getLogger(CustomTableModel.class);
     private List<T> data;
     private String[] columnNames;
     private Function<T, Object>[] valueGetters;
@@ -134,7 +137,7 @@ public class CustomTableModel<T> extends AbstractTableModel {
     @Override
     
 public void setValueAt(Object value, int row, int col) {
-    System.out.println("[CustomTableModel] setValueAt: row=" + row + ", col=" + col + ", value=" + value);
+    logger.debug("setValueAt: row={}, col={}, value={}", row, col, value);
     Object oldValue = valueGetters[col].apply(data.get(row));
     for (int nc : numericColumns) {
         if (nc == col) {
@@ -184,7 +187,7 @@ public void setValueAt(Object value, int row, int col) {
         }
     }
     if (valueSetters == null || valueSetters[col] == null) {
-        System.out.println("[CustomTableModel] No setter registered for col=" + col + ", skipping");
+        logger.debug("No setter registered for col={}, skipping", col);
         return;
     }
     lastOldValue = oldValue;

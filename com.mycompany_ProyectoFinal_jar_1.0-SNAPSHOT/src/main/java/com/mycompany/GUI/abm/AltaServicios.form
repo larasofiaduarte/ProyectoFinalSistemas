@@ -124,13 +124,13 @@
                           <Component id="scrollProd" min="-2" pref="363" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="txtPrecio" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="txtDuracion" alignment="0" max="32767" attributes="0"/>
                                   <Component id="cboEmpleados" alignment="0" pref="122" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel9" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="txtPrecio1" min="-2" pref="250" max="-2" attributes="0"/>
+                          <Component id="txtPrecio" min="-2" pref="250" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="44" max="32767" attributes="0"/>
                   </Group>
@@ -157,7 +157,7 @@
                               <Component id="jLabel2" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="txtPrecio1" pref="32" max="32767" attributes="0"/>
+                              <Component id="txtPrecio" pref="32" max="32767" attributes="0"/>
                               <EmptySpace min="4" pref="4" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -175,7 +175,7 @@
                       <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel9" alignment="3" max="32767" attributes="0"/>
-                          <Component id="txtPrecio" alignment="3" max="32767" attributes="0"/>
+                          <Component id="txtDuracion" alignment="3" max="32767" attributes="0"/>
                           <Component id="jLabel8" alignment="3" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
@@ -202,7 +202,7 @@
                 <Property name="text" type="java.lang.String" value="Precio*"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txtPrecio">
+            <Component class="javax.swing.JTextField" name="txtDuracion">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="f2" green="f2" red="f2" type="rgb"/>
@@ -268,7 +268,7 @@
                 <Property name="text" type="java.lang.String" value="Duraci&#xf3;n"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="txtPrecio1">
+            <Component class="javax.swing.JTextField" name="txtPrecio">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="f2" green="f2" red="f2" type="rgb"/>

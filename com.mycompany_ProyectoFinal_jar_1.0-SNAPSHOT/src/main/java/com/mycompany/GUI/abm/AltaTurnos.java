@@ -208,6 +208,11 @@ public class AltaTurnos extends JDialog {
                 "ID de cliente inválido.",
                 "Error",
                 JOptionPane.WARNING_MESSAGE);
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+        JOptionPane.showMessageDialog(this,
+                ex.getMessage(),
+                "No se puede guardar",
+                JOptionPane.WARNING_MESSAGE);
     } catch (Exception ex) {
         JOptionPane.showMessageDialog(this,
                 "Ocurrió un error al guardar el turno.",

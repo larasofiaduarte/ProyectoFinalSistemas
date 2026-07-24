@@ -1,5 +1,8 @@
 package com.mycompany.GUI.calendar;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Objeto expuesto al JavaScript del WebView como "window.javaBridge".
  * Todos los métodos deben ser public para que JSObject los pueda invocar.
@@ -8,9 +11,11 @@ package com.mycompany.GUI.calendar;
  */
 public class JavaBridge {
 
+    private static final Logger logger = LogManager.getLogger(JavaBridge.class);
+
     /** Llamado desde JS cuando FullCalendar terminó de inicializarse. */
     public void onCalendarReady() {
-        System.out.println("[JavaBridge] Calendar listo");
+        logger.debug("[JavaBridge] Calendar listo");
     }
 
     /**
@@ -19,6 +24,6 @@ public class JavaBridge {
      * @param id ID del turno como string
      */
     public void onEventClicked(String id) {
-        System.out.println("[JavaBridge] Evento clickeado: id=" + id);
+        logger.debug("[JavaBridge] Evento clickeado: id={}", id);
     }
 }

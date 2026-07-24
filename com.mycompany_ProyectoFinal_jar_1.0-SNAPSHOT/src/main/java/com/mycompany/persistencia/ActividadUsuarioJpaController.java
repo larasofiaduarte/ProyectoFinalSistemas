@@ -5,7 +5,10 @@
 package com.mycompany.persistencia;
 
 import com.mycompany.proyectofinal.ActividadUsuario;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.*;
 
 /**
@@ -40,6 +43,43 @@ public class ActividadUsuarioJpaController {
             ).setParameter("uid", usuarioId).getResultList();
         } finally {
             em.close();
+        }
+    }
+
+    /**
+     * Deriva, a partir del historial de actividad ya registrado (sin nueva tabla/columna),
+     * la fecha de la modificación más reciente por fila para una tabla dada.
+     * filaAfectada tolera los formatos existentes "42" (edición inline) e "ID: 42" (diálogos);
+     * las filas sin ID numérico (p.ej. "nuevo registro" de un ALTA) se descartan.
+     */
+    public Map<Integer, LocalDateTime> findUltimosModificadosPorTabla(String tablaAfectada) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            List<ActividadUsuario> registros = em.createQuery(
+                "SELECT a FROM ActividadUsuario a WHERE a.tablaAfectada = :tabla",
+                ActividadUsuario.class
+            ).setParameter("tabla", tablaAfectada).getResultList();
+
+            Map<Integer, LocalDateTime> ultimos = new HashMap<>();
+            for (ActividadUsuario a : registros) {
+                Integer id = extraerIdNumerico(a.getFilaAfectada());
+                if (id == null || a.getFechaHora() == null) continue;
+                ultimos.merge(id, a.getFechaHora(), (t1, t2) -> t1.isAfter(t2) ? t1 : t2);
+            }
+            return ultimos;
+        } finally {
+            em.close();
+        }
+    }
+
+    private Integer extraerIdNumerico(String filaAfectada) {
+        if (filaAfectada == null) return null;
+        String digits = filaAfectada.replaceAll("[^0-9]", "");
+        if (digits.isEmpty()) return null;
+        try {
+            return Integer.valueOf(digits);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }

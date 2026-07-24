@@ -18,6 +18,7 @@ public class TitlePanel extends JPanel implements Theme {
 
     private SearchBar search;
     private TableRowSorter<?> sorter;
+    private JTable table;
     private boolean listenerAttached = false;
 
     private JPanel topPanel;
@@ -85,6 +86,7 @@ public class TitlePanel extends JPanel implements Theme {
     }
 
     public void setTable(JTable table) {
+        this.table = table;
         sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
 
@@ -106,7 +108,13 @@ public class TitlePanel extends JPanel implements Theme {
         if (text.trim().isEmpty() || text.equals("Buscar")) {
             sorter.setRowFilter(null);
         } else {
-            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+            // Busca solo en las columnas visibles: las columnas ocultas del modelo
+            // (p.ej. "Ultimo Modificado", usada solo para ordenar) quedan afuera.
+            int[] searchableColumns = new int[table.getColumnCount()];
+            for (int i = 0; i < searchableColumns.length; i++) {
+                searchableColumns[i] = table.convertColumnIndexToModel(i);
+            }
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, searchableColumns));
         }
     }
 

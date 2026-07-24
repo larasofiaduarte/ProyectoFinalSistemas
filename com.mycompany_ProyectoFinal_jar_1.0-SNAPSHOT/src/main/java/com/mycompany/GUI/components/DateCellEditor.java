@@ -4,21 +4,28 @@ import com.mycompany.GUI.Styles;
 import com.toedter.calendar.JCalendar;
 import java.awt.*;
 import java.awt.event.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public class DateTimeCellEditor extends AbstractCellEditor implements TableCellEditor {
+/**
+ * Editor de celda solo-fecha (dd/MM/yyyy) — sin hora. Usado por columnas "Fecha"
+ * que ahora editan la fecha por separado de la columna "Hora" (ver TimeCellEditor).
+ */
+public class DateCellEditor extends AbstractCellEditor implements TableCellEditor {
 
+    private static final Logger logger = LogManager.getLogger(DateCellEditor.class);
     private final JPanel container = new JPanel(new BorderLayout(2, 0));
     private final JTextField textField = new JTextField();
     private final JButton button = new JButton("📅");
     private JTable table;
     private JWindow popup;
 
-    public DateTimeCellEditor() {
+    public DateCellEditor() {
         container.add(textField, BorderLayout.CENTER);
 
         button.addActionListener(e -> openPicker(table));
@@ -37,8 +44,10 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     stopCellEditing();
+                    e.consume(); // evita que JTable procese el mismo Enter y vuelva a intentar stopCellEditing()
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     cancelCellEditing();
+                    e.consume();
                 }
             }
         });
@@ -46,7 +55,7 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
 
     private void openPicker(JTable anchor) {
         if (popup != null && popup.isVisible()) return;
-        System.out.println("Opening DateTime picker");
+        logger.debug("Opening Date picker");
 
         JCalendar calendar = new JCalendar(new java.util.Locale("es", "AR"));
         @SuppressWarnings("unchecked")
@@ -55,9 +64,9 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
         }));
-        LocalDateTime current = parse(textField.getText());
+        LocalDate current = parse(textField.getText());
         if (current != null) {
-            calendar.setDate(Date.from(current.atZone(ZoneId.systemDefault()).toInstant()));
+            calendar.setDate(Date.from(current.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         }
 
         popup = new JWindow(SwingUtilities.getWindowAncestor(anchor != null ? anchor : container));
@@ -83,17 +92,16 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
         calendar.getDayChooser().addPropertyChangeListener("day", e -> {
             Date selected = calendar.getDate();
             if (selected != null) {
-                LocalDateTime ldt = selected.toInstant()
+                LocalDate ld = selected.toInstant()
                         .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime()
-                        .withHour(0).withMinute(0).withSecond(0).withNano(0);
-                if (ldt.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                        .toLocalDate();
+                if (ld.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
                     JOptionPane.showMessageDialog(popup,
                             "No se permite seleccionar fechas en domingo.",
                             "Fecha no permitida", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                textField.setText(Styles.DATE_TIME.format(ldt));
+                textField.setText(Styles.DATE.format(ld));
             }
             closePopup();
         });
@@ -127,10 +135,10 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
         }
     }
 
-    private LocalDateTime parse(String text) {
+    private LocalDate parse(String text) {
         if (text == null || text.isBlank()) return null;
         try {
-            return LocalDateTime.parse(text.trim(), Styles.DATE_TIME);
+            return LocalDate.parse(text.trim(), Styles.DATE);
         } catch (Exception e) {
             return null;
         }
@@ -140,9 +148,16 @@ public class DateTimeCellEditor extends AbstractCellEditor implements TableCellE
     public boolean stopCellEditing() {
         closePopup();
         if (parse(textField.getText()) == null) {
-            JOptionPane.showMessageDialog(container,
-                    "Ingrese una fecha válida en formato dd/MM/yyyy HH:mm\nEjemplo: 05/06/2026 14:30",
-                    "Fecha inválida", JOptionPane.WARNING_MESSAGE);
+            // El diálogo modal le roba el foco a la tabla: si terminateEditOnFocusLost sigue activo,
+            // JTable reintenta stopCellEditing() mientras el diálogo sigue abierto y lo duplica.
+            if (table != null) table.putClientProperty("terminateEditOnFocusLost", false);
+            try {
+                JOptionPane.showMessageDialog(container,
+                        "Ingrese una fecha válida en formato dd/MM/yyyy\nEjemplo: 05/06/2026",
+                        "Fecha inválida", JOptionPane.WARNING_MESSAGE);
+            } finally {
+                if (table != null) table.putClientProperty("terminateEditOnFocusLost", true);
+            }
             return false;
         }
         return super.stopCellEditing();

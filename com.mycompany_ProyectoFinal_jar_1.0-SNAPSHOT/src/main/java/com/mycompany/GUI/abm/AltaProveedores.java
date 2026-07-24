@@ -12,11 +12,14 @@ import com.mycompany.proyectofinal.Proveedor;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
-        
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 
 public class AltaProveedores extends JDialog {
-    
+
+    private static final Logger logger = LogManager.getLogger(AltaProveedores.class);
     Controladora control = new Controladora();
     private Runnable onSave;
     private Proveedor provEditar;
@@ -51,24 +54,31 @@ public class AltaProveedores extends JDialog {
                     String web = txtWeb.getText();
                     
                     if(txtNombre.getText() != null && !txtNombre.getText().isEmpty()){
-                        control.guardarProveedor(nombre, telefono, email, web);
-                        RegistrarActividad.registrar(
-                            "PROVEEDORES",
-                            "nuevo registro",
-                            "alta",
-                            null,
-                            "Nombre: " + nombre + " | Teléfono: " + telefono + " | Email: " + email,
-                            "ALTA"
-                        );
-                        JOptionPane.showMessageDialog(null, "Proveedor guardado correctamente.", "Proveedor guardado.", JOptionPane.INFORMATION_MESSAGE);
-                        if (onSave != null) {
-                            onSave.run();   // 👈 refresh table
+                        try {
+                            control.guardarProveedor(nombre, telefono, email, web);
+                            RegistrarActividad.registrar(
+                                "PROVEEDORES",
+                                "nuevo registro",
+                                "alta",
+                                null,
+                                "Nombre: " + nombre + " | Teléfono: " + telefono + " | Email: " + email,
+                                "ALTA"
+                            );
+                            JOptionPane.showMessageDialog(null, "Proveedor guardado correctamente.", "Proveedor guardado.", JOptionPane.INFORMATION_MESSAGE);
+                            if (onSave != null) {
+                                onSave.run();   // 👈 refresh table
+                            }
+                            dispose();
+                        } catch (Exception ex) {
+                            logger.error("Error al guardar el proveedor", ex);
+                            JOptionPane.showMessageDialog(null,
+                                "Ocurrió un error al guardar el proveedor.",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                         }
-                        dispose();
-                    
+
                     }else{
                     JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
-                        
+
                     }
                     
                     
@@ -150,26 +160,33 @@ public class AltaProveedores extends JDialog {
                     String email = txtCorreo.getText();
                     String web = txtWeb.getText();
 
-        if (provEditar == null) {
-            // MODO ALTA
-            control.guardarProveedor(nombre, telefono, email, web);
-            RegistrarActividad.registrar(
-                "PROVEEDORES",
-                "nuevo registro",
-                "alta",
-                null,
-                "Nombre: " + nombre + " | Teléfono: " + telefono + " | Email: " + email,
-                "ALTA"
-            );
-            JOptionPane.showMessageDialog(this, "Proveedor guardado correctamente.");
-        } else {
-            //MODO MODIFICAR
-            control.modificarProveedor(provEditar, nombre, telefono, email, web);
-            JOptionPane.showMessageDialog(this, "Proveedor modificado correctamente.");
-        }
+        try {
+            if (provEditar == null) {
+                // MODO ALTA
+                control.guardarProveedor(nombre, telefono, email, web);
+                RegistrarActividad.registrar(
+                    "PROVEEDORES",
+                    "nuevo registro",
+                    "alta",
+                    null,
+                    "Nombre: " + nombre + " | Teléfono: " + telefono + " | Email: " + email,
+                    "ALTA"
+                );
+                JOptionPane.showMessageDialog(this, "Proveedor guardado correctamente.");
+            } else {
+                //MODO MODIFICAR
+                control.modificarProveedor(provEditar, nombre, telefono, email, web);
+                JOptionPane.showMessageDialog(this, "Proveedor modificado correctamente.");
+            }
 
-        onSave.run();
-        dispose();
+            onSave.run();
+            dispose();
+        } catch (Exception e) {
+            logger.error("Error al guardar el proveedor", e);
+            JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar el proveedor.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
      
      

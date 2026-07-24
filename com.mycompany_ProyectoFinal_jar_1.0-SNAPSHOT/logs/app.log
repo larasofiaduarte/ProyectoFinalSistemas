@@ -1,0 +1,33 @@
+2026-07-23 18:37:11 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 18:37:21 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin
+2026-07-23 18:56:57 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 18:57:02 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin
+2026-07-23 18:57:07 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] SALIDA — Turno id=1 | Corte Masculino | 2 producto(s)
+2026-07-23 18:57:07 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Acondicionador: 5.0 - 1.0 = 4.0
+2026-07-23 18:57:07 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Shampoo: 1000.0 - 1.0 = 999.0
+2026-07-23 18:57:07 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Completado SALIDA — Turno id=1
+2026-07-23 18:57:28 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Servicio id=3 sin productos
+2026-07-23 19:09:32 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 19:09:36 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin
+2026-07-23 19:44:34 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 19:44:39 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin
+2026-07-23 20:05:24 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] SALIDA — Turno id=6 | Corte Femenino | 2 producto(s)
+2026-07-23 20:05:24 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Shampoo: 999.0 - 1.0 = 998.0
+2026-07-23 20:05:24 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Acondicionador: 4.0 - 1.0 = 3.0
+2026-07-23 20:05:24 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Completado SALIDA — Turno id=6
+2026-07-23 20:06:42 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Servicio id=3 sin productos
+2026-07-23 20:23:39 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 20:23:44 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 5 turno(s) para admin
+2026-07-23 20:50:31 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 20:50:35 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 5 turno(s) para admin
+2026-07-23 21:03:59 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 21:04:03 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 5 turno(s) para admin
+2026-07-23 21:09:03 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Turno id=8 sin stock descontado — omitiendo
+2026-07-23 21:11:35 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] SALIDA — Turno id=5 | Corte Masculino | 2 producto(s)
+2026-07-23 21:11:35 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Acondicionador: 3.0 - 1.0 = 2.0
+2026-07-23 21:11:35 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Shampoo: 998.0 - 1.0 = 997.0
+2026-07-23 21:11:35 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Completado SALIDA — Turno id=5
+2026-07-23 21:32:46 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 21:32:50 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin
+2026-07-23 21:38:50 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-23 21:38:54 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin

@@ -9,10 +9,13 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.JOptionPane;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class AltaClientes extends JDialog {
-    
+
+    private static final Logger logger = LogManager.getLogger(AltaClientes.class);
     Controladora control = new Controladora();
     private Runnable onSave;
     private Cliente clienteEditar;
@@ -64,34 +67,41 @@ public class AltaClientes extends JDialog {
             genero = "M";
         }
 
-        if (clienteEditar == null) {
-            // MODO ALTA
-            control.guardarCliente(nombre, apellido, telefono, genero);
-            RegistrarActividad.registrar(
-                "CLIENTES",
-                "nuevo registro",
-                "alta",
-                null,
-                "Nombre: " + nombre + " | Apellido: " + apellido + " | Telefono: " + telefono + " | Genero: " + genero,
-                "ALTA"
-            );
-            JOptionPane.showMessageDialog(this, "Cliente creado correctamente.");
-        } else {
-            //MODO MODIFICAR
-            control.modificarCliente(clienteEditar, nombre, apellido, telefono, genero);
-            RegistrarActividad.registrar(
-                "CLIENTES",
-                "ID: " + clienteEditar.getId(),
-                "modificación",
-                null,
-                "Nombre: " + nombre + " | Apellido: " + apellido + " | Telefono: " + telefono + " | Genero: " + genero,
-                "EDICIÓN"
-            );
-            JOptionPane.showMessageDialog(this, "Cliente modificado correctamente.");
-        }
+        try {
+            if (clienteEditar == null) {
+                // MODO ALTA
+                control.guardarCliente(nombre, apellido, telefono, genero);
+                RegistrarActividad.registrar(
+                    "CLIENTES",
+                    "nuevo registro",
+                    "alta",
+                    null,
+                    "Nombre: " + nombre + " | Apellido: " + apellido + " | Telefono: " + telefono + " | Genero: " + genero,
+                    "ALTA"
+                );
+                JOptionPane.showMessageDialog(this, "Cliente creado correctamente.");
+            } else {
+                //MODO MODIFICAR
+                control.modificarCliente(clienteEditar, nombre, apellido, telefono, genero);
+                RegistrarActividad.registrar(
+                    "CLIENTES",
+                    "ID: " + clienteEditar.getId(),
+                    "modificación",
+                    null,
+                    "Nombre: " + nombre + " | Apellido: " + apellido + " | Telefono: " + telefono + " | Genero: " + genero,
+                    "EDICIÓN"
+                );
+                JOptionPane.showMessageDialog(this, "Cliente modificado correctamente.");
+            }
 
-        onSave.run();
-        dispose();
+            onSave.run();
+            dispose();
+        } catch (Exception e) {
+            logger.error("Error al guardar el cliente", e);
+            JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar el cliente.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     

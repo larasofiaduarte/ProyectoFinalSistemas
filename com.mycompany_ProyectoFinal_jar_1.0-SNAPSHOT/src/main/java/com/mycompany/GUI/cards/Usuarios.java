@@ -41,6 +41,7 @@ public class Usuarios extends MainPanelBase {
 
         addFilterOption("Nombre A → Z", () -> applySortKey(colIndex("Nombre"), SortOrder.ASCENDING));
         addFilterOption("Nombre Z → A", () -> applySortKey(colIndex("Nombre"), SortOrder.DESCENDING));
+        enableUltimoModificadoSort(control, "USUARIOS");
     }
 
     public void cargarTabla() {

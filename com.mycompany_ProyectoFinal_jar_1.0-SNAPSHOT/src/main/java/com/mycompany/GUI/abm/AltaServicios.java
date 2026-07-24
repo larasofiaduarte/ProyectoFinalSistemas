@@ -17,7 +17,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 import com.mycompany.GUI.components.Btn;
-import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
 import java.awt.Frame;
@@ -25,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -32,11 +33,10 @@ import javax.swing.table.*;
  */
 public class AltaServicios extends JDialog {
 
+    private static final Logger logger = LogManager.getLogger(AltaServicios.class);
     Controladora control = new Controladora();
     private Runnable onSave;
     Usuario empleadoSelec;
-    private JTable tablaProductos;
-    private DefaultTableModel modeloProductos;
     private JTable tablaCategorias;
     private DefaultTableModel modeloCategorias;
     private Servicio servEditar;
@@ -48,10 +48,8 @@ public class AltaServicios extends JDialog {
         
         initComponents();
         
-        obtenerUsuarios(); //carga cbo
-        //obtenerProductos();
-        inicializarTablaProductos();
-        cargarProductos();
+        obtenerUsuarios();
+        inicializarTablaCategorias();
         cargarCategorias();
 
         Btn btnAlta = Btn.primary("Guardar");
@@ -71,8 +69,7 @@ public class AltaServicios extends JDialog {
         this.onSave = onSave;
 
         obtenerUsuarios();
-        inicializarTablaProductos();
-        cargarProductos();
+        inicializarTablaCategorias();
         cargarCategorias();
 
         cargarDatosServicio(); // cargar datos en los campos
@@ -105,7 +102,7 @@ public class AltaServicios extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     txtNombre.setText("");
-                    txtPrecio.setText("");
+                    txtDuracion.setText("");
                     cboEmpleados.setSelectedIndex(-1);
                     //cboProductos.setSelectedIndex(-1);
                 }
@@ -118,7 +115,7 @@ public class AltaServicios extends JDialog {
                 }
         });
         
-        txtPrecio.addKeyListener(new KeyAdapter() {
+        txtDuracion.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
@@ -143,14 +140,14 @@ public class AltaServicios extends JDialog {
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txtPrecio = new javax.swing.JTextField();
+        txtDuracion = new javax.swing.JTextField();
         txtNombre = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         cboEmpleados = new javax.swing.JComboBox<>();
         scrollProd = new javax.swing.JScrollPane();
         jLabel8 = new javax.swing.JLabel();
-        txtPrecio1 = new javax.swing.JTextField();
+        txtPrecio = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -190,11 +187,11 @@ public class AltaServicios extends JDialog {
 
         jLabel2.setText("Precio*");
 
-        txtPrecio.setBackground(new java.awt.Color(242, 242, 242));
-        txtPrecio.setForeground(new java.awt.Color(102, 102, 102));
-        txtPrecio.setText("60");
-        txtPrecio.setBorder(null);
-        txtPrecio.setPreferredSize(new java.awt.Dimension(73, 30));
+        txtDuracion.setBackground(new java.awt.Color(242, 242, 242));
+        txtDuracion.setForeground(new java.awt.Color(102, 102, 102));
+        txtDuracion.setText("60");
+        txtDuracion.setBorder(null);
+        txtDuracion.setPreferredSize(new java.awt.Dimension(73, 30));
 
         txtNombre.setBackground(new java.awt.Color(242, 242, 242));
         txtNombre.setForeground(new java.awt.Color(102, 102, 102));
@@ -213,11 +210,11 @@ public class AltaServicios extends JDialog {
 
         jLabel8.setText("Duración");
 
-        txtPrecio1.setBackground(new java.awt.Color(242, 242, 242));
-        txtPrecio1.setForeground(new java.awt.Color(102, 102, 102));
-        txtPrecio1.setText("10000");
-        txtPrecio1.setBorder(null);
-        txtPrecio1.setPreferredSize(new java.awt.Dimension(73, 30));
+        txtPrecio.setBackground(new java.awt.Color(242, 242, 242));
+        txtPrecio.setForeground(new java.awt.Color(102, 102, 102));
+        txtPrecio.setText("10000");
+        txtPrecio.setBorder(null);
+        txtPrecio.setPreferredSize(new java.awt.Dimension(73, 30));
 
         jLabel9.setText("Min.");
 
@@ -239,11 +236,11 @@ public class AltaServicios extends JDialog {
                     .addComponent(scrollProd, javax.swing.GroupLayout.PREFERRED_SIZE, 363, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtPrecio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtDuracion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(cboEmpleados, javax.swing.GroupLayout.Alignment.LEADING, 0, 122, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(txtPrecio1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(44, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -263,7 +260,7 @@ public class AltaServicios extends JDialog {
                         .addGap(14, 14, 14)
                         .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtPrecio1, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                        .addComponent(txtPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
                         .addGap(4, 4, 4)))
                 .addGap(30, 30, 30)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -276,7 +273,7 @@ public class AltaServicios extends JDialog {
                 .addGap(26, 26, 26)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtPrecio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(txtDuracion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(27, 27, 27)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -307,20 +304,7 @@ public class AltaServicios extends JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombreActionPerformed
 
-    private void inicializarTablaProductos() {
-        modeloProductos = new DefaultTableModel(
-            new Object[]{"Sel.", "Nombre", "Cant."}, 0
-        ) {
-            @Override public Class<?> getColumnClass(int col) {
-                if (col == 0) return Boolean.class;
-                if (col == 2) return Double.class;
-                return Object.class;
-            }
-            @Override public boolean isCellEditable(int row, int col) { return col == 0 || col == 2; }
-        };
-        tablaProductos = new JTable(modeloProductos);
-        tablaProductos.setRowHeight(25);
-
+    private void inicializarTablaCategorias() {
         modeloCategorias = new DefaultTableModel(
             new Object[]{"Sel.", "Categoría", "Cant."}, 0
         ) {
@@ -334,34 +318,24 @@ public class AltaServicios extends JDialog {
         tablaCategorias = new JTable(modeloCategorias);
         tablaCategorias.setRowHeight(25);
 
-        // Ambas tablas apiladas verticalmente dentro de un único scrollPane
-        JPanel combinedPanel = new JPanel();
-        combinedPanel.setLayout(new BoxLayout(combinedPanel, BoxLayout.Y_AXIS));
-        combinedPanel.setBackground(Color.WHITE);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Color.WHITE);
 
-        JLabel lblProds = new JLabel("Productos específicos:");
-        lblProds.setFont(lblProds.getFont().deriveFont(Font.BOLD));
-        combinedPanel.add(lblProds);
-        combinedPanel.add(Box.createVerticalStrut(4));
-        combinedPanel.add(tablaProductos.getTableHeader());
-        combinedPanel.add(tablaProductos);
-
-        combinedPanel.add(Box.createVerticalStrut(14));
-
-        JLabel lblCats = new JLabel("Por categoría:");
+        JLabel lblCats = new JLabel("Productos por categoría:");
         lblCats.setFont(lblCats.getFont().deriveFont(Font.BOLD));
-        combinedPanel.add(lblCats);
-        combinedPanel.add(Box.createVerticalStrut(4));
-        combinedPanel.add(tablaCategorias.getTableHeader());
-        combinedPanel.add(tablaCategorias);
+        panel.add(lblCats);
+        panel.add(Box.createVerticalStrut(4));
+        panel.add(tablaCategorias.getTableHeader());
+        panel.add(tablaCategorias);
 
-        scrollProd.setViewportView(combinedPanel);
+        scrollProd.setViewportView(panel);
     }
 
     private boolean validarCampos() {
         if (
             txtNombre.getText().isEmpty() || 
-            txtPrecio.getText().isEmpty()) {
+            txtDuracion.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return false; // Indicate validation failure
@@ -410,13 +384,6 @@ public class AltaServicios extends JDialog {
     
     
     
-    private void cargarProductos() {
-        modeloProductos.setRowCount(0);
-        for (Producto p : control.traerProductos()) {
-            modeloProductos.addRow(new Object[]{false, p, 0.0});
-        }
-    }
-
     private void cargarCategorias() {
         modeloCategorias.setRowCount(0);
         for (Categoria c : control.traerCategorias()) {
@@ -424,30 +391,27 @@ public class AltaServicios extends JDialog {
         }
     }
 
-    private boolean validarProductos() {
-        if (tablaProductos.isEditing()) tablaProductos.getCellEditor().stopCellEditing();
-        for (int i = 0; i < modeloProductos.getRowCount(); i++) {
-            Boolean sel = (Boolean) modeloProductos.getValueAt(i, 0);
-            Object cantObj = modeloProductos.getValueAt(i, 2);
+    private boolean validarCategorias() {
+        if (tablaCategorias.isEditing()) tablaCategorias.getCellEditor().stopCellEditing();
+        boolean haySeleccion = false;
+        for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
+            Boolean sel = (Boolean) modeloCategorias.getValueAt(i, 0);
+            if (sel == null || !sel) continue;
+            haySeleccion = true;
+            Object cantObj = modeloCategorias.getValueAt(i, 2);
             double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
-            if (sel != null && sel && cantidad <= 0) {
+            if (cantidad <= 0) {
                 JOptionPane.showMessageDialog(this,
-                    "Si selecciona un producto, la cantidad debe ser mayor a 0.",
+                    "La cantidad de cada categoría seleccionada debe ser mayor a 0.",
                     "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
                 return false;
             }
         }
-        if (tablaCategorias.isEditing()) tablaCategorias.getCellEditor().stopCellEditing();
-        for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
-            Boolean sel = (Boolean) modeloCategorias.getValueAt(i, 0);
-            Object cantObj = modeloCategorias.getValueAt(i, 2);
-            double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
-            if (sel != null && sel && cantidad <= 0) {
-                JOptionPane.showMessageDialog(this,
-                    "Si selecciona una categoría, la cantidad debe ser mayor a 0.",
-                    "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
-                return false;
-            }
+        if (!haySeleccion) {
+            JOptionPane.showMessageDialog(this,
+                "Seleccioná al menos una categoría de productos.",
+                "Sin categorías", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
         return true;
     }
@@ -456,12 +420,8 @@ public class AltaServicios extends JDialog {
     
     private void guardarServicio() {
 
-    if (!validarCampos() || !validarProductos()) {
+    if (!validarCampos() || !validarCategorias()) {
         return;
-    }
-
-    if (tablaProductos.isEditing()) {
-        tablaProductos.getCellEditor().stopCellEditing();
     }
 
     Servicio servicio;
@@ -477,7 +437,7 @@ public class AltaServicios extends JDialog {
     double precio;
     
         try {
-            precio = Double.parseDouble(txtPrecio.getText().replace(",", "."));
+            precio = Double.parseDouble(txtDuracion.getText().replace(",", "."));
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Ingrese un número válido.");
             return; // ← aquí estaba el problema
@@ -487,7 +447,7 @@ public class AltaServicios extends JDialog {
 
         int duracion;
         try {
-            duracion = Integer.parseInt(txtPrecio1.getText().trim());
+            duracion = Integer.parseInt(txtPrecio.getText().trim());
             if (duracion <= 0) duracion = 60;
         } catch (NumberFormatException e) {
             duracion = 60;
@@ -500,24 +460,7 @@ public class AltaServicios extends JDialog {
             servicio.setEmpleado(empleadoSelec);
         }
 
-    // Productos específicos seleccionados
-    for (int i = 0; i < modeloProductos.getRowCount(); i++) {
-        Boolean sel = (Boolean) modeloProductos.getValueAt(i, 0);
-        if (sel == null || !sel) continue;
-        Object ref = modeloProductos.getValueAt(i, 1);
-        Object cantObj = modeloProductos.getValueAt(i, 2);
-        double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
-        if (cantidad <= 0) continue;
-        if (ref instanceof Producto prod) {
-            ServicioProducto sp = new ServicioProducto();
-            sp.setCantidadUsada(cantidad);
-            sp.setProducto(prod);
-            servicio.addProducto(sp);
-        }
-    }
-
-    // Categorías seleccionadas — el descuento greedy elige el producto con más stock
-    if (tablaCategorias.isEditing()) tablaCategorias.getCellEditor().stopCellEditing();
+    // Categorías seleccionadas — el descuento greedy elige el producto con más stock dentro de cada categoría
     for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
         Boolean sel = (Boolean) modeloCategorias.getValueAt(i, 0);
         if (sel == null || !sel) continue;
@@ -533,40 +476,47 @@ public class AltaServicios extends JDialog {
         }
     }
 
-    if (servEditar == null) {
-        control.guardarServicio(servicio);
-        RegistrarActividad.registrar(
-            "SERVICIOS",
-            "nuevo registro",
-            "alta",
-            null,
-            "Nombre: " + servicio.getNombre() + " | Precio: " + precio + " | Empleado: " + (empleadoSelec != null ? empleadoSelec.getNombre() + " " + empleadoSelec.getApellido() : "N/A"),
-            "ALTA"
-        );
-        JOptionPane.showMessageDialog(this,
-                "Servicio guardado correctamente.",
-                "Alta exitosa",
-                JOptionPane.INFORMATION_MESSAGE);
-    } else {
-        control.modificarServicio(servicio);
-        JOptionPane.showMessageDialog(this,
-                "Servicio modificado correctamente.",
-                "Modificación exitosa",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
+    try {
+        if (servEditar == null) {
+            control.guardarServicio(servicio);
+            RegistrarActividad.registrar(
+                "SERVICIOS",
+                "nuevo registro",
+                "alta",
+                null,
+                "Nombre: " + servicio.getNombre() + " | Precio: " + precio + " | Empleado: " + (empleadoSelec != null ? empleadoSelec.getNombre() + " " + empleadoSelec.getApellido() : "N/A"),
+                "ALTA"
+            );
+            JOptionPane.showMessageDialog(this,
+                    "Servicio guardado correctamente.",
+                    "Alta exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            control.modificarServicio(servicio);
+            JOptionPane.showMessageDialog(this,
+                    "Servicio modificado correctamente.",
+                    "Modificación exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
 
-    if (onSave != null) {
-        onSave.run();
-    }
+        if (onSave != null) {
+            onSave.run();
+        }
 
-    dispose();
+        dispose();
+    } catch (Exception e) {
+        logger.error("Error al guardar el servicio", e);
+        JOptionPane.showMessageDialog(this,
+            "Ocurrió un error al guardar el servicio.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
 }
     
     private void cargarDatosServicio() {
         txtNombre.setText(servEditar.getNombre());
-        txtPrecio.setText(String.valueOf(servEditar.getPrecio()));
+        txtDuracion.setText(String.valueOf(servEditar.getPrecio()));
         int dur = servEditar.getDuracionMinutos();
-        txtPrecio1.setText(String.valueOf(dur > 0 ? dur : 60));
+        txtPrecio.setText(String.valueOf(dur > 0 ? dur : 60));
 
         if (servEditar.getEmpleado() != null) {
             String nombreEmpleado = servEditar.getEmpleado().getNombre() + " " + servEditar.getEmpleado().getApellido();
@@ -578,25 +528,15 @@ public class AltaServicios extends JDialog {
             }
         }
 
-        // Carga filas del servicio en la tabla correspondiente según tipo
+        // Pre-selecciona las categorías ya asociadas al servicio
         for (ServicioProducto sp : servEditar.getProductos()) {
-            if (sp.getProducto() != null) {
-                for (int i = 0; i < modeloProductos.getRowCount(); i++) {
-                    Object ref = modeloProductos.getValueAt(i, 1);
-                    if (ref instanceof Producto pt && pt.getId() == sp.getProducto().getId()) {
-                        modeloProductos.setValueAt(true, i, 0);
-                        modeloProductos.setValueAt(sp.getCantidadUsada(), i, 2);
-                        break;
-                    }
-                }
-            } else if (sp.getCategoria() != null) {
-                for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
-                    Object ref = modeloCategorias.getValueAt(i, 1);
-                    if (ref instanceof Categoria ct && ct.getId() == sp.getCategoria().getId()) {
-                        modeloCategorias.setValueAt(true, i, 0);
-                        modeloCategorias.setValueAt(sp.getCantidadUsada(), i, 2);
-                        break;
-                    }
+            if (sp.getCategoria() == null) continue;
+            for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
+                Object ref = modeloCategorias.getValueAt(i, 1);
+                if (ref instanceof Categoria ct && ct.getId() == sp.getCategoria().getId()) {
+                    modeloCategorias.setValueAt(true, i, 0);
+                    modeloCategorias.setValueAt(sp.getCantidadUsada(), i, 2);
+                    break;
                 }
             }
         }
@@ -618,8 +558,8 @@ public class AltaServicios extends JDialog {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel lblCargaEmp;
     private javax.swing.JScrollPane scrollProd;
+    private javax.swing.JTextField txtDuracion;
     private javax.swing.JTextField txtNombre;
     private javax.swing.JTextField txtPrecio;
-    private javax.swing.JTextField txtPrecio1;
     // End of variables declaration//GEN-END:variables
 }

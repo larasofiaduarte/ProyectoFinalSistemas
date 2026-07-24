@@ -45,7 +45,7 @@ public class EmailService {
 
             int status = conn.getResponseCode();
             if (status == 200 || status == 201) {
-                System.out.println("Email enviado correctamente a " + toEmail);
+                logger.info("Email enviado correctamente a {}", toEmail);
                 return true;
             } else {
                 logger.warn("Error al enviar email. HTTP status: {}", status);

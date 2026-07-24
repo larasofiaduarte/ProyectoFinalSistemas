@@ -12,10 +12,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class AltaCaja extends JDialog {
-    
+
+    private static final Logger logger = LogManager.getLogger(AltaCaja.class);
     Controladora control = new Controladora();
     private Runnable onSave;
     private Caja cajaEditar;
@@ -384,39 +387,46 @@ public class AltaCaja extends JDialog {
             return;
         }
 
-        if (cajaEditar == null) {
-            // MODO ALTA
-            
-            control.guardarConcepto(tipo, precio, medio,fechafinal, detalle);
-            
-            RegistrarActividad.registrar(
-                "caja",
-                "nuevo registro",
-                "alta",
-                null,
-                "Tipo: " + tipo + " | Monto: " + precio + " | Medio: " + medio,
-                "ALTA"
-            );
-            JOptionPane.showMessageDialog(this, "Concepto creado correctamente.");
-        } else {
-            // MODO MODIFICAR
-            cajaEditar.setFecha(fechafinal);
+        try {
+            if (cajaEditar == null) {
+                // MODO ALTA
 
-            control.modificarConcepto(cajaEditar,tipo,precio,medio,detalle);
-            
-            RegistrarActividad.registrar(
-                "caja",
-                "ID: " + cajaEditar.getId(),
-                "modificacion",
-                "Tipo: " + cajaEditar.getTipo() + " | Monto: " + cajaEditar.getMonto(),
-                "Tipo: " + tipo + " | Monto: " + precio + " | Medio: " + medio,
-                "EDICION"
-            );
-            JOptionPane.showMessageDialog(this, "Concepto modificado correctamente.");
+                control.guardarConcepto(tipo, precio, medio,fechafinal, detalle);
+
+                RegistrarActividad.registrar(
+                    "caja",
+                    "nuevo registro",
+                    "alta",
+                    null,
+                    "Tipo: " + tipo + " | Monto: " + precio + " | Medio: " + medio,
+                    "ALTA"
+                );
+                JOptionPane.showMessageDialog(this, "Concepto creado correctamente.");
+            } else {
+                // MODO MODIFICAR
+                cajaEditar.setFecha(fechafinal);
+
+                control.modificarConcepto(cajaEditar,tipo,precio,medio,detalle);
+
+                RegistrarActividad.registrar(
+                    "caja",
+                    "ID: " + cajaEditar.getId(),
+                    "modificacion",
+                    "Tipo: " + cajaEditar.getTipo() + " | Monto: " + cajaEditar.getMonto(),
+                    "Tipo: " + tipo + " | Monto: " + precio + " | Medio: " + medio,
+                    "EDICION"
+                );
+                JOptionPane.showMessageDialog(this, "Concepto modificado correctamente.");
+            }
+
+            onSave.run();
+            dispose();
+        } catch (Exception e) {
+            logger.error("Error al guardar el concepto de caja", e);
+            JOptionPane.showMessageDialog(this,
+                "Ocurrió un error al guardar el concepto.",
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        onSave.run();
-        dispose();
     }
     
     

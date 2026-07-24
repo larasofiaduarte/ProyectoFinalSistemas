@@ -1,8 +1,17 @@
 -- ============================================================
 -- MIGRACIÓN: String categoria/unidad → entidad Categoria (FK)
--- Ejecutar DESPUÉS de iniciar la app una vez (EclipseLink crea
--- la tabla `categoria` y las columnas `categoria_id` solas).
+-- Puede ejecutarse antes o después de iniciar la app.
+-- CREATE TABLE IF NOT EXISTS garantiza idempotencia.
 -- ============================================================
+
+-- 0. Crear tabla si aún no existe (fallback si EclipseLink no la generó)
+CREATE TABLE IF NOT EXISTS categoria (
+    id      INT          NOT NULL AUTO_INCREMENT,
+    nombre  VARCHAR(255) NOT NULL,
+    unidad  VARCHAR(50)  NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_categoria_nombre (nombre)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 1. Insertar categorías base (equivalentes a CategoriaOptions.OPCIONES)
 INSERT IGNORE INTO categoria (nombre, unidad) VALUES
