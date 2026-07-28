@@ -23,8 +23,11 @@ public class Turno {
     @ManyToOne
     @JoinColumn(name="Cliente")
     private Cliente cliente;
-    @ManyToOne
-    @JoinColumn(name="Servicio")
+    // Un Turno SIEMPRE debe tener un Servicio válido — nunca se setea null. Al borrar un
+    // Servicio con turnos asociados, esos turnos se reasignan a otro Servicio o se eliminan
+    // físicamente (ver ServicioJpaController.deleteAndReassignTurnos / deleteAndRemoveTurnos).
+    @ManyToOne(optional = false)
+    @JoinColumn(name="Servicio", nullable = false)
     private Servicio servicio;
     @Column(nullable = false)
     private String estado;

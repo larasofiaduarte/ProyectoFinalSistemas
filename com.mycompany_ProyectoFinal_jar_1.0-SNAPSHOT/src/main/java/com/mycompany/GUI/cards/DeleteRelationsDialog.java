@@ -117,6 +117,12 @@ public class DeleteRelationsDialog extends JDialog {
 
             optPanel.add(Box.createVerticalStrut(8));
             optPanel.add(cbItems);
+
+            // Sin alternativas reales (y sin "+Nuevo..." para crear una), la opción B
+            // no es viable: no dejar que el usuario la elija para después toparse con un combo vacío.
+            if (comboItems.isEmpty() && onNuevo == null) {
+                rbB.setEnabled(false);
+            }
         }
 
         root.add(optPanel, BorderLayout.CENTER);

@@ -196,49 +196,10 @@ public class TurnoJpaController {
         }
     }
 
-    public void cancelByServicio(int servicioId) {
-        EntityManager em = null;
-        EntityTransaction tx = null;
-        try {
-            em = emf.createEntityManager();
-            tx = em.getTransaction();
-            tx.begin();
-            em.createQuery(
-                "UPDATE Turno t SET t.estado = 'CANCELADO' WHERE t.servicio.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')")
-                .setParameter("id", servicioId)
-                .executeUpdate();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null && tx.isActive()) tx.rollback();
-            logger.error("Error cancelando turnos por servicio", e);
-            throw new RuntimeException("Error cancelling turnos by servicio", e);
-        } finally {
-            if (em != null) em.close();
-        }
-    }
-
-    public void reassignServicio(int fromServiceId, int toServiceId) {
-        EntityManager em = null;
-        EntityTransaction tx = null;
-        try {
-            em = emf.createEntityManager();
-            tx = em.getTransaction();
-            tx.begin();
-            Servicio nuevo = em.getReference(Servicio.class, toServiceId);
-            em.createQuery(
-                "UPDATE Turno t SET t.servicio = :nuevo WHERE t.servicio.id = :id")
-                .setParameter("nuevo", nuevo)
-                .setParameter("id", fromServiceId)
-                .executeUpdate();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null && tx.isActive()) tx.rollback();
-            logger.error("Error reasignando servicio en turnos", e);
-            throw new RuntimeException("Error reassigning servicio on turnos", e);
-        } finally {
-            if (em != null) em.close();
-        }
-    }
+    // cancelByServicio / reassignServicio se reemplazaron por ServicioJpaController
+    // .deleteAndCancelTurnos / .deleteAndReassignTurnos: la actualización de turnos y el borrado
+    // del servicio ahora corren en UNA sola transacción (no dos EntityManager/commits separados),
+    // para que no pueda quedar un estado intermedio si algo falla a mitad de camino.
 
     public List<Turno> findActiveByCliente(int clienteId) {
         EntityManager em = emf.createEntityManager();

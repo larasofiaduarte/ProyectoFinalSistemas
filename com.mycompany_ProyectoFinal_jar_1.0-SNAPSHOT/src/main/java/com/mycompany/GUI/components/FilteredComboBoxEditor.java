@@ -22,6 +22,8 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
     private Object lastValid;
     private boolean suppress = false;
     private JTable currentTable;
+    private String emptyLabel = "";
+    private String emptyTooltip = null;
 
     public FilteredComboBoxEditor(List<T> items, Function<T, String> label,
                                   Function<T, Integer> idOf,
@@ -167,11 +169,33 @@ public class FilteredComboBoxEditor<T> extends AbstractCellEditor implements Tab
         return super.stopCellEditing();
     }
 
+    /**
+     * Configura cómo se muestra una celda con valor null (ej. FK huérfana tras borrar
+     * la entidad referenciada). Por defecto se muestra en blanco, sin tooltip.
+     */
+    public FilteredComboBoxEditor<T> withEmptyDisplay(String label, String tooltip) {
+        this.emptyLabel = label;
+        this.emptyTooltip = tooltip;
+        return this;
+    }
+
     public TableCellRenderer getRenderer() {
         return new DefaultTableCellRenderer() {
             @Override
             protected void setValue(Object value) {
-                if (value == null) { setText(""); return; }
+                setToolTipText(null);
+                if (value == null) {
+                    // TODO: sin color por ahora — DefaultTableCellRenderer.setForeground() cachea el
+                    // color en su campo interno unselectedForeground y esta MISMA instancia de renderer
+                    // se reusa para todas las filas de la columna, así que "pintar" acá deja el resto
+                    // de las celdas (no nulas) grises también. Reintroducir con un renderer no compartido
+                    // por fila, o reseteando explícitamente el foreground por defecto en la rama != null.
+                    setText(emptyLabel);
+                    if (!emptyLabel.isEmpty()) {
+                        setToolTipText(emptyTooltip);
+                    }
+                    return;
+                }
                 if (value instanceof String) { setText((String) value); return; }
                 try {
                     @SuppressWarnings("unchecked")

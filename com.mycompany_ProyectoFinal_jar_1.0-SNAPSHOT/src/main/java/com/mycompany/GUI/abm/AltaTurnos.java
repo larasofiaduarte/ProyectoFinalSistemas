@@ -80,7 +80,18 @@ public class AltaTurnos extends JDialog {
     }
     
     private void cargarDatosTurno(){
-        cboServicio.setSelectedItem(turnoEditar.getServicio().getNombre());
+        if (turnoEditar.getServicio() != null) {
+            cboServicio.setSelectedItem(turnoEditar.getServicio().getNombre());
+        } else {
+            // El servicio original fue eliminado (FK quedó null) — no preseleccionar nada
+            // real en su lugar; el usuario debe elegir uno nuevo antes de poder guardar.
+            cboServicio.setSelectedIndex(-1);
+            cboServicio.setBorder(BorderFactory.createLineBorder(Styles.accentNotif, 2));
+            JOptionPane.showMessageDialog(this,
+                "Este turno tenía un servicio que fue eliminado. Debes seleccionar uno nuevo.",
+                "Servicio no seleccionado",
+                JOptionPane.WARNING_MESSAGE);
+        }
         cboEstado.setSelectedItem(turnoEditar.getEstado());
         cboClientes.setSelectedItem(turnoEditar.getCliente().getNombre()+" "+turnoEditar.getCliente().getApellido());
         txtDetalle.setText(turnoEditar.getDetalle());
@@ -505,6 +516,7 @@ public class AltaTurnos extends JDialog {
         String servicioStr = (String) cboServicio.getSelectedItem();
         Servicio serv = guardarServicio(servicioStr);
         if (serv != null) {
+            cboServicio.setBorder(UIManager.getBorder("ComboBox.border")); // limpia el resaltado de advertencia si estaba
             cboEmpleado.setEnabled(true);
             Usuario defEmpleado = serv.getEmpleado();
             if (defEmpleado != null) {

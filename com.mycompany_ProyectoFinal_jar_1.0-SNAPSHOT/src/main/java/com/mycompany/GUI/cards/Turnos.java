@@ -225,7 +225,7 @@ public class Turnos extends MainPanelBase{
                     d.setLocationRelativeTo(this);
                     d.setVisible(true);
                 }
-            );
+            ).withEmptyDisplay("No seleccionado", "El servicio original fue eliminado");
             table.getColumnModel().getColumn(colServicio).setCellEditor(servicioEditor);
             table.getColumnModel().getColumn(colServicio).setCellRenderer(servicioEditor.getRenderer());
 

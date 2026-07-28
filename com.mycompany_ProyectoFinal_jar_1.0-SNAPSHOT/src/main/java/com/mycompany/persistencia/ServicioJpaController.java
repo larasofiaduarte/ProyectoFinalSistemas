@@ -5,6 +5,7 @@
 package com.mycompany.persistencia;
 
 import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.Turno;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -138,7 +139,76 @@ public class ServicioJpaController implements Serializable {
             }
         }
     }
-    
+
+    /**
+     * Elimina físicamente TODOS los turnos que referencian el servicio y borra el servicio —
+     * todo en una única transacción. No se usa NULL en ningún momento: Turno.servicio es NOT NULL
+     * (tanto en la entidad como en la base) y esta operación lo respeta borrando las filas en vez
+     * de desvincularlas.
+     */
+    public void deleteAndRemoveTurnos(int servicioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+
+            em.createQuery("DELETE FROM Turno t WHERE t.servicio.id = :id")
+                .setParameter("id", servicioId)
+                .executeUpdate();
+
+            Servicio servicio = em.getReference(Servicio.class, servicioId);
+            em.remove(servicio);
+
+            tx.commit();
+            // El DELETE por JPQL va directo a la base y no invalida el caché compartido de
+            // EclipseLink por sí solo — sin este evict, una lectura posterior (incluso desde otro
+            // EntityManager) puede devolver instancias de Turno ya borradas desde el caché.
+            emf.getCache().evict(Turno.class);
+            emf.getCache().evict(Servicio.class);
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error eliminando turnos y servicio", e);
+            throw new RuntimeException("Error deleting turnos and servicio", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    /**
+     * Reasigna todos los turnos del servicio a otro servicio y borra el original —
+     * todo en una única transacción, mismo motivo que deleteAndCancelTurnos.
+     */
+    public void deleteAndReassignTurnos(int servicioId, int nuevoServicioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+
+            Servicio nuevo = em.getReference(Servicio.class, nuevoServicioId);
+            em.createQuery("UPDATE Turno t SET t.servicio = :nuevo WHERE t.servicio.id = :id")
+                .setParameter("nuevo", nuevo)
+                .setParameter("id", servicioId)
+                .executeUpdate();
+
+            Servicio servicio = em.getReference(Servicio.class, servicioId);
+            em.remove(servicio);
+
+            tx.commit();
+            emf.getCache().evict(Turno.class);
+            emf.getCache().evict(Servicio.class);
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error reasignando turnos y eliminando servicio", e);
+            throw new RuntimeException("Error reassigning turnos and deleting servicio", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
     public List<Servicio> findByEmpleado(int usuarioId) {
         EntityManager em = emf.createEntityManager();
         try {

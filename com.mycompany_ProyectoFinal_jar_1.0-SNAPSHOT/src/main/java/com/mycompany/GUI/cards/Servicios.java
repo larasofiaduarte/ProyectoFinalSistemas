@@ -198,12 +198,23 @@ public class Servicios extends MainPanelBase {
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        DeleteWithRelationsHandler.handleDeleteServicio(this, id, () ->
-            JOptionPane.showMessageDialog(this, "Servicio borrado correctamente.",
-                    "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE)
-        );
-
-        cargarTabla();
+        // El refresco de tabla vive DENTRO de onSuccess: antes se llamaba a cargarTabla()
+        // incondicionalmente después de handleDeleteServicio(...), así que si el borrado
+        // fallaba (excepción no capturada) o el usuario cancelaba, cargarTabla() nunca se
+        // ejecutaba y la tabla quedaba con datos viejos hasta reiniciar la app.
+        try {
+            DeleteWithRelationsHandler.handleDeleteServicio(this, id, () -> {
+                table.clearSelection();
+                cargarTabla();
+                ventana.recargarTurnos(); // los turnos de este servicio pudieron cancelarse/reasignarse
+                JOptionPane.showMessageDialog(this, "Servicio borrado correctamente.",
+                        "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE);
+            });
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Ocurrió un error al eliminar el servicio.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     // private void modificarServicio() { // disabled — editing is handled inline
