@@ -65,7 +65,7 @@ public class ProductosSelectorDialog extends JDialog {
 
         btnNuevo.addActionListener(e -> {
             Map<Integer, Double> current = captureCurrentState();
-            AltaProductos d = new AltaProductos((Frame) getOwner(), true, () -> {});
+            AltaProductos d = new AltaProductos((Frame) getOwner(), true, ventana::recargarInventario);
             d.setLocationRelativeTo(this);
             d.setVisible(true);
             allProductos = control.traerProductos();

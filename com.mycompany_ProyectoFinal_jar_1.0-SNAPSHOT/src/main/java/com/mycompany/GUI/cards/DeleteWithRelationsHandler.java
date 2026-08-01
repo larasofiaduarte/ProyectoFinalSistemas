@@ -1,6 +1,8 @@
 package com.mycompany.GUI.cards;
 
+import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.AltaProveedores;
+import com.mycompany.GUI.abm.AltaServicios;
 import com.mycompany.persistencia.ClienteJpaController;
 import com.mycompany.persistencia.ProductoJpaController;
 import com.mycompany.persistencia.ProveedorJpaController;
@@ -16,6 +18,7 @@ import com.mycompany.proyectofinal.ServicioProducto;
 import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Usuario;
 import com.mycompany.proyectofinal.util.DeleteWarningService;
+import com.mycompany.proyectofinal.util.DialogUtil;
 import com.mycompany.proyectofinal.util.EntityType;
 import com.mycompany.proyectofinal.util.RelationType;
 import java.awt.Component;
@@ -67,7 +70,11 @@ public class DeleteWithRelationsHandler {
                 otros,
                 obj -> ((Proveedor) obj).getNombre(),
                 () -> {
-                    AltaProveedores alta = new AltaProveedores(frame, true, () -> {});
+                    // frame es la Ventana principal (findFrame sube por los owner hasta el JFrame
+                    // raíz) — si el "Nuevo Proveedor" se guarda, refresca la pantalla de Proveedores
+                    // aunque esté abierta en otra pestaña/card, igual que el resto de los dropdowns.
+                    Runnable onNuevoSave = frame instanceof Ventana v ? v::recargarProveedores : () -> {};
+                    AltaProveedores alta = new AltaProveedores(frame, true, onNuevoSave);
                     alta.setLocationRelativeTo(window);
                     alta.setVisible(true);
                 },
@@ -119,16 +126,32 @@ public class DeleteWithRelationsHandler {
         List<Servicio> otros = serJpa.findServicioEntities().stream()
                 .filter(s -> s.getId() != servicioId).collect(Collectors.toList());
 
+        // "Eliminar turnos" borra las filas físicamente (Turno.servicio nunca es null) — el mensaje
+        // deja eso explícito porque las dos opciones ya no son igual de reversibles: reasignar
+        // conserva los turnos, eliminar los destruye para siempre.
         String msg = htmlWrap(DeleteWarningService.buildMessage(
-                EntityType.SERVICIO, relaciones, "¿Qué desea hacer con los turnos?"));
+                EntityType.SERVICIO, relaciones, "¿Qué desea hacer con los turnos?")
+                + "<br><br>Si elige <b>Eliminar turnos</b>, los turnos asociados se borrarán "
+                + "de forma permanente y esta acción no se podrá deshacer. Si prefiere conservarlos, "
+                + "use <b>Reasignar a otro servicio</b>.");
 
         Window window = SwingUtilities.getWindowAncestor(parent);
+        Frame frame = findFrame(window);
         DeleteRelationsDialog dialog = new DeleteRelationsDialog(
                 window, msg,
-                "Cancelar turnos",
+                "Eliminar turnos",
                 "Reasignar a otro servicio",
                 otros,
-                obj -> ((Servicio) obj).getNombre()
+                obj -> ((Servicio) obj).getNombre(),
+                () -> {
+                    Runnable onNuevoSave = frame instanceof Ventana v ? v::recargarServicios : () -> {};
+                    AltaServicios alta = new AltaServicios(frame, true, onNuevoSave);
+                    alta.setLocationRelativeTo(window);
+                    alta.setVisible(true);
+                },
+                () -> serJpa.findServicioEntities().stream()
+                        .filter(s -> s.getId() != servicioId)
+                        .collect(Collectors.toList())
         );
         dialog.setVisible(true);
 
@@ -136,8 +159,13 @@ public class DeleteWithRelationsHandler {
 
         // Reasignar/eliminar turnos + borrar el servicio corre en UNA transacción (ver
         // ServicioJpaController) — nunca queda un estado intermedio a mitad de camino.
-        // "Cancelar turnos" acá significa eliminarlos físicamente (Turno.servicio nunca es null).
         if (dialog.getChoice() == DeleteRelationsDialog.Choice.A) {
+            // Segunda confirmación obligatoria: esta rama borra turnos de forma permanente e
+            // irreversible, así que no alcanza con la elección ya hecha en el diálogo anterior.
+            boolean confirmaBorrado = confirmar(parent,
+                    "¿Está seguro que desea eliminar permanentemente los turnos relacionados? "
+                    + "Esta acción no se puede deshacer.");
+            if (!confirmaBorrado) return;
             serJpa.deleteAndRemoveTurnos(servicioId);
         } else {
             Servicio nuevo = (Servicio) dialog.getSelectedItem();
@@ -298,8 +326,7 @@ public class DeleteWithRelationsHandler {
     // Helpers
     // -------------------------------------------------------------------------
     private static boolean confirmar(Component parent, String msg) {
-        return JOptionPane.showConfirmDialog(parent, msg,
-                "Confirmar eliminación", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        return DialogUtil.confirmar(parent, msg, "Confirmar eliminación");
     }
 
     private static void showError(Component parent, String msg) {

@@ -102,20 +102,22 @@ public class AltaServicios extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     txtNombre.setText("");
+                    txtPrecio.setText("");
                     txtDuracion.setText("");
                     cboEmpleados.setSelectedIndex(-1);
                     //cboProductos.setSelectedIndex(-1);
                 }
         });
-        
+
         btnCerrar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dispose();
                 }
         });
-        
-        txtDuracion.addKeyListener(new KeyAdapter() {
+
+        // Precio admite decimales; Duración es un entero de minutos (ver parseInt en guardarServicio).
+        txtPrecio.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
@@ -125,7 +127,16 @@ public class AltaServicios extends JDialog {
                 }
             }
         });
-        
+
+        txtDuracion.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) return;
+                if (!Character.isDigit(c)) e.consume();
+            }
+        });
+
     }
     
     
@@ -334,7 +345,8 @@ public class AltaServicios extends JDialog {
 
     private boolean validarCampos() {
         if (
-            txtNombre.getText().isEmpty() || 
+            txtNombre.getText().isEmpty() ||
+            txtPrecio.getText().isEmpty() ||
             txtDuracion.getText().isEmpty()) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
@@ -391,13 +403,13 @@ public class AltaServicios extends JDialog {
         }
     }
 
+    // Productos/categorías son opcionales: un Servicio puede crearse sin ninguna seleccionada.
+    // Solo se valida que, SI se seleccionó una categoría, tenga una cantidad > 0 cargada.
     private boolean validarCategorias() {
         if (tablaCategorias.isEditing()) tablaCategorias.getCellEditor().stopCellEditing();
-        boolean haySeleccion = false;
         for (int i = 0; i < modeloCategorias.getRowCount(); i++) {
             Boolean sel = (Boolean) modeloCategorias.getValueAt(i, 0);
             if (sel == null || !sel) continue;
-            haySeleccion = true;
             Object cantObj = modeloCategorias.getValueAt(i, 2);
             double cantidad = cantObj instanceof Number ? ((Number) cantObj).doubleValue() : 0;
             if (cantidad <= 0) {
@@ -406,12 +418,6 @@ public class AltaServicios extends JDialog {
                     "Cantidad inválida", JOptionPane.WARNING_MESSAGE);
                 return false;
             }
-        }
-        if (!haySeleccion) {
-            JOptionPane.showMessageDialog(this,
-                "Seleccioná al menos una categoría de productos.",
-                "Sin categorías", JOptionPane.WARNING_MESSAGE);
-            return false;
         }
         return true;
     }
@@ -435,9 +441,9 @@ public class AltaServicios extends JDialog {
     
     //validar precio
     double precio;
-    
+
         try {
-            precio = Double.parseDouble(txtDuracion.getText().replace(",", "."));
+            precio = Double.parseDouble(txtPrecio.getText().replace(",", "."));
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Ingrese un número válido.");
             return; // ← aquí estaba el problema
@@ -447,7 +453,7 @@ public class AltaServicios extends JDialog {
 
         int duracion;
         try {
-            duracion = Integer.parseInt(txtPrecio.getText().trim());
+            duracion = Integer.parseInt(txtDuracion.getText().trim());
             if (duracion <= 0) duracion = 60;
         } catch (NumberFormatException e) {
             duracion = 60;
@@ -514,9 +520,9 @@ public class AltaServicios extends JDialog {
     
     private void cargarDatosServicio() {
         txtNombre.setText(servEditar.getNombre());
-        txtDuracion.setText(String.valueOf(servEditar.getPrecio()));
+        txtPrecio.setText(String.valueOf(servEditar.getPrecio()));
         int dur = servEditar.getDuracionMinutos();
-        txtPrecio.setText(String.valueOf(dur > 0 ? dur : 60));
+        txtDuracion.setText(String.valueOf(dur > 0 ? dur : 60));
 
         if (servEditar.getEmpleado() != null) {
             String nombreEmpleado = servEditar.getEmpleado().getNombre() + " " + servEditar.getEmpleado().getApellido();

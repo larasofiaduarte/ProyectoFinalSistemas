@@ -16,6 +16,7 @@ import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.util.ReportManager;
+import com.mycompany.proyectofinal.util.DialogUtil;
 import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Usuario;
 import java.util.List;
@@ -136,12 +137,11 @@ public class Turnos extends MainPanelBase{
 
             // Si el turno pasa de Finalizado a otro estado y ya descontó stock, confirma antes de continuar
             if (eraFinalizado && !ahoraFinalizado && dbTurno != null && dbTurno.isStockDescontado()) {
-                int confirmStock = JOptionPane.showConfirmDialog(
+                boolean confirmStock = DialogUtil.confirmar(
                     SwingUtilities.getWindowAncestor(Turnos.this),
                     "Este turno ya descontó stock. ¿Deseas restaurarlo?",
-                    "Restaurar stock",
-                    JOptionPane.YES_NO_OPTION);
-                if (confirmStock != JOptionPane.YES_OPTION) {
+                    "Restaurar stock");
+                if (!confirmStock) {
                     cargarTabla(); // Cancela el cambio y recarga la tabla original
                     return;
                 }
@@ -172,12 +172,11 @@ public class Turnos extends MainPanelBase{
                 // Finalizado → Pendiente: restaura stock y ofrece eliminar el ingreso de caja
                 control.revertirStockProductos(t);
                 ventana.recargarInventario();
-                int confirm = JOptionPane.showConfirmDialog(
+                boolean confirm = DialogUtil.confirmar(
                     SwingUtilities.getWindowAncestor(Turnos.this),
                     "¿Desea eliminar el ingreso registrado en Caja para este turno?",
-                    "Revertir finalización",
-                    JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
+                    "Revertir finalización");
+                if (confirm) {
                     control.deleteCajaByTurnoId(t.getId());
                     ventana.recargarCaja();
                 }
@@ -207,7 +206,7 @@ public class Turnos extends MainPanelBase{
                 Cliente::getId,
                 control::traerClientes,
                 () -> {
-                    AltaClientes d = new AltaClientes(ventana, true, () -> {});
+                    AltaClientes d = new AltaClientes(ventana, true, ventana::recargarClientes);
                     d.setLocationRelativeTo(this);
                     d.setVisible(true);
                 }
@@ -221,7 +220,7 @@ public class Turnos extends MainPanelBase{
                 Servicio::getId,
                 control::traerServicios,
                 () -> {
-                    AltaServicios d = new AltaServicios(ventana, true, () -> {});
+                    AltaServicios d = new AltaServicios(ventana, true, ventana::recargarServicios);
                     d.setLocationRelativeTo(this);
                     d.setVisible(true);
                 }
@@ -235,7 +234,7 @@ public class Turnos extends MainPanelBase{
                 Usuario::getId,
                 control::traerUsuarios,
                 () -> {
-                    AltaEmpleados d = new AltaEmpleados(ventana, true, () -> {});
+                    AltaEmpleados d = new AltaEmpleados(ventana, true, ventana::recargarUsuarios);
                     d.setLocationRelativeTo(this);
                     d.setVisible(true);
                 }
@@ -247,6 +246,7 @@ public class Turnos extends MainPanelBase{
             JComboBox<String> estadoCombo = new JComboBox<>();
             estadoCombo.addItem("Pendiente");
             estadoCombo.addItem("Finalizado");
+            estadoCombo.addItem("Cancelado");
             table.getColumnModel().getColumn(colEstado).setCellEditor(new DefaultCellEditor(estadoCombo));
         });
     }
@@ -279,14 +279,13 @@ public class Turnos extends MainPanelBase{
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(
+        boolean confirm = DialogUtil.confirmar(
                 this,
                 "¿Está seguro que desea eliminar este turno?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
+                "Confirmar eliminación"
         );
 
-        if (confirm != JOptionPane.YES_OPTION) {
+        if (!confirm) {
             return;
         }
 

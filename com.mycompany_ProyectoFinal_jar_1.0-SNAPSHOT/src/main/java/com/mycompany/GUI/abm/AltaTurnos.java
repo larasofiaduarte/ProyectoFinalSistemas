@@ -7,6 +7,7 @@ package com.mycompany.GUI.abm;
 import com.mycompany.GUI.*;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
+import com.mycompany.proyectofinal.util.DialogUtil;
 import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Cliente;
 import java.awt.event.ActionEvent;
@@ -193,11 +194,10 @@ public class AltaTurnos extends JDialog {
                 }
                 control.descontarStockProductos(turnoEditar);
             } else if (eraFinalizado && !ahoraFinalizado) {
-                int confirm = JOptionPane.showConfirmDialog(this,
+                boolean confirm = DialogUtil.confirmar(this,
                     "¿Desea eliminar el ingreso registrado en Caja para este turno?",
-                    "Revertir finalización",
-                    JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
+                    "Revertir finalización");
+                if (confirm) {
                     control.deleteCajaByTurnoId(turnoEditar.getId());
                 }
             }
@@ -306,7 +306,7 @@ public class AltaTurnos extends JDialog {
 
         jLabel5.setText("Estado*");
 
-        cboEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pendiente", "Finalizado" }));
+        cboEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pendiente", "Finalizado", "Cancelado" }));
 
         jLabel6.setText("Detalle");
 

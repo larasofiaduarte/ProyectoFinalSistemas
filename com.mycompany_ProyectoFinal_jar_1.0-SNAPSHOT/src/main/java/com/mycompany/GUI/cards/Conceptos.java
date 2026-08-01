@@ -6,6 +6,7 @@ package com.mycompany.GUI.cards;
 
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
+import com.mycompany.proyectofinal.util.DialogUtil;
 import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
@@ -193,14 +194,13 @@ public class Conceptos extends MainPanelBase {
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(
+        boolean confirm = DialogUtil.confirmar(
                 this,
                 "¿Está seguro que desea eliminar este registro?",
-                "Confirmar eliminación",
-                JOptionPane.YES_NO_OPTION
+                "Confirmar eliminación"
         );
 
-        if (confirm != JOptionPane.YES_OPTION) {
+        if (!confirm) {
             return;
         }
 

@@ -64,7 +64,7 @@ public class Servicios extends MainPanelBase {
         });
     }
     
-    private void cargarTabla(){
+    public void cargarTabla(){
         // data from DB
         java.util.List<Servicio> servicios = control.traerServicios();
 
@@ -163,7 +163,7 @@ public class Servicios extends MainPanelBase {
                 Usuario::getId,
                 control::traerUsuarios,
                 () -> {
-                    AltaEmpleados d = new AltaEmpleados(ventana, true, () -> {});
+                    AltaEmpleados d = new AltaEmpleados(ventana, true, ventana::recargarUsuarios);
                     d.setLocationRelativeTo(this);
                     d.setVisible(true);
                 }

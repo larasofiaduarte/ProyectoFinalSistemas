@@ -173,7 +173,7 @@ public class Inventario extends MainPanelBase {
                 Proveedor::getId,
                 control::traerProveedores,
                 () -> {
-                    AltaProveedores d = new AltaProveedores(ventana, true, () -> {});
+                    AltaProveedores d = new AltaProveedores(ventana, true, ventana::recargarProveedores);
                     d.setLocationRelativeTo(this);
                     d.setVisible(true);
                 }

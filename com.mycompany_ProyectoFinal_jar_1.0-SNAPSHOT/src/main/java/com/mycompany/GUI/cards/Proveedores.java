@@ -46,7 +46,7 @@ public class Proveedores extends MainPanelBase {
         enableUltimoModificadoSort(control, "PROVEEDORES");
     }
     
-    private void cargarTabla(){
+    public void cargarTabla(){
         // data from DB
         List<Proveedor> proveedores = control.traerProveedores();
 

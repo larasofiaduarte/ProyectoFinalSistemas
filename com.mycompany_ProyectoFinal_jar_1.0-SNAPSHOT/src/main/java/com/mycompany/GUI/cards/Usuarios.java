@@ -7,6 +7,7 @@ package com.mycompany.GUI.cards;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.proyectofinal.util.NumberVerifier;
+import com.mycompany.proyectofinal.util.DialogUtil;
 import java.util.Map;
 import java.awt.*;
 import javax.swing.*;
@@ -134,14 +135,13 @@ public class Usuarios extends MainPanelBase {
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(
+        boolean confirm = DialogUtil.confirmar(
             this,
             "¿Está seguro que desea eliminar este usuario?",
-            "Confirmar eliminación",
-            JOptionPane.YES_NO_OPTION
+            "Confirmar eliminación"
         );
 
-        if (confirm != JOptionPane.YES_OPTION) return;
+        if (!confirm) return;
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();

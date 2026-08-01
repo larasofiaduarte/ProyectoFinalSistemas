@@ -13,10 +13,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import com.mycompany.GUI.Ventana;
+import java.util.Locale;
 
 public class ProyectoFinal {
 
     public static void main(String[] args) {
+        // Los botones por defecto de JOptionPane (Sí/No/Aceptar/Cancelar) salen del bundle de
+        // recursos de Swing según el locale por defecto de la JVM — sin esto, salían en inglés
+        // (Yes/No/OK/Cancel). Debe ir ANTES de crear cualquier componente Swing/AWT.
+        Locale.setDefault(new Locale("es", "AR"));
+
         // Inicializa el runtime de JavaFX antes de cualquier componente Swing que lo use
         Platform.startup(() -> {});
 

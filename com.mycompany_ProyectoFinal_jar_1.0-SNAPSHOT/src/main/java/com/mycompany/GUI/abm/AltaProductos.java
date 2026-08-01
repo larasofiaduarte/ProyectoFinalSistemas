@@ -1,6 +1,7 @@
 
 package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
+import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Controladora;
@@ -493,7 +494,11 @@ public class AltaProductos extends JDialog{
             if (NUEVA_PROV_OPCION.equals(cboProv.getSelectedItem())) {
                 cboProv.hidePopup();
                 Frame parent = (Frame) SwingUtilities.getWindowAncestor(cboProv);
-                AltaProveedores dialog = new AltaProveedores(parent, true, () -> {});
+                // AltaProductos.this.getOwner() es la Ventana principal que abrió este diálogo —
+                // si el nuevo proveedor se guarda, refresca la pantalla de Proveedores también.
+                Window owner = AltaProductos.this.getOwner();
+                Runnable onNuevoSave = owner instanceof Ventana v ? v::recargarProveedores : () -> {};
+                AltaProveedores dialog = new AltaProveedores(parent, true, onNuevoSave);
                 dialog.setLocationRelativeTo(AltaProductos.this);
                 dialog.setVisible(true);
                 recargarProveedores();

@@ -1,2 +1,17 @@
-2026-07-28 15:35:46 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
-2026-07-28 15:35:54 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 4 turno(s) para admin
+2026-07-31 13:10:53 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 13:11:01 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 3 turno(s) para admin
+2026-07-31 13:19:30 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 13:19:36 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 3 turno(s) para admin
+2026-07-31 13:41:23 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 13:41:30 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 3 turno(s) para admin
+2026-07-31 18:33:27 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 18:33:34 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 2 turno(s) para admin
+2026-07-31 18:34:03 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.Controladora - [Turno] Creado: servicio=Corte Femenino, empleado=Maria
+2026-07-31 22:30:34 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 22:30:38 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 2 turno(s) para admin
+2026-07-31 22:58:34 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 22:58:38 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 2 turno(s) para admin
+2026-07-31 23:07:53 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 23:07:57 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 2 turno(s) para admin
+2026-07-31 23:19:46 [AWT-EventQueue-0] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-07-31 23:19:50 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 2 turno(s) para admin

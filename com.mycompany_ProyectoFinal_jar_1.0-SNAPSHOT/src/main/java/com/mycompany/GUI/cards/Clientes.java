@@ -51,7 +51,7 @@ public class Clientes extends MainPanelBase {
         enableUltimoModificadoSort(control, "CLIENTES");
     }
 
-    private void cargarTabla() {
+    public void cargarTabla() {
         List<Cliente> clientes = control.traerClientes();
         logger.debug("Clientes loaded: {}", clientes.size());
 
