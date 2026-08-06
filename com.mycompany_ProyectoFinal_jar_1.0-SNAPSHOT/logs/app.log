@@ -184,3 +184,19 @@
 2026-08-06 17:33:53 [main] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
 2026-08-06 17:34:09 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] GET /turnos?start=2026-07-26T00%3A00%3A00-03%3A00&end=2026-09-06T00%3A00%3A00-03%3A00 desde /127.0.0.1:64298
 2026-08-06 17:34:09 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 0 turno(s) para admin
+2026-08-06 17:43:47 [main] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-08-06 17:43:59 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] GET /turnos?start=2026-07-26T00%3A00%3A00-03%3A00&end=2026-09-06T00%3A00%3A00-03%3A00 desde /127.0.0.1:57836
+2026-08-06 17:44:00 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 0 turno(s) para admin
+2026-08-06 17:47:57 [main] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Escuchando en http://localhost:8080/turnos
+2026-08-06 17:48:13 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] GET /turnos?start=2026-07-26T00%3A00%3A00-03%3A00&end=2026-09-06T00%3A00%3A00-03%3A00 desde /127.0.0.1:64660
+2026-08-06 17:48:14 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 1 turno(s) para empleada
+2026-08-06 17:51:21 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] GET /turnos?start=2026-07-26T00%3A00%3A00-03%3A00&end=2026-09-06T00%3A00%3A00-03%3A00 desde /127.0.0.1:64667
+2026-08-06 17:51:22 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 2 turno(s) para dueño
+2026-08-06 17:56:33 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] GET /turnos?start=2026-07-26T00%3A00%3A00-03%3A00&end=2026-09-06T00%3A00%3A00-03%3A00 desde /127.0.0.1:59394
+2026-08-06 17:56:34 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 1 turno(s) para emp
+2026-08-06 17:57:51 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] SALIDA — Turno id=28 | Corte Femenino | 2 producto(s)
+2026-08-06 17:57:51 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Shampoo: 150.0 - 100.0 = 50.0
+2026-08-06 17:57:51 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock]   SALIDA Acondicionador: 150.0 - 100.0 = 50.0
+2026-08-06 17:57:51 [AWT-EventQueue-0] INFO  com.mycompany.persistencia.ControladoraPersistencia - [Stock] Completado SALIDA — Turno id=28
+2026-08-06 17:58:25 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] GET /turnos?start=2026-07-26T00%3A00%3A00-03%3A00&end=2026-09-06T00%3A00%3A00-03%3A00 desde /127.0.0.1:51859
+2026-08-06 17:58:26 [pool-3-thread-1] INFO  com.mycompany.proyectofinal.server.TurnoServer - [TurnoServer] Enviando 0 turno(s) para admin
