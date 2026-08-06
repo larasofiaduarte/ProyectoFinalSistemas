@@ -8,7 +8,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.components.ComboAltaBinder;
 import com.mycompany.proyectofinal.Categoria;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.Usuario;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.awt.Color;

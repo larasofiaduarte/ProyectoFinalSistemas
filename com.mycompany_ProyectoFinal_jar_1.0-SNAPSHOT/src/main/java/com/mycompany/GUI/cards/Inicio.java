@@ -7,7 +7,7 @@ import com.mycompany.GUI.components.ImagePanel;
 import com.mycompany.GUI.components.MinimalScrollBarUI;
 import com.mycompany.GUI.components.TopMenu;
 import com.mycompany.proyectofinal.Caja;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.Usuario;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

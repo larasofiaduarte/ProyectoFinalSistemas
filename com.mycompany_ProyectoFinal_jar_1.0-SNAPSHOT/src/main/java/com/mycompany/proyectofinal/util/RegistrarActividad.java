@@ -6,7 +6,7 @@ package com.mycompany.proyectofinal.util;
 
 import com.mycompany.persistencia.ActividadUsuarioJpaController;
 import com.mycompany.proyectofinal.ActividadUsuario;
-import com.mycompany.proyectofinal.Session;
+import com.mycompany.proyectofinal.util.Session;
 import com.mycompany.proyectofinal.Usuario;
 import java.time.LocalDateTime;
 

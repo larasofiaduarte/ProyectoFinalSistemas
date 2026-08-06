@@ -9,7 +9,7 @@ import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
@@ -153,10 +153,22 @@ public class Inventario extends MainPanelBase {
             });
             table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(minimoField));
 
-            // Editor de categoría: dropdown con entidades Categoria desde la BD
+            // Editor de categoría con búsqueda filtrada y opción "+ Nuevo..."
             List<Categoria> cats = control.traerCategorias();
-            JComboBox<Categoria> comboCat = new JComboBox<>(cats.toArray(new Categoria[0]));
-            table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboCat));
+            int colCat = colIndex("Categoria");
+            FilteredComboBoxEditor<Categoria> catEditor = new FilteredComboBoxEditor<>(
+                cats,
+                Categoria::getNombre,
+                Categoria::getId,
+                control::traerCategorias,
+                () -> {
+                    AltaCategorias d = new AltaCategorias(ventana, true, ventana::recargarCategorias);
+                    d.setLocationRelativeTo(this);
+                    d.setVisible(true);
+                }
+            );
+            table.getColumnModel().getColumn(colCat).setCellEditor(catEditor);
+            table.getColumnModel().getColumn(colCat).setCellRenderer(catEditor.getRenderer());
 
             // Editor de proveedor con búsqueda filtrada
             int colProv = colIndex("Proveedor");

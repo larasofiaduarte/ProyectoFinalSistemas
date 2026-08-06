@@ -1,4 +1,4 @@
-package com.mycompany.proyectofinal;
+package com.mycompany.proyectofinal.util;
 
 import java.time.LocalTime;
 import java.util.List;

@@ -5,7 +5,7 @@ import javax.swing.*;
 
 import com.mycompany.GUI.cards.*;
 import com.mycompany.proyectofinal.Producto;
-import com.mycompany.proyectofinal.Session;
+import com.mycompany.proyectofinal.util.Session;
 import com.mycompany.proyectofinal.Usuario;
 import com.mycompany.GUI.components.SideMenu;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -163,6 +163,16 @@ public class Ventana extends JFrame implements Navigator {
         for (Component c : cardPanel.getComponents()) {
             if (c instanceof Proveedores p) {
                 p.cargarTabla();
+                break;
+            }
+        }
+    }
+
+    // No hay una pantalla propia de Categorías: se muestran/editan desde Inventario.
+    public void recargarCategorias() {
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Inventario inv) {
+                inv.cargarTabla();
                 break;
             }
         }

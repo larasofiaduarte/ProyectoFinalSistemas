@@ -13,7 +13,7 @@ import com.mycompany.GUI.components.DateCellEditor;
 import com.mycompany.GUI.components.TimeCellEditor;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.util.DialogUtil;
@@ -160,6 +160,10 @@ public class Turnos extends MainPanelBase{
                 return;
             }
 
+            // Mismo showToast/UI que "Cambio guardado" — solo cambia el texto cuando el guardado
+            // efectivamente descontó o reintegró stock, para que quede claro que eso pasó.
+            String mensajeToast = "Cambio guardado";
+
             if (!eraFinalizado && ahoraFinalizado) {
                 // Pendiente → Finalizado: registra ingreso en caja y descuenta stock
                 if (!control.existsCajaByTurnoId(t.getId())) {
@@ -168,10 +172,12 @@ public class Turnos extends MainPanelBase{
                 }
                 control.descontarStockProductos(t);
                 ventana.recargarInventario();
+                mensajeToast = "Stock descontado";
             } else if (eraFinalizado && !ahoraFinalizado) {
                 // Finalizado → Pendiente: restaura stock y ofrece eliminar el ingreso de caja
                 control.revertirStockProductos(t);
                 ventana.recargarInventario();
+                mensajeToast = "Stock reintegrado";
                 boolean confirm = DialogUtil.confirmar(
                     SwingUtilities.getWindowAncestor(Turnos.this),
                     "¿Desea eliminar el ingreso registrado en Caja para este turno?",
@@ -181,7 +187,7 @@ public class Turnos extends MainPanelBase{
                     ventana.recargarCaja();
                 }
             }
-            showToast("Cambio guardado");
+            showToast(mensajeToast);
         });
 
         List<Cliente> clientes = control.traerClientes();

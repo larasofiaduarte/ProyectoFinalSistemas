@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import com.mycompany.GUI.components.ReportBtn;
 import com.mycompany.GUI.components.*;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.util.TelefonoVerifier;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.lang.reflect.Method;

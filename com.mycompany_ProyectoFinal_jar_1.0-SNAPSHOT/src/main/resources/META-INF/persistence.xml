@@ -20,8 +20,11 @@
       <property name="javax.persistence.jdbc.password" value=""/>
       <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
       <property name="eclipselink.ddl-generation.output-mode" value="database"/>
-      <property name="eclipselink.logging.level.sql" value="FINE"/>
-      <property name="eclipselink.logging.parameters" value="true"/>
+      <!-- Nivel general de EclipseLink (conexión, sesión, etc.) — solo WARNING/SEVERE en consola. -->
+      <property name="eclipselink.logging.level" value="WARNING"/>
+      <!-- Categoría "sql" específicamente en OFF: es la que generaba "[EL Fine]: sql: ..." por
+           cada query — quedaba en FINE de una sesión de debugging anterior. -->
+      <property name="eclipselink.logging.level.sql" value="OFF"/>
     </properties>
   </persistence-unit>
 </persistence>

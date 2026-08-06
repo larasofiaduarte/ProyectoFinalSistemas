@@ -1,6 +1,7 @@
 package com.mycompany.GUI.cards;
 
 import com.mycompany.GUI.Ventana;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.*;
 import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.util.RegistrarActividad;

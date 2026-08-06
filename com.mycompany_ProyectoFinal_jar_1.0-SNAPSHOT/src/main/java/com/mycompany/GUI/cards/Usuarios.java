@@ -15,7 +15,9 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.abm.AltaClientes;
 import com.mycompany.GUI.abm.AltaEmpleados;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.*;
+import com.mycompany.proyectofinal.util.Session;
 import java.util.function.Function;
 import javax.swing.table.TableCellRenderer;
 

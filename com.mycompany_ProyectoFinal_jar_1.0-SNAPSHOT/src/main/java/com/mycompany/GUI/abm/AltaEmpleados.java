@@ -1,7 +1,7 @@
 
 package com.mycompany.GUI.abm;
 
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import java.awt.Font;
 import com.mycompany.GUI.Styles;
@@ -516,9 +516,17 @@ public class AltaEmpleados extends JDialog {
         // Respaldo de NumberVerifier: el KeyListener solo filtra tipeo, texto pegado (Ctrl+V)
         // lo saltea y llegaba sin validar hasta el intento de persistencia. Se revalida acá
         // el valor final antes de guardar, igual que Nombre/Apellido/Email arriba.
-        if (!NumberVerifier.isValid(txtDni.getText()) || !NumberVerifier.isValid(txtEmpTel.getText())) {
+        // El teléfono es opcional: solo se valida si se cargó algo.
+        if (!NumberVerifier.isValid(txtDni.getText())
+            || (!txtEmpTel.getText().isEmpty() && !NumberVerifier.isValid(txtEmpTel.getText()))) {
             JOptionPane.showMessageDialog(null,
                 "El DNI y el teléfono solo pueden contener números.",
+                "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (txtDni.getText().length() < 6) {
+            JOptionPane.showMessageDialog(null,
+                "El DNI debe tener al menos 6 caracteres.",
                 "Valor inválido", JOptionPane.WARNING_MESSAGE);
             return false;
         }

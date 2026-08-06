@@ -9,8 +9,6 @@ import com.mycompany.GUI.*;
 import com.mycompany.proyectofinal.server.TurnoServer;
 import javafx.application.Platform;
 import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import com.mycompany.GUI.Ventana;
 import java.util.Locale;
@@ -37,6 +35,13 @@ public class ProyectoFinal {
 
         // Inicializa el runtime de JavaFX antes de cualquier componente Swing que lo use
         Platform.startup(() -> {});
+
+        // Se inicia una sola vez por JVM (no por login): buildTurnosJson() ya lee
+        // Session.getCurrentUser() en cada request, así que un solo server sirve a cualquier
+        // usuario logueado sin necesidad de reiniciarse. Antes se paraba/arrancaba en cada
+        // logout/login (ver abrirVentanaPrincipal), lo que dejaba al WebView del calendario
+        // apuntando a un servidor caído justo cuando volvía a cargar la página.
+        TurnoServer.start();
 
         SwingUtilities.invokeLater(() -> {
             try {
@@ -74,15 +79,8 @@ public class ProyectoFinal {
      */
     public static void abrirVentanaPrincipal() {
         try {
-            TurnoServer.start(); // inicia el servidor HTTP local para el calendario
             Ventana ventana = new Ventana(); // created AFTER session is set by login
             ventana.setVisible(true);
-            ventana.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent e) {
-                    TurnoServer.stop();
-                }
-            });
         } catch (Exception e) {
             logger.error("Error abriendo la ventana principal", e);
             JOptionPane.showMessageDialog(null,

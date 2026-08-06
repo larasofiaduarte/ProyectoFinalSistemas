@@ -1,7 +1,7 @@
 package com.mycompany.proyectofinal.server;
 
-import com.mycompany.proyectofinal.Controladora;
-import com.mycompany.proyectofinal.Session;
+import com.mycompany.controladora.Controladora;
+import com.mycompany.proyectofinal.util.Session;
 import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Usuario;
 import com.sun.net.httpserver.HttpExchange;
@@ -45,6 +45,9 @@ public class TurnoServer {
     }
 
     private static void handleTurnos(HttpExchange exchange) throws IOException {
+        logger.info("[TurnoServer] {} {} desde {}", exchange.getRequestMethod(),
+            exchange.getRequestURI(), exchange.getRemoteAddress());
+
         // CORS para que el WebView embebido pueda hacer fetch a localhost
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");

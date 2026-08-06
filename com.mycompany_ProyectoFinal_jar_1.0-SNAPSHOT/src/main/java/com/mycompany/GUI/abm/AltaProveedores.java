@@ -4,7 +4,7 @@ package com.mycompany.GUI.abm;
 import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.util.EmailVerifier;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.util.NumberVerifier;

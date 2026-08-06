@@ -42,6 +42,11 @@ public class CalendarPanel extends JPanel {
         jfxPanel.setBackground(LIGHT_BG);
         add(jfxPanel, BorderLayout.CENTER);
 
+        // Evita que el runtime de JavaFX se cierre al destruirse la Ventana (logout): sin esto,
+        // el segundo login crea un JFXPanel nuevo pero Platform.runLater no tiene toolkit vivo
+        // y el WebView nunca se inicializa (queda en blanco).
+        Platform.setImplicitExit(false);
+
         Platform.runLater(() -> {
             webView = new WebView();
             webView.setStyle("-fx-background-color: rgb(250,250,250);");

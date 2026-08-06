@@ -1,10 +1,18 @@
 
-package com.mycompany.proyectofinal;
+package com.mycompany.controladora;
 
 import com.mycompany.persistencia.ControladoraPersistencia;
 import java.util.List;
+import com.mycompany.proyectofinal.Caja;
 import com.mycompany.proyectofinal.Categoria;
 import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.Proveedor;
+import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.Turno;
+import com.mycompany.proyectofinal.Usuario;
+import com.mycompany.proyectofinal.util.HorarioConfig;
+import com.mycompany.proyectofinal.util.Session;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,12 +33,12 @@ public class Controladora {
     public Map<Integer, LocalDateTime> findUltimosModificadosPorTabla(String tablaAfectada) {
         return controlPersis.findUltimosModificadosPorTabla(tablaAfectada);
     }
-    
+
     //USUARIO
     //LOGICA DE VALIDAR USUARIO PARA LOGIN
     public boolean validarUsuario(String user, String pass){
-        loggedUser = null; 
-        
+        loggedUser = null;
+
         List<Usuario> listaUsuarios = controlPersis.traerUsuarios();
 
 
@@ -43,35 +51,35 @@ public class Controladora {
         }
 
         return false; // no encontro ninguno que coincida
-        
+
     }
-    
+
     //Metodo para saber que usuario inicio sesion actualmente
-    
+
     public int traerIdUsuario(String user, String pass){
         for (Usuario usu : controlPersis.traerUsuarios()) {
             if (usu.getUsername().equals(user) &&
                 usu.getPassword().equals(pass)) {
 
-                return usu.getId(); 
+                return usu.getId();
             }
         }
 
-        return -1; 
+        return -1;
     }
-    
+
     public boolean checkIfUsuReferenced(int id){
         return controlPersis.checkIfUsuReferenced(id);
     }
-    
+
     //VALIDAR QUE USUARIO COINCIDA CON EMAIL PARA RECUPERAR CONTRASEÑA
     public boolean validarUsuarioYEmail(String usuario, String email) {
         return controlPersis.validarUsuarioYEmail(usuario, email);
     }
-        
-    
-    
-    
+
+
+
+
     //LOGICA DE ALTA DE USUARIO
     public void guardarUser(String user, String pass, String nombre, String apellido, String tel, String rol, String dni, String email) {
         // Crear una nueva instancia de Usuario
@@ -89,22 +97,22 @@ public class Controladora {
         // Llamar al método para guardar el usuario en la base de datos
         controlPersis.guardar(nuevoUsuario);
     }
-    
+
     //READ USUARIOS
     public List <Usuario> traerUsuarios(){
-        
-        
+
+
         return controlPersis.traerUsuarios();
-       
+
     }
     //by id
-    
+
 
     public Usuario findUsuario(int numEmpleado) {
-       
+
         return controlPersis.findUsuario(numEmpleado);
     }
-    
+
     public boolean doesUsernameExist(String username) {
             return controlPersis.doesUsernameExist(username);
     }
@@ -112,18 +120,18 @@ public class Controladora {
     public boolean doesEmailExist(String email, int excludeId) {
             return controlPersis.doesEmailExist(email, excludeId);
     }
-    
- 
+
+
     public void resetPassword(String user, String newPass) {
         controlPersis.resetPassword(user, newPass);
     }
 
-    
+
     //DELETE USUARIO
     public void borrarUsuario(int numUsuario) {
         controlPersis.borrarUsuario(numUsuario);
     }
-    
+
     //edit
     public void modificarUsuario(Usuario usu, String user, String pass, String nombre, String apellido, String tel, String rol, String dni, String email) {
 
@@ -138,8 +146,8 @@ public class Controladora {
 
         controlPersis.modificarUsuario(usu);
     }
-    
-    
+
+
     //CLIENTE
     //CREATE
     public void guardarCliente(String nombre, String apellido, String telefono, String genero){
@@ -151,62 +159,62 @@ public class Controladora {
         nuevoCliente.setGenero(genero);
 
         controlPersis.guardarCliente(nuevoCliente);
-        
+
     }
     //READ
     public List <Cliente> traerClientes(){
-        
-        
+
+
         return controlPersis.traerClientes();
-       
+
     }
-    
+
         //by id
-    
+
     public Cliente findCliente(int id){
         return controlPersis.findCliente(id);
     }
-    
-    
+
+
     //UPDATE
     public void modificarCliente(Cliente cli, String nombre, String apellido, String telefono, String genero) {
-        
+
         cli.setApellido(apellido);
         cli.setNombre(nombre);
         cli.setGenero(genero);
         cli.setTelefono(telefono);
-        
+
         controlPersis.modificarCliente(cli);
-        
+
     }
-    
+
     //DELETE
     public void borrarCliente(int numCliente) {
         controlPersis.borrarCliente(numCliente);
     }
-    
+
     public boolean checkIfClientReferenced(int id){
         return controlPersis.checkIfClientReferenced(id);
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     //PROVEEDOR
     //ALTA
     public void guardarProveedor(String nombre, String telefono, String email, String web){
         Proveedor nuevoProveedor = new Proveedor();
-        
+
         nuevoProveedor.setNombre(nombre);
         nuevoProveedor.setTelefono(telefono);
         nuevoProveedor.setEmail(email);
         nuevoProveedor.setWebsite(web);
-        
+
         controlPersis.guardarProveedor(nuevoProveedor);
     }
     public Proveedor findProveedor(int idProveedor) {
-       
+
         return controlPersis.findProveedor(idProveedor);
     }
     public List<Proveedor> traerProveedores() {
@@ -222,9 +230,9 @@ public class Controladora {
         prov.setNombre(nombre);
         prov.setTelefono(telefono);
         prov.setWebsite(web);
-        
+
         controlPersis.modificarProveedor(prov);
-    
+
     }
     //CATEGORIA
     public List<Categoria> traerCategorias() {
@@ -263,8 +271,8 @@ public class Controladora {
 
         controlPersis.guardarProducto(nuevoProducto);
     }
-    
-    
+
+
     //SERVICIO
     //ALTA
         public void guardarServicio(Servicio servicio){
@@ -273,17 +281,17 @@ public class Controladora {
         nuevoServicio.setNombre(nombre);
         nuevoServicio.setPrecio(precio);
         nuevoServicio.setEmpleado(empleado);
-        
+
         for (ServicioProducto sp : productos) {
             nuevoServicio.addProducto(sp);
         }
         */
         controlPersis.guardarServicio(servicio);
-        
+
     }
-      //  
+      //
          public List<Producto> traerProductos() {
-        
+
             return controlPersis.traerProductos();
 
         }
@@ -313,10 +321,10 @@ public class Controladora {
         }
      //ELIMINAR
         public void borrarServicio(int id){
-            
+
             controlPersis.borrarServicio(id);
         }
-        
+
     // Valida que la hora del turno caiga dentro de algún intervalo de HorarioConfig.
     // Centralizado acá para que tanto el alta como la modificación pasen por la misma regla.
     private void validarHorario(LocalDateTime fecha) {
@@ -379,7 +387,7 @@ public class Controladora {
         controlPersis.guardarTurno(nuevoTurno);
 
     }
-        
+
         //READ
         public List <Turno> traerTurnos(){
 
@@ -391,29 +399,41 @@ public class Controladora {
         public Turno findTurno(int id){
             return controlPersis.findTurno(id);
         }
-        
+
         //DELETE
-        
+
         public void borrarTurno(int id){
-            
+
             controlPersis.borrarTurno(id);
         }
-        
+
         public boolean turnoYaExiste(Servicio servicio, LocalDateTime fecha){
             return controlPersis.turnoYaExiste(servicio, fecha);
         }
-        
+
         public boolean turnoYaExiste2(Servicio servicio, LocalDateTime fecha, int id){
-        
+
             return controlPersis.turnoYaExiste2(servicio, fecha, id);
         }
-        
+
     public void modificarTurno(Turno tur, Servicio servicio, LocalDateTime fechafinal, Cliente clienteEnt, String estado, String detalle) {
 
         validarHorario(fechafinal);
         // empleado NO se auto-asigna desde servicio — el caller ya lo setea en tur antes de llamar,
         // por eso validarSuperposicion puede leerlo de tur.getEmpleado() acá.
         validarSuperposicion(servicio, fechafinal, tur.getEmpleado(), tur.getId());
+
+        // "tur" suele ser el objeto en memoria de la fila de la tabla, que nunca se refresca cada
+        // vez que descontarStockProductos/revertirStockProductos actualizan stockDescontado sobre
+        // una instancia manejada aparte (fetch propio). Sin este resync, el merge de abajo pisaba
+        // stockDescontado con el valor viejo que traía "tur" y rompía la idempotencia de ambos:
+        // cada edición posterior del turno resetaba el flag, permitiendo re-descontar stock o
+        // bloqueando el reintegro según el caso.
+        Turno actual = controlPersis.findTurno(tur.getId());
+        if (actual != null) {
+            tur.setStockDescontado(actual.isStockDescontado());
+        }
+
         tur.setServicio(servicio);
         tur.setCliente(clienteEnt);
         tur.setFecha(fechafinal);
@@ -421,8 +441,8 @@ public class Controladora {
         tur.setDetalle(detalle);
 
         controlPersis.modificarTurno(tur);
-        
-    
+
+
     }
 
     public List<Turno> traerTurnosPorEmpleadoYFecha(int empleadoId, LocalDate fecha, int excludeId) {
@@ -459,21 +479,21 @@ public class Controladora {
     }
 
     public Servicio findServicio(int numServicio) {
-    
+
             return controlPersis.findServicio(numServicio);
     }
 
     public void modificarServicio(Servicio ser) {
-       
-        
+
+
         controlPersis.modificarServicio(ser);
-    
+
     }
-    
+
     public boolean checkIfReferenced(int id){
         return controlPersis.checkIfReferenced(id);
     }
-    
+
     //usuario LOGUEADO
 
      public void setLoggedInUserId(int userId) {
@@ -497,28 +517,28 @@ public class Controladora {
         return userRole;
     }
 
-   
+
     public Usuario getLoggedUser() {
         return loggedUser;
     }
 
-    
+
 
     //CAJA
         //ALTA
         public void guardarConcepto(String tipo, Double monto, String medio,LocalDateTime fecha, String detalle){
         Caja nuevoConcepto = new Caja();
-        
+
         nuevoConcepto.setTipo(tipo);
         nuevoConcepto.setDetalle(detalle);
         nuevoConcepto.setMedio(medio);
         nuevoConcepto.setMonto(monto);
         nuevoConcepto.setFecha(fecha);
-        
+
         controlPersis.guardarCaja(nuevoConcepto);
-        
+
     }
-        
+
         //READ all
         public List <Caja> traerConceptos(){
 
@@ -530,29 +550,29 @@ public class Controladora {
         public Caja findConcepto(int id){
             return controlPersis.findConcepto(id);
         }
-        
+
         //DELETE
-        
+
         public void borrarConcepto(int id){
-            
+
             controlPersis.borrarConcepto(id);
         }
-        
+
         //EDIT
         public void modificarConcepto(Caja concepto, String tipo, double monto, String medio, String detalle) {
             concepto.setDetalle(detalle);
             concepto.setMedio(medio);
             concepto.setMonto(monto);
             concepto.setTipo(tipo);
-            
+
             controlPersis.modificarConcepto(concepto);
 
         }
-    
+
         public void finalizarTurno(Turno turno) {
         controlPersis.finalizarTurno(turno);
     }
-    
+
         public void registrarIngresoEnCaja(Turno turno){
             controlPersis.registrarIngresoEnCaja(turno);
         }
@@ -572,5 +592,5 @@ public class Controladora {
         public void deleteCajaByTurnoId(int turnoId) {
             controlPersis.deleteCajaByTurnoId(turnoId);
         }
-        
+
 }

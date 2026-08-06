@@ -1,6 +1,6 @@
 package com.mycompany.GUI.login;
 
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;

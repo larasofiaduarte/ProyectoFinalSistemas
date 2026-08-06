@@ -11,7 +11,7 @@ import com.mycompany.GUI.components.TxtField;
 import com.mycompany.GUI.components.PassField;
 import com.mycompany.GUI.components.ImagePanel;
 import com.mycompany.GUI.components.Btn;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

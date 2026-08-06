@@ -13,6 +13,7 @@ import javax.swing.*;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.AltaClientes;
 import com.mycompany.GUI.components.CustomTableModel;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.*;
 import java.util.List;
 import java.util.Map;

@@ -4,7 +4,7 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Categoria;
-import com.mycompany.proyectofinal.Controladora;
+import com.mycompany.controladora.Controladora;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.Proveedor;
@@ -203,34 +203,18 @@ public class AltaProductos extends JDialog{
             ? prodEditar.getProveedor().getNombre() : null);
     }
 
-    /** Abre un diálogo para crear una nueva categoría y recarga el combo. */
+    /** Abre el mismo diálogo de alta de categoría que usa el resto de los combos y recarga el combo. */
     private void crearNuevaCategoria() {
-        String nombre = JOptionPane.showInputDialog(this, "Nombre de la nueva categoría:");
-        if (nombre == null || nombre.isBlank()) {
-            reseleccionarPrimeraCat();
-            return;
-        }
-        String[] unidades = {"ml", "gr", "unidades"};
-        String unidad = (String) JOptionPane.showInputDialog(
-            this, "Unidad de medida:", "Nueva Categoría",
-            JOptionPane.QUESTION_MESSAGE, null, unidades, "ml");
-        if (unidad == null) {
-            reseleccionarPrimeraCat();
-            return;
-        }
-        try {
-            control.crearCategoria(nombre.trim(), unidad);
-        } catch (IllegalStateException e) {
-            JOptionPane.showMessageDialog(this,
-                "La categoría \"" + nombre.trim() + "\" ya existe.",
-                "Categoría duplicada", JOptionPane.WARNING_MESSAGE);
-            reseleccionarPrimeraCat();
-            return;
-        } catch (Exception e) {
-            logger.error("Error al guardar la categoría '{}'", nombre.trim(), e);
-            JOptionPane.showMessageDialog(this,
-                "Ocurrió un error al guardar la categoría.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+        // Mismo patrón que cboProv: getOwner() es la Ventana principal (Frame) que abrió este diálogo.
+        Window owner = AltaProductos.this.getOwner();
+        Frame parent = (Frame) owner;
+        Runnable onNuevoSave = owner instanceof Ventana v ? v::recargarCategorias : () -> {};
+        AltaCategorias dialog = new AltaCategorias(parent, true, onNuevoSave);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
+        Categoria creada = dialog.getCategoriaCreada();
+        if (creada == null) {
             reseleccionarPrimeraCat();
             return;
         }
@@ -238,7 +222,7 @@ public class AltaProductos extends JDialog{
         // Auto-seleccionar la recién creada
         for (int i = 0; i < cmbCategoria.getItemCount(); i++) {
             Object item = cmbCategoria.getItemAt(i);
-            if (item instanceof Categoria c && c.getNombre().equals(nombre.trim())) {
+            if (item instanceof Categoria c && c.getId() == creada.getId()) {
                 cmbCategoria.setSelectedIndex(i);
                 return;
             }
