@@ -49,19 +49,16 @@ public class Usuarios extends MainPanelBase {
 
         java.util.List<Usuario> usuarios = control.traerUsuarios();
 
-        String[] columns = {
-            "ID",
-            "Nombre de Usuario",
-            "Dni",
-            "Nombre",
-            "Apellido",
-            "Teléfono",
-            "Email",
-            "Rol",
-            "Historial"
-        };
+        // Empleado no debe ver el historial de actividad de usuarios — se omite la columna
+        // entera (no solo se deshabilita el botón), consistente con el resto de restricciones
+        // por rol de este release.
+        boolean verHistorial = Session.tieneAccesoCompleto();
 
-        java.util.List<Function<Usuario, Object>> getters = java.util.List.of(
+        String[] columns = verHistorial
+            ? new String[]{"ID", "Nombre de Usuario", "Dni", "Nombre", "Apellido", "Teléfono", "Email", "Rol", "Historial"}
+            : new String[]{"ID", "Nombre de Usuario", "Dni", "Nombre", "Apellido", "Teléfono", "Email", "Rol"};
+
+        java.util.List<Function<Usuario, Object>> getters = new java.util.ArrayList<>(java.util.List.of(
             c -> c.getId(),
             c -> c.getUsername(),
             c -> c.getDni(),
@@ -69,9 +66,9 @@ public class Usuarios extends MainPanelBase {
             c -> c.getApellido(),
             c -> c.getTelefono(),
             c -> c.getEmail(),
-            c -> c.getRol(),
-            c -> "Ver Actividad"
-        );
+            c -> c.getRol()
+        ));
+        if (verHistorial) getters.add(c -> "Ver Actividad");
 
         setTableData(usuarios, columns, getters);
 
@@ -98,9 +95,11 @@ public class Usuarios extends MainPanelBase {
         });
 
         SwingUtilities.invokeLater(() -> {
-            int colBoton = table.getColumnCount() - 1;
-            table.getColumnModel().getColumn(colBoton).setCellRenderer(new ButtonRenderer());
-            table.getColumnModel().getColumn(colBoton).setCellEditor(new ButtonEditor(table));
+            if (verHistorial) {
+                int colBoton = table.getColumnCount() - 1;
+                table.getColumnModel().getColumn(colBoton).setCellRenderer(new ButtonRenderer());
+                table.getColumnModel().getColumn(colBoton).setCellEditor(new ButtonEditor(table));
+            }
             table.setRowHeight(35);
             JTextField dniField = new JTextField();
             dniField.addKeyListener(new NumberVerifier());
@@ -133,8 +132,7 @@ public class Usuarios extends MainPanelBase {
     }
 
     private void eliminarUser() {
-        Usuario currentUser = Session.getCurrentUser();
-        if (currentUser == null || !currentUser.getRol().equalsIgnoreCase("Administrador")) {
+        if (!Session.tieneAccesoCompleto()) {
             JOptionPane.showMessageDialog(
                 this,
                 "Solamente el administrador puede eliminar usuarios.",
@@ -228,6 +226,13 @@ public class Usuarios extends MainPanelBase {
             button.setFocusPainted(false);
 
             button.addActionListener(e -> {
+                if (!Session.tieneAccesoCompleto()) {
+                    JOptionPane.showMessageDialog(tabla,
+                        "Solamente el administrador puede ver el historial de usuarios.",
+                        "Acceso denegado", JOptionPane.ERROR_MESSAGE);
+                    fireEditingStopped();
+                    return;
+                }
                 int userId = ((Number) tabla.getValueAt(currentRow, 0)).intValue();
                 String nombre = tabla.getValueAt(currentRow, 3) + " " + tabla.getValueAt(currentRow, 4);
                 Frame parent = (Frame) SwingUtilities.getWindowAncestor(tabla);

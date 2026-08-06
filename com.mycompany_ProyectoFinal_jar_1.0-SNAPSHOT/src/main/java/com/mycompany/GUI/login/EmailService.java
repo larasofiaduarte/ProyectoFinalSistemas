@@ -1,9 +1,13 @@
 package com.mycompany.GUI.login;
 
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,46 +15,50 @@ public class EmailService {
 
     private static final Logger logger = LogManager.getLogger(EmailService.class);
 
-    private static final String API_KEY;
-    private static final String FROM     = "onboarding@resend.dev";
-    private static final String ENDPOINT = "https://api.resend.com/emails";
+    private static final String SMTP_HOST = "smtp.gmail.com";
+    private static final String SMTP_PORT = "587";
+
+    private static final String USERNAME;
+    private static final String PASSWORD;
 
     static {
-        // Lee la clave desde la variable de entorno; nunca se hardcodea en el código
-        API_KEY = System.getenv("RESEND_API_KEY");
-        if (API_KEY == null || API_KEY.isEmpty()) {
-            throw new RuntimeException("La variable de entorno RESEND_API_KEY no está configurada");
+        // Credenciales por variable de entorno; nunca se hardcodean en el código 
+        //PASSWORD debe ser una contraseña de aplicación de Gmail
+        USERNAME = System.getenv("EMAIL_USERNAME");
+        PASSWORD = System.getenv("EMAIL_PASSWORD");
+        if (USERNAME == null || USERNAME.isEmpty() || PASSWORD == null || PASSWORD.isEmpty()) {
+            throw new RuntimeException("Las variables de entorno EMAIL_USERNAME y EMAIL_PASSWORD no están configuradas");
         }
     }
 
     public static boolean sendRecoveryToken(String toEmail, String token) {
         try {
-            URL url = new URL(ENDPOINT);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + API_KEY);
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
+            Properties props = new Properties();
+            props.put("mail.smtp.host", SMTP_HOST);
+            props.put("mail.smtp.port", SMTP_PORT);
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true"); //activa tls transport layer security, encriptacion
 
-            String body = "{"
-                + "\"from\":\"" + FROM + "\","
-                + "\"to\":[\"" + toEmail + "\"],"
-                + "\"subject\":\"Código de recuperación\","
-                + "\"html\":\"<p>Tu código de recuperación es: <strong>" + token + "</strong></p>\""
-                + "}";
+            Session session = Session.getInstance(props, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(USERNAME, PASSWORD);
+                }
+            });
+            
+            //mensaje del email
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(USERNAME));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Código de recuperación");
+            message.setContent(
+                "<p>Tu código de recuperación es: <strong>" + token + "</strong></p>",
+                "text/html; charset=UTF-8"
+            );
 
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.getBytes(StandardCharsets.UTF_8));
-            }
-
-            int status = conn.getResponseCode();
-            if (status == 200 || status == 201) {
-                logger.info("Email enviado correctamente a {}", toEmail);
-                return true;
-            } else {
-                logger.warn("Error al enviar email. HTTP status: {}", status);
-                return false;
-            }
+            Transport.send(message);
+            logger.info("Email enviado correctamente a {}", toEmail);
+            return true;
 
         } catch (Exception e) {
             logger.error("Error al enviar email", e);

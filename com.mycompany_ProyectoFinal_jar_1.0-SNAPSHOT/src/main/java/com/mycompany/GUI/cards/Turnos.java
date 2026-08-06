@@ -279,18 +279,35 @@ public class Turnos extends MainPanelBase{
             return;
         }
 
-        boolean confirm = DialogUtil.confirmar(
-                this,
-                "¿Está seguro que desea eliminar este turno?",
-                "Confirmar eliminación"
-        );
-
-        if (!confirm) {
-            return;
-        }
-
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
+
+        // Un turno con ingreso en Caja asociado (se detecta por la relación real, no por el
+        // estado actual) necesita que el usuario decida qué hacer con ese ingreso antes de
+        // borrar — mismo patrón (DeleteRelationsDialog) que Cliente/Servicio/Empleado.
+        if (control.existsCajaByTurnoId(id)) {
+            DeleteRelationsDialog dialog = new DeleteRelationsDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "Este turno tiene un ingreso registrado en Caja. ¿Qué desea hacer?",
+                "Eliminar turno y el ingreso en Caja",
+                "Eliminar turno y conservar el ingreso en Caja"
+            );
+            dialog.setVisible(true);
+
+            if (dialog.getChoice() == null) return; // Cancelar
+
+            if (dialog.getChoice() == DeleteRelationsDialog.Choice.A) {
+                control.deleteCajaByTurnoId(id);
+                ventana.recargarCaja();
+            }
+        } else {
+            boolean confirm = DialogUtil.confirmar(
+                    this,
+                    "¿Está seguro que desea eliminar este turno?",
+                    "Confirmar eliminación"
+            );
+            if (!confirm) return;
+        }
 
         control.borrarTurno(id);
 

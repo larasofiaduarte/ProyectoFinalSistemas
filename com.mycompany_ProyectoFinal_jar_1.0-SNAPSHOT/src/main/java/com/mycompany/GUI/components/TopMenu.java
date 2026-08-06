@@ -9,7 +9,9 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.login.Login;
 import com.mycompany.proyectofinal.HorarioConfig;
 import com.mycompany.proyectofinal.Producto;
+import com.mycompany.proyectofinal.ProyectoFinal;
 import com.mycompany.proyectofinal.Session;
+import com.mycompany.proyectofinal.Usuario;
 import java.time.LocalTime;
 import com.mycompany.persistencia.NotificationService;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
@@ -28,6 +30,7 @@ public class TopMenu extends JPanel {
     private FlatSVGIcon settingsIcon;
     private JPopupMenu menuSettings;
     private JMenuItem itemHorarios;
+    private JMenuItem itemAppLog;
 
     private FlatSVGIcon bell;
     private FlatSVGIcon dot;
@@ -71,32 +74,67 @@ public class TopMenu extends JPanel {
 
         // --- Settings dropdown ---
         menuSettings = new JPopupMenu();
-        itemHorarios = new JMenuItem("Horarios de apertura");
-        menuSettings.add(itemHorarios);
+
+        // Horarios de apertura: Empleado no debe verlo ni acceder — solo se agrega al menú
+        // (ni siquiera existe) para Administrador/Dueño, igual criterio que el resto de
+        // restricciones por rol (Session.tieneAccesoCompleto()).
+        if (Session.tieneAccesoCompleto()) {
+            itemHorarios = new JMenuItem("Horarios de apertura");
+            menuSettings.add(itemHorarios);
+
+            itemHorarios.addActionListener(e -> {
+                if (!Session.tieneAccesoCompleto()) {
+                    JOptionPane.showMessageDialog(this,
+                        "Solamente el administrador puede acceder a los horarios de apertura.",
+                        "Acceso denegado", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                Window parent = SwingUtilities.getWindowAncestor(this);
+                HorariosDialog dialog = new HorariosDialog(parent);
+                dialog.setVisible(true);
+                if (dialog.isGuardado()) {
+                    java.util.List<LocalTime[]> ivs = dialog.getIntervalos();
+                    HorarioConfig.setIntervalos(ivs);
+                    String msg;
+                    if (ivs.size() == 1) {
+                        msg = "Horario: " + ivs.get(0)[0] + " - " + ivs.get(0)[1];
+                    } else {
+                        msg = "Mañana: " + ivs.get(0)[0] + " - " + ivs.get(0)[1]
+                            + "\nTarde: "  + ivs.get(1)[0] + " - " + ivs.get(1)[1];
+                    }
+                    JOptionPane.showMessageDialog(parent,
+                        "Horario guardado correctamente.\n" + msg,
+                        "Horarios de apertura", JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+        }
+
+        // "App Log" solo se agrega al menú (ni siquiera existe para otros roles) si el usuario
+        // logueado es Administrador — mismo criterio de rol que Usuarios.eliminarUser() /
+        // Conceptos.eliminarConcepto().
+        Usuario currentUser = Session.getCurrentUser();
+        if (currentUser != null && currentUser.getRol().equalsIgnoreCase("Administrador")) {
+            itemAppLog = new JMenuItem("App Log");
+            menuSettings.add(itemAppLog);
+
+            itemAppLog.addActionListener(e -> {
+                // Respaldo por si el rol cambió luego de construir el menú (ej. sesión reutilizada).
+                Usuario u = Session.getCurrentUser();
+                if (u == null || !u.getRol().equalsIgnoreCase("Administrador")) {
+                    JOptionPane.showMessageDialog(this,
+                        "Solamente el administrador puede ver los logs del sistema.",
+                        "Acceso denegado", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                Window parent = SwingUtilities.getWindowAncestor(this);
+                AppLogDialog dialog = new AppLogDialog(parent);
+                dialog.setVisible(true);
+            });
+        }
 
         settingsButton.addActionListener(e ->
             menuSettings.show(settingsButton, 0, settingsButton.getHeight())
         );
-
-        itemHorarios.addActionListener(e -> {
-            Window parent = SwingUtilities.getWindowAncestor(this);
-            HorariosDialog dialog = new HorariosDialog(parent);
-            dialog.setVisible(true);
-            if (dialog.isGuardado()) {
-                java.util.List<LocalTime[]> ivs = dialog.getIntervalos();
-                HorarioConfig.setIntervalos(ivs);
-                String msg;
-                if (ivs.size() == 1) {
-                    msg = "Horario: " + ivs.get(0)[0] + " - " + ivs.get(0)[1];
-                } else {
-                    msg = "Mañana: " + ivs.get(0)[0] + " - " + ivs.get(0)[1]
-                        + "\nTarde: "  + ivs.get(1)[0] + " - " + ivs.get(1)[1];
-                }
-                JOptionPane.showMessageDialog(parent,
-                    "Horario guardado correctamente.\n" + msg,
-                    "Horarios de apertura", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
 
         // --- User icon button ---
         icon = new JButton("");
@@ -120,7 +158,16 @@ public class TopMenu extends JPanel {
             Session.setCurrentUser(null);
             SwingUtilities.getWindowAncestor(this).dispose();
             Login login = new Login(null);
-            login.setVisible(true);
+            login.setVisible(true); // modal → blocks
+
+            // Antes esto no chequeaba isLoginExitoso(): si el re-login era correcto, la app se
+            // quedaba sin ninguna ventana visible (mismo bug que main() ya tenía). Reusa el mismo
+            // camino que el arranque normal para que ambos se comporten igual.
+            if (login.isLoginExitoso()) {
+                ProyectoFinal.abrirVentanaPrincipal();
+            } else {
+                System.exit(0);
+            }
         });
 
         add(settingsButton);

@@ -329,8 +329,10 @@ public class Controladora {
         }
     }
 
-    // Bloquea turnos superpuestos para el mismo empleado + mismo servicio (usa la duración del servicio
-    // para calcular el fin, igual que generarHorariosDisponibles). excludeId=-1 para altas (no excluye ninguno).
+    // Bloquea turnos superpuestos para el MISMO EMPLEADO, sin importar el servicio — un empleado
+    // no puede estar en dos turnos a la vez, pero dos empleados distintos sí pueden hacer el mismo
+    // servicio en el mismo horario (igual que ya hacía generarHorariosDisponibles, que nunca filtró
+    // por servicio; acá se alinea con eso). excludeId=-1 para altas (no excluye ninguno).
     private void validarSuperposicion(Servicio servicio, LocalDateTime fecha, Usuario empleado, int excludeId) {
         if (fecha == null || servicio == null || empleado == null) return;
 
@@ -341,18 +343,17 @@ public class Controladora {
         List<Turno> delDia = traerTurnosPorEmpleadoYFecha(empleado.getId(), nuevoInicio.toLocalDate(), excludeId);
 
         boolean superpuesto = delDia.stream()
-            .filter(t -> t.getServicio() != null && t.getServicio().getId() == servicio.getId())
             .anyMatch(t -> {
                 LocalDateTime existenteInicio = t.getFecha();
                 if (existenteInicio == null) return false;
-                int durExistente = t.getServicio().getDuracionMinutos() > 0
+                int durExistente = (t.getServicio() != null && t.getServicio().getDuracionMinutos() > 0)
                     ? t.getServicio().getDuracionMinutos() : 60;
                 LocalDateTime existenteFin = existenteInicio.plusMinutes(durExistente);
                 return nuevoInicio.isBefore(existenteFin) && nuevoFin.isAfter(existenteInicio);
             });
 
         if (superpuesto) {
-            throw new IllegalStateException("Ya existe un turno para ese servicio en ese horario. Elegí otro horario para continuar.");
+            throw new IllegalStateException("El empleado ya tiene un turno en ese horario. Elegí otro horario para continuar.");
         }
     }
 

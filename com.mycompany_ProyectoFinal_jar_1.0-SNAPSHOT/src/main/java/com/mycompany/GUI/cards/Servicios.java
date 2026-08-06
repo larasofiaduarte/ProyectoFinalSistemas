@@ -17,6 +17,7 @@ import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Servicio;
 import com.mycompany.proyectofinal.ServicioProducto;
+import com.mycompany.proyectofinal.Session;
 import com.mycompany.proyectofinal.Usuario;
 import java.util.List;
 import java.util.Map;
@@ -189,6 +190,16 @@ public class Servicios extends MainPanelBase {
     
     
     private void eliminarServicio() {
+        if (!Session.tieneAccesoCompleto()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Solamente el administrador puede eliminar servicios.",
+                "Acceso denegado",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {

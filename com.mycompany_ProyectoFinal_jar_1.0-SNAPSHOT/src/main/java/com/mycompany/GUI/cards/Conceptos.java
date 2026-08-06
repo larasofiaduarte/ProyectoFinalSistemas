@@ -168,9 +168,8 @@ public class Conceptos extends MainPanelBase {
     }
     
     private void eliminarConcepto() {
-         Usuario currentUser = Session.getCurrentUser(); // obtenerlo acá, no en constructor
-
-        if (currentUser == null || !currentUser.getRol().equalsIgnoreCase("Administrador")) {
+        if (!Session.tieneAccesoCompleto()) {
+            Usuario currentUser = Session.getCurrentUser();
             logger.debug("Acceso denegado a eliminarConcepto, rol: '{}'",
                 currentUser != null ? currentUser.getRol() : "null");
             JOptionPane.showMessageDialog(

@@ -25,7 +25,6 @@ import com.mycompany.proyectofinal.util.RelationType;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Window;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
@@ -109,12 +108,11 @@ public class DeleteWithRelationsHandler {
         // Turno.servicio es NOT NULL (entidad y base) — todo turno que referencia este servicio,
         // sea cual sea su estado, tiene que reasignarse o eliminarse antes de poder borrar el
         // servicio. Por eso ya no se distingue "activos" de "todos": cualquiera dispara el popup.
+        // Los productos del servicio (ServicioProducto) NO se advierten acá: Servicio los tiene
+        // con cascade=ALL+orphanRemoval, así que borrarlos es limpieza propia del servicio, no
+        // pérdida de información — a diferencia de Turno, que es un registro independiente.
         boolean tieneTurnosAsociados = serJpa.checkIfReferenced(servicioId);
-        int nProductos = servicio.getProductos() != null ? servicio.getProductos().size() : 0;
-
-        List<RelationType> relaciones = new ArrayList<>();
-        if (tieneTurnosAsociados) relaciones.add(RelationType.TURNOS);
-        if (nProductos > 0) relaciones.add(RelationType.PRODUCTOS);
+        List<RelationType> relaciones = tieneTurnosAsociados ? List.of(RelationType.TURNOS) : List.of();
 
         if (!tieneTurnosAsociados) {
             String msg = htmlWrap(DeleteWarningService.buildMessage(EntityType.SERVICIO, relaciones));

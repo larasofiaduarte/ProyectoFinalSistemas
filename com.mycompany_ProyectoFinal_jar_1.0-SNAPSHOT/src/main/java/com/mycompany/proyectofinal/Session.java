@@ -20,5 +20,12 @@ public class Session {
     public static void clear() {
         currentUser = null;
     }
+
+    /** true si el usuario logueado es Administrador o Dueño — roles con acceso completo. */
+    public static boolean tieneAccesoCompleto() {
+        return currentUser != null
+            && (currentUser.getRol().equalsIgnoreCase("Administrador")
+                || currentUser.getRol().equalsIgnoreCase("Dueño"));
+    }
 }
 

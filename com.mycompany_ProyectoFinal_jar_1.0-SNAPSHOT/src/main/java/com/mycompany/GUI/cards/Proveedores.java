@@ -12,6 +12,7 @@ import com.mycompany.GUI.abm.*;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.Proveedor;
+import com.mycompany.proyectofinal.Session;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.util.EmailVerifier;
 import com.mycompany.proyectofinal.util.WebsiteVerifier;
@@ -128,6 +129,16 @@ public class Proveedores extends MainPanelBase {
     }
     
     private void eliminarProveedor() {
+        if (!Session.tieneAccesoCompleto()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Solamente el administrador puede eliminar proveedores.",
+                "Acceso denegado",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
         int filaSeleccionada = table.getSelectedRow();
 
         if (filaSeleccionada == -1) {
