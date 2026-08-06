@@ -11,6 +11,9 @@ import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.util.DoubleVerifier;
 import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
+import com.mycompany.proyectofinal.util.TelefonoVerifier;
+import com.mycompany.proyectofinal.util.EmailVerifier;
+import com.mycompany.proyectofinal.util.NombreVerifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -34,6 +37,13 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private int[] numericColumns = new int[0];
     private int[] decimalColumns = new int[0];
     private int[] localDecimalColumns = new int[0];
+    private int[] telefonoColumns = new int[0];
+    private static final int TELEFONO_MIN_DIGITOS = 10; // ej: 3764 839272 (sin espacios) = 10 dígitos
+    private int[] emailColumns = new int[0];
+    private int[] nombreColumns = new int[0];
+    // (email, excludeId) -> true si ya está en uso por OTRA fila. excludeId es el id de la
+    // fila que se está editando, para no rechazar el propio email sin cambios.
+    private java.util.function.BiPredicate<String, Integer> emailDuplicateChecker;
     private Object lastOldValue;
     private Object lastNewValue;
     private Consumer<T> onPersist;
@@ -51,6 +61,22 @@ public class CustomTableModel<T> extends AbstractTableModel {
 
     public void setLocalDecimalColumns(int... cols) {
         this.localDecimalColumns = cols;
+    }
+
+    public void setTelefonoColumns(int... cols) {
+        this.telefonoColumns = cols;
+    }
+
+    public void setEmailColumns(int... cols) {
+        this.emailColumns = cols;
+    }
+
+    public void setNombreColumns(int... cols) {
+        this.nombreColumns = cols;
+    }
+
+    public void setEmailDuplicateChecker(java.util.function.BiPredicate<String, Integer> checker) {
+        this.emailDuplicateChecker = checker;
     }
 
     @SuppressWarnings("unchecked")
@@ -175,6 +201,72 @@ public void setValueAt(Object value, int row, int col) {
                 return;
             }
             processedValue = normalized;
+            break;
+        }
+    }
+    // El KeyListener (TelefonoVerifier, ver MainPanelBase.attachPhoneVerifier) solo filtra tipeo —
+    // pegar texto (Ctrl+V) en la celda lo saltea, así que se revalida acá sobre el valor final
+    // recién confirmado, sin importar si llegó tipeado o pegado. El espacio se quita antes de
+    // guardar (ej: "3764 839272" → "3764839272"); vacío sigue siendo válido (campo opcional).
+    for (int tc : telefonoColumns) {
+        if (tc == col) {
+            String str = processedValue == null ? "" : processedValue.toString().trim();
+            String normalizado = str.replace(" ", "");
+            if (!normalizado.isEmpty()) {
+                if (!TelefonoVerifier.isOnlyDigits(normalizado)) {
+                    JOptionPane.showMessageDialog(null, "El teléfono debe contener solo números.",
+                            "Teléfono inválido", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                if (normalizado.length() < TELEFONO_MIN_DIGITOS) {
+                    JOptionPane.showMessageDialog(null,
+                            "El teléfono debe tener al menos " + TELEFONO_MIN_DIGITOS
+                                    + " dígitos (ej: 3764 839272).",
+                            "Teléfono inválido", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+            processedValue = normalizado;
+            break;
+        }
+    }
+    // EmailVerifier es un InputVerifier (valida la celda como un todo, no tipeo char por char —
+    // a diferencia de Telefono/Number no tiene KeyAdapter, tiene sentido: un email no se puede
+    // rechazar tecla por tecla). Se reusa su isValid() acá mismo que para los demás campos:
+    // valor final confirmado, sea tipeado o pegado. isValid() ya trata blank como válido (opcional).
+    for (int ec : emailColumns) {
+        if (ec == col) {
+            String str = processedValue == null ? "" : processedValue.toString().trim();
+            if (!EmailVerifier.isValid(str)) {
+                JOptionPane.showMessageDialog(null,
+                        "Ingrese una dirección de correo válida (ej: usuario@dominio.com).",
+                        "Email inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (!str.isBlank() && emailDuplicateChecker != null
+                    && emailDuplicateChecker.test(str, getEntityId(data.get(row)))) {
+                JOptionPane.showMessageDialog(null,
+                        "Ese email ya está en uso por otro usuario.",
+                        "Email duplicado", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            processedValue = str;
+            break;
+        }
+    }
+    // Respaldo a nivel de modelo del NombreVerifier (KeyListener + InputVerifier) ya adjuntado
+    // al editor de la celda — un InputVerifier en un editor de JTable no siempre intercepta el
+    // commit de forma confiable, así que esto garantiza la regla acá también, sin importar cómo
+    // llegó el valor (tipeado o pegado).
+    for (int nc : nombreColumns) {
+        if (nc == col) {
+            String str = processedValue == null ? "" : processedValue.toString();
+            if (!NombreVerifier.isValid(str)) {
+                JOptionPane.showMessageDialog(null,
+                        "El nombre y el apellido solo pueden contener letras y espacios.",
+                        "Valor inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             break;
         }
     }

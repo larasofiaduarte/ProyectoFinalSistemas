@@ -14,6 +14,7 @@ import com.mycompany.proyectofinal.ServicioProducto;
 import com.mycompany.proyectofinal.Turno;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
@@ -49,6 +50,9 @@ public class ControladoraPersistencia {
         }
         public boolean doesUsernameExist(String username) {
             return usuJpa.doesUsernameExist(username);
+        }
+        public boolean doesEmailExist(String email, int excludeId) {
+            return usuJpa.doesEmailExist(email, excludeId);
         }
         public boolean checkIfUsuReferenced(int id){
             return usuJpa.checkIfReferenced(id);
@@ -379,59 +383,53 @@ public class ControladoraPersistencia {
                 logger.info("[Stock] SALIDA — Turno id={} | {} | {} producto(s)",
                     turno.getId(), fresh.getNombre(), productos.size());
 
-                // Recorre cada ítem del servicio (puede ser producto específico o categoría)
+                // Por cada ítem del servicio: descuenta primero del producto preferido (si se
+                // eligió uno específico) y, si no alcanza, sigue con el resto de productos de la
+                // misma categoría ordenados por stock (mayor primero) — misma protección de no
+                // pasar a negativo (Math.min) para ambos casos, unificados en un solo camino.
                 for (ServicioProducto sp : productos) {
-                    if (sp.getProducto() != null) {
-                        // Descuento directo: producto específico
-                        Producto fp = prodJpa.findProducto(sp.getProducto().getId());
-                        if (fp == null) continue;
+                    Categoria cat = sp.getCategoria() != null ? sp.getCategoria()
+                        : (sp.getProducto() != null ? sp.getProducto().getCategoria() : null);
 
+                    List<Producto> candidatos = new ArrayList<>();
+                    if (sp.getProducto() != null) {
+                        Producto preferido = prodJpa.findProducto(sp.getProducto().getId());
+                        if (preferido != null) candidatos.add(preferido);
+                    }
+                    if (cat != null) {
+                        for (Producto p : prodJpa.findByCategoria(cat)) {
+                            if (sp.getProducto() != null && p.getId() == sp.getProducto().getId()) continue;
+                            candidatos.add(p);
+                        }
+                    }
+
+                    double remaining = sp.getCantidadUsada();
+                    for (Producto cp : candidatos) {
+                        if (remaining <= 0) break;
+                        Producto fp = prodJpa.findProducto(cp.getId());
+                        if (fp == null || fp.getStock() <= 0) continue;
+                        // Descuenta lo que haya disponible sin pasar a negativo
+                        double deduct = Math.min(fp.getStock(), remaining);
                         double antes = fp.getStock();
-                        fp.setStock(antes - sp.getCantidadUsada());
+                        fp.setStock(antes - deduct);
                         prodJpa.edit(fp);
+                        remaining -= deduct; // Actualiza cuánto falta aún por descontar
 
                         MovimientoStock mov = new MovimientoStock();
                         mov.setProducto(fp);
-                        mov.setCantidad(sp.getCantidadUsada());
+                        mov.setCantidad(deduct);
                         mov.setTipo("SALIDA");
                         mov.setFecha(LocalDateTime.now());
                         mov.setTurnoId(turno.getId());
                         movStockJpa.create(mov);
 
-                        logger.info("[Stock]   SALIDA {}: {} - {} = {}",
-                            fp.getNombre(), antes, sp.getCantidadUsada(), fp.getStock());
-
-                    } else if (sp.getCategoria() != null) {
-                        // Descuento por categoría: descuenta de a uno empezando por el de mayor stock
-                        Categoria cat = sp.getCategoria();
-                        List<Producto> enCategoria = prodJpa.findByCategoria(cat);
-                        double remaining = sp.getCantidadUsada();
-                        for (Producto cp : enCategoria) {
-                            if (remaining <= 0) break;
-                            Producto fp = prodJpa.findProducto(cp.getId());
-                            if (fp == null || fp.getStock() <= 0) continue;
-                            // Descuenta lo que haya disponible sin pasar a negativo
-                            double deduct = Math.min(fp.getStock(), remaining);
-                            double antes = fp.getStock();
-                            fp.setStock(antes - deduct);
-                            prodJpa.edit(fp);
-                            remaining -= deduct; // Actualiza cuánto falta aún por descontar
-
-                            MovimientoStock mov = new MovimientoStock();
-                            mov.setProducto(fp);
-                            mov.setCantidad(deduct);
-                            mov.setTipo("SALIDA");
-                            mov.setFecha(LocalDateTime.now());
-                            mov.setTurnoId(turno.getId());
-                            movStockJpa.create(mov);
-
-                            logger.info("[Stock]   SALIDA-CAT {} (cat={}): {} - {} = {}",
-                                fp.getNombre(), cat.getNombre(), antes, deduct, fp.getStock());
-                        }
-                        if (remaining > 0) {
-                            logger.warn("[Stock] Stock insuficiente en categoría '{}', faltaron {} unidades",
-                                cat.getNombre(), remaining);
-                        }
+                        boolean esPreferido = sp.getProducto() != null && fp.getId() == sp.getProducto().getId();
+                        logger.info("[Stock]   SALIDA{} {}: {} - {} = {}",
+                            esPreferido ? "" : "-FALLBACK", fp.getNombre(), antes, deduct, fp.getStock());
+                    }
+                    if (remaining > 0) {
+                        logger.warn("[Stock] Stock insuficiente para el servicio '{}'{}, faltaron {} unidades",
+                            fresh.getNombre(), cat != null ? " (categoría " + cat.getNombre() + ")" : "", remaining);
                     }
                 }
 

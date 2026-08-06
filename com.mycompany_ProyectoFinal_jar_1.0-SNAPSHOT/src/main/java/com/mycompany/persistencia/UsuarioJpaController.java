@@ -4,6 +4,8 @@
  */
 package com.mycompany.persistencia;
 
+import com.mycompany.proyectofinal.Servicio;
+import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Usuario;
 import java.io.Serializable;
 import java.util.List;
@@ -171,7 +173,28 @@ public class UsuarioJpaController implements Serializable {
             }
         }
     }
-    
+
+    // excludeId=-1 para altas (no excluye ningún usuario); en modificación se pasa el id del usuario
+    // que se está editando para no rechazar su propio email sin cambios.
+    public boolean doesEmailExist(String email, int excludeId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            Query query = em.createQuery(
+                "SELECT COUNT(u) FROM Usuario u WHERE LOWER(u.email) = LOWER(:email) AND u.id <> :excludeId");
+            query.setParameter("email", email);
+            query.setParameter("excludeId", excludeId);
+
+            return ((Long) query.getSingleResult()) > 0;
+        } catch (Exception e) {
+            logger.error("Error verificando email", e);
+            return false;
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+
     public Usuario findUsuarioByUsername(String username) {
     EntityManager em = emf.createEntityManager();
     try {
@@ -192,13 +215,141 @@ public class UsuarioJpaController implements Serializable {
         EntityManager em = emf.createEntityManager();
         try {
             // JPQL to count how many Servicio entries reference the given Usuario
-            String query = "SELECT COUNT(s) FROM Servicio s WHERE s.empleado.id = :usuarioId";  
+            String query = "SELECT COUNT(s) FROM Servicio s WHERE s.empleado.id = :usuarioId";
             Long count = (Long) em.createQuery(query)
                                   .setParameter("usuarioId", usuId)
                                   .getSingleResult();
             return count > 0; // Returns true if any Servicio references this Usuario
         } finally {
             em.close();
+        }
+    }
+
+    // Turno.empleado (empleado_id) es la asignación real de un turno a un empleado — mismo
+    // patrón que ClienteJpaController.checkIfClientReferenced / ServicioJpaController.checkIfReferenced
+    // (cuenta TODOS los turnos, sin filtrar por estado).
+    public boolean checkIfReferencedByTurnos(int usuarioId) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            String query = "SELECT COUNT(t) FROM Turno t WHERE t.empleado.id = :usuarioId";
+            Long count = (Long) em.createQuery(query)
+                                  .setParameter("usuarioId", usuarioId)
+                                  .getSingleResult();
+            return count > 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Empleado sin turnos: antes de borrarlo hay que desvincular los Servicio que tenía
+     * asignados (Servicio.empleado admite null) para no romper la FK — mismo motivo por el
+     * que ServicioJpaController ya tenía nullifyEmpleado, solo que acá corre en la misma
+     * transacción que el borrado en vez de como paso separado.
+     */
+    public void destroyAndUnlinkServicios(int usuarioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+
+            em.createQuery("UPDATE Servicio s SET s.empleado = null WHERE s.empleado.id = :id")
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+
+            Usuario usuario = em.getReference(Usuario.class, usuarioId);
+            em.remove(usuario);
+
+            tx.commit();
+            emf.getCache().evict(Servicio.class);
+            emf.getCache().evict(Usuario.class);
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error desvinculando servicios y eliminando empleado", e);
+            throw new RuntimeException("Error unlinking servicios and deleting empleado", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    /**
+     * Elimina físicamente TODOS los turnos asignados a este empleado, desvincula sus Servicio
+     * y borra el empleado — todo en una única transacción. Mismo patrón que
+     * ClienteJpaController.deleteAndRemoveTurnos / ServicioJpaController.deleteAndRemoveTurnos.
+     */
+    public void deleteAndRemoveTurnos(int usuarioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+
+            em.createQuery("DELETE FROM Turno t WHERE t.empleado.id = :id")
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+
+            em.createQuery("UPDATE Servicio s SET s.empleado = null WHERE s.empleado.id = :id")
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+
+            Usuario usuario = em.getReference(Usuario.class, usuarioId);
+            em.remove(usuario);
+
+            tx.commit();
+            // El DELETE/UPDATE por JPQL van directo a la base y no invalidan el caché compartido
+            // de EclipseLink por sí solos — mismo motivo que en Cliente/ServicioJpaController.
+            emf.getCache().evict(Turno.class);
+            emf.getCache().evict(Servicio.class);
+            emf.getCache().evict(Usuario.class);
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error eliminando turnos y empleado", e);
+            throw new RuntimeException("Error deleting turnos and empleado", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    /**
+     * Reasigna los turnos y servicios de este empleado a otro empleado y borra el original —
+     * todo en una única transacción, mismo motivo que deleteAndRemoveTurnos.
+     */
+    public void deleteAndReassignTurnos(int usuarioId, int nuevoUsuarioId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+
+            Usuario nuevo = em.getReference(Usuario.class, nuevoUsuarioId);
+
+            em.createQuery("UPDATE Turno t SET t.empleado = :nuevo WHERE t.empleado.id = :id")
+                .setParameter("nuevo", nuevo)
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+
+            em.createQuery("UPDATE Servicio s SET s.empleado = :nuevo WHERE s.empleado.id = :id")
+                .setParameter("nuevo", nuevo)
+                .setParameter("id", usuarioId)
+                .executeUpdate();
+
+            Usuario usuario = em.getReference(Usuario.class, usuarioId);
+            em.remove(usuario);
+
+            tx.commit();
+            emf.getCache().evict(Turno.class);
+            emf.getCache().evict(Servicio.class);
+            emf.getCache().evict(Usuario.class);
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error reasignando turnos y eliminando empleado", e);
+            throw new RuntimeException("Error reassigning turnos and deleting empleado", e);
+        } finally {
+            if (em != null) em.close();
         }
     }
 }

@@ -5,8 +5,10 @@ import java.util.regex.Pattern;
 
 public class EmailVerifier extends InputVerifier {
 
+    // Plantilla mínima válida: a@a.a (usuario@dominio.tld, cada parte >= 1 carácter).
+    // {2,} en el TLD rechazaba justamente ese caso mínimo; se cambia a + (1 o más).
     private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$");
+            Pattern.compile("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]+$");
 
     public static boolean isValid(String text) {
         if (text == null || text.isBlank()) return true;

@@ -27,7 +27,7 @@ public class HistorialTurnosDialog extends JDialog {
 
     private void initUI(int clienteId) {
         // Columnas
-        String[] columnas = {"ID", "Fecha", "Hora", "Servicio", "Estado", "Detalle"};
+        String[] columnas = {"ID", "Fecha", "Hora", "Servicio", "Empleado", "Estado", "Detalle"};
         DefaultTableModel model = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -42,7 +42,7 @@ public class HistorialTurnosDialog extends JDialog {
         List<Turno> turnos = turnoDAO.findByCliente(clienteId);
 
         if (turnos.isEmpty()) {
-            model.addRow(new Object[]{"-", "Sin turnos registrados", "", "", "", ""});
+            model.addRow(new Object[]{"-", "Sin turnos registrados", "", "", "", "", ""});
         } else {
             for (Turno t : turnos) {
                 String fecha = t.getFecha() != null
@@ -51,12 +51,15 @@ public class HistorialTurnosDialog extends JDialog {
                     ? t.getFecha().format(Styles.TIME) : "-";
                 String servicio = t.getServicio() != null
                     ? t.getServicio().getNombre() : "-";
+                String empleado = t.getEmpleado() != null
+                    ? t.getEmpleado().getNombre() + " " + t.getEmpleado().getApellido() : "-";
 
                 model.addRow(new Object[]{
                     t.getId(),
                     fecha,
                     hora,
                     servicio,
+                    empleado,
                     t.getEstado(),
                     t.getDetalle()
                 });

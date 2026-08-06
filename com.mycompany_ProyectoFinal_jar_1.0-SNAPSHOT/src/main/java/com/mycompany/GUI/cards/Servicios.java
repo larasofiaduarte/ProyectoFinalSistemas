@@ -13,7 +13,6 @@ import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
-import com.mycompany.proyectofinal.Producto;
 import com.mycompany.proyectofinal.util.LocalDoubleVerifier;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.proyectofinal.Servicio;
@@ -91,14 +90,17 @@ public class Servicios extends MainPanelBase {
                 StringBuilder sb = new StringBuilder();
 
                 for (ServicioProducto sp : c.getProductos()) {
-                    Producto p = sp.getProducto();
-                    if (p != null) {
-
+                    // ServicioProducto guarda un Producto puntual (flujo viejo) O una Categoria
+                    // (AltaServicios y ProductosSelectorDialog, que resuelven el producto real
+                    // recién al descontar stock) — hay que mostrar el nombre que corresponda.
+                    String nombre = sp.getProducto() != null ? sp.getProducto().getNombre()
+                                  : sp.getCategoria() != null ? sp.getCategoria().getNombre()
+                                  : null;
+                    if (nombre != null) {
                         if (sb.length() > 0) {
                             sb.append(", ");
                         }
-
-                        sb.append(p.getNombre());
+                        sb.append(nombre);
                     }
                 }
 
@@ -280,11 +282,10 @@ public class Servicios extends MainPanelBase {
             button.addActionListener(e -> {
                 int id = ((Number) tabla.getValueAt(currentRow, 0)).intValue();
                 Servicio servicio = control.findServicio(id);
-                List<Producto> allProductos = control.traerProductos();
                 Frame parent = (Frame) SwingUtilities.getWindowAncestor(tabla);
 
                 ProductosSelectorDialog dialog = new ProductosSelectorDialog(
-                    parent, servicio, allProductos, control, ventana
+                    parent, servicio, control, ventana
                 );
                 dialog.setVisible(true);
 

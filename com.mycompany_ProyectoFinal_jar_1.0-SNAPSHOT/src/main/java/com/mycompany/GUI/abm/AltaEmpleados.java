@@ -8,6 +8,8 @@ import com.mycompany.GUI.Styles;
 import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.util.NumberVerifier;
+import com.mycompany.proyectofinal.util.NombreVerifier;
+import com.mycompany.proyectofinal.util.EmailVerifier;
 import com.mycompany.proyectofinal.Usuario;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -43,8 +45,9 @@ public class AltaEmpleados extends JDialog {
         panelAltaEmp.setBackground(Styles.bgLight);
         panelDataEmp.setBackground(Styles.bgLight);
         
-        cboEmpRol.addItem("Empleado");
         cboEmpRol.addItem("Administrador");
+        cboEmpRol.addItem("Dueño");
+        cboEmpRol.addItem("Empleado");
         
         panelBtns.setLayout(new FlowLayout(FlowLayout.CENTER));
         Btn btnAlta = Btn.primary("Guardar");
@@ -70,8 +73,9 @@ public class AltaEmpleados extends JDialog {
         panelAltaEmp.setBackground(Styles.bgLight);
         panelDataEmp.setBackground(Styles.bgLight);
         
-        cboEmpRol.addItem("Empleado");
         cboEmpRol.addItem("Administrador");
+        cboEmpRol.addItem("Dueño");
+        cboEmpRol.addItem("Empleado");
 
         
         panelBtns.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -133,6 +137,19 @@ public class AltaEmpleados extends JDialog {
         
         txtEmpTel.addKeyListener(new NumberVerifier());
         txtDni.addKeyListener(new NumberVerifier());
+
+        // Nombre/Apellido: solo letras y espacios. NombreVerifier hace de KeyListener (bloquea
+        // tecla inválida al tipear) y de InputVerifier (revalida al perder el foco — atrapa
+        // texto pegado con números/símbolos que el KeyListener no puede interceptar).
+        NombreVerifier nombreVerifier = new NombreVerifier();
+        txtEmpNombre.addKeyListener(nombreVerifier);
+        txtEmpNombre.setInputVerifier(nombreVerifier);
+        txtEmpApe.addKeyListener(nombreVerifier);
+        txtEmpApe.setInputVerifier(nombreVerifier);
+
+        // Email no se puede filtrar tecla por tecla (igual que en la tabla de Usuarios) —
+        // EmailVerifier revalida el valor completo al perder el foco.
+        txtEmail.setInputVerifier(new EmailVerifier());
     }
     
     private void cargarDatosUsuario() {
@@ -147,6 +164,11 @@ public class AltaEmpleados extends JDialog {
     }
     
     private void guardarUsuario() {
+
+        // validarCampos() ya existía pero nunca se llamaba acá.
+        if (!validarCampos()) {
+            return;
+        }
 
                     String user = txtEmpUser.getText();
                     String pass = txtEmpPass.getText();
@@ -172,6 +194,18 @@ public class AltaEmpleados extends JDialog {
                 return;
             }
 
+        }
+
+        // Validación previa de email duplicado (evita depender del UNIQUE de la BD, que
+        // tira SQLIntegrityConstraintViolationException y termina en el catch genérico de abajo).
+        // excludeId=-1 en alta; en edición se excluye el propio usuario para permitir guardar sin
+        // cambiar el email.
+        int excludeId = (userEditar != null) ? userEditar.getId() : -1;
+        if (control.doesEmailExist(email, excludeId)) {
+            JOptionPane.showMessageDialog(this,
+                "Ese email ya está en uso por otro usuario.",
+                "Email duplicado", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
         try {
@@ -226,9 +260,9 @@ public class AltaEmpleados extends JDialog {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         txtDni = new javax.swing.JTextField();
+        panelBtns = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         txtEmail = new javax.swing.JTextField();
-        panelBtns = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("frameAltaEmp"); // NOI18N
@@ -309,14 +343,6 @@ public class AltaEmpleados extends JDialog {
         txtDni.setBorder(null);
         txtDni.setPreferredSize(new java.awt.Dimension(84, 28));
 
-        jLabel10.setText("Email*");
-
-        txtEmail.setBackground(new java.awt.Color(240, 240, 240));
-        txtEmail.setForeground(new java.awt.Color(51, 51, 51));
-        txtEmail.setText("usuario@email.com");
-        txtEmail.setBorder(null);
-        txtEmail.setPreferredSize(new java.awt.Dimension(84, 28));
-
         javax.swing.GroupLayout panelBtnsLayout = new javax.swing.GroupLayout(panelBtns);
         panelBtns.setLayout(panelBtnsLayout);
         panelBtnsLayout.setHorizontalGroup(
@@ -327,6 +353,19 @@ public class AltaEmpleados extends JDialog {
             panelBtnsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 100, Short.MAX_VALUE)
         );
+
+        jLabel10.setText("Email*");
+
+        txtEmail.setBackground(new java.awt.Color(240, 240, 240));
+        txtEmail.setForeground(new java.awt.Color(51, 51, 51));
+        txtEmail.setText("nombre@gmail.com");
+        txtEmail.setBorder(null);
+        txtEmail.setPreferredSize(new java.awt.Dimension(84, 28));
+        txtEmail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtEmailActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelDataEmpLayout = new javax.swing.GroupLayout(panelDataEmp);
         panelDataEmp.setLayout(panelDataEmpLayout);
@@ -339,22 +378,21 @@ public class AltaEmpleados extends JDialog {
             .addGroup(panelDataEmpLayout.createSequentialGroup()
                 .addGap(54, 54, 54)
                 .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(checkPass)
-                    .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtEmpPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtEmpUser, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(cboEmpRol, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(txtEmpPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtEmpUser, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cboEmpRol, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtEmpNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtEmpApe, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -370,39 +408,48 @@ public class AltaEmpleados extends JDialog {
                     .addGroup(panelDataEmpLayout.createSequentialGroup()
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(21, 21, 21)
-                        .addComponent(jLabel3)
-                        .addGap(18, 63, Short.MAX_VALUE)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(cboEmpRol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(22, 22, 22)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtEmpNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(23, 23, 23)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
-                            .addComponent(txtEmpApe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(27, 27, 27)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9))
-                        .addGap(18, 18, 18)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtEmpTel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel7))
-                        .addGap(18, 18, 18)
-                        .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10))
-                        .addGap(58, 58, 58))
+                        .addComponent(jLabel3))
                     .addGroup(panelDataEmpLayout.createSequentialGroup()
                         .addComponent(txtEmpUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(15, 15, 15)
                         .addComponent(txtEmpPass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(checkPass)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(checkPass)))
+                .addGap(18, 18, 18)
+                .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelDataEmpLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE))
+                    .addComponent(cboEmpRol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
+                .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelDataEmpLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE))
+                    .addComponent(txtEmpNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(23, 23, 23)
+                .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelDataEmpLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE))
+                    .addComponent(txtEmpApe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelDataEmpLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE))
+                    .addComponent(txtDni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelDataEmpLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 22, Short.MAX_VALUE))
+                    .addComponent(txtEmpTel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelDataEmpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
                 .addComponent(panelBtns, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -447,6 +494,10 @@ public class AltaEmpleados extends JDialog {
           }
     }//GEN-LAST:event_checkPassActionPerformed
 
+    private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtEmailActionPerformed
+
     private boolean validarCampos() {
         if (txtEmpUser.getText().isEmpty() || cboEmpRol.getSelectedItem() == null || txtDni.getText().isEmpty() ||
            txtEmpNombre.getText().isEmpty() || txtEmpApe.getText().isEmpty() || txtEmpPass.getText().isEmpty() ||
@@ -455,12 +506,36 @@ public class AltaEmpleados extends JDialog {
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return false; // Indicate validation failure
         }
+        // Respaldo del NombreVerifier (InputVerifier) ya adjuntado a los campos.
+        if (!NombreVerifier.isValid(txtEmpNombre.getText()) || !NombreVerifier.isValid(txtEmpApe.getText())) {
+            JOptionPane.showMessageDialog(null,
+                "El nombre y el apellido solo pueden contener letras y espacios.",
+                "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        // Respaldo de NumberVerifier: el KeyListener solo filtra tipeo, texto pegado (Ctrl+V)
+        // lo saltea y llegaba sin validar hasta el intento de persistencia. Se revalida acá
+        // el valor final antes de guardar, igual que Nombre/Apellido/Email arriba.
+        if (!NumberVerifier.isValid(txtDni.getText()) || !NumberVerifier.isValid(txtEmpTel.getText())) {
+            JOptionPane.showMessageDialog(null,
+                "El DNI y el teléfono solo pueden contener números.",
+                "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        // Respaldo del EmailVerifier (InputVerifier) ya adjuntado a txtEmail.
+        if (!EmailVerifier.isValid(txtEmail.getText())) {
+            JOptionPane.showMessageDialog(null,
+                "Ingrese una dirección de correo válida (ej: usuario@dominio.com).",
+                "Email inválido", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
         return true; // Indicate validation success
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> cboEmpRol;
     private javax.swing.JCheckBox checkPass;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -468,7 +543,6 @@ public class AltaEmpleados extends JDialog {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel lblCargaEmp;
     private javax.swing.JPanel panelAltaEmp;
     private javax.swing.JPanel panelBtns;

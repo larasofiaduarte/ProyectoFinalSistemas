@@ -5,6 +5,7 @@
 package com.mycompany.persistencia;
 
 import com.mycompany.proyectofinal.Cliente;
+import com.mycompany.proyectofinal.Turno;
 import com.mycompany.proyectofinal.Usuario;
 import java.io.Serializable;
 import java.util.List;
@@ -135,23 +136,68 @@ public class ClienteJpaController implements Serializable {
     }
     
     
-    public void softDelete(int clienteId) {
+    /**
+     * Elimina físicamente TODOS los turnos que referencian al cliente y borra el cliente —
+     * todo en una única transacción. Mismo patrón que ServicioJpaController.deleteAndRemoveTurnos:
+     * sin soft-delete, sin NULL, sin estado intermedio si algo falla a mitad de camino.
+     */
+    public void deleteAndRemoveTurnos(int clienteId) {
         EntityManager em = null;
         EntityTransaction tx = null;
         try {
             em = emf.createEntityManager();
             tx = em.getTransaction();
             tx.begin();
-            Cliente c = em.find(Cliente.class, clienteId);
-            if (c != null) {
-                c.setActivo(false);
-                em.merge(c);
-            }
+
+            em.createQuery("DELETE FROM Turno t WHERE t.cliente.id = :id")
+                .setParameter("id", clienteId)
+                .executeUpdate();
+
+            Cliente cliente = em.getReference(Cliente.class, clienteId);
+            em.remove(cliente);
+
             tx.commit();
+            // El DELETE por JPQL va directo a la base y no invalida el caché compartido de
+            // EclipseLink por sí solo (mismo motivo que en ServicioJpaController).
+            emf.getCache().evict(Turno.class);
+            emf.getCache().evict(Cliente.class);
         } catch (Exception e) {
             if (tx != null && tx.isActive()) tx.rollback();
-            logger.error("Error soft-deleting cliente", e);
-            throw new RuntimeException("Error soft-deleting cliente", e);
+            logger.error("Error eliminando turnos y cliente", e);
+            throw new RuntimeException("Error deleting turnos and cliente", e);
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+
+    /**
+     * Reasigna todos los turnos del cliente a otro cliente y borra el cliente original —
+     * todo en una única transacción, mismo motivo que deleteAndRemoveTurnos.
+     */
+    public void deleteAndReassignTurnos(int clienteId, int nuevoClienteId) {
+        EntityManager em = null;
+        EntityTransaction tx = null;
+        try {
+            em = emf.createEntityManager();
+            tx = em.getTransaction();
+            tx.begin();
+
+            Cliente nuevo = em.getReference(Cliente.class, nuevoClienteId);
+            em.createQuery("UPDATE Turno t SET t.cliente = :nuevo WHERE t.cliente.id = :id")
+                .setParameter("nuevo", nuevo)
+                .setParameter("id", clienteId)
+                .executeUpdate();
+
+            Cliente cliente = em.getReference(Cliente.class, clienteId);
+            em.remove(cliente);
+
+            tx.commit();
+            emf.getCache().evict(Turno.class);
+            emf.getCache().evict(Cliente.class);
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) tx.rollback();
+            logger.error("Error reasignando turnos y eliminando cliente", e);
+            throw new RuntimeException("Error reassigning turnos and deleting cliente", e);
         } finally {
             if (em != null) em.close();
         }

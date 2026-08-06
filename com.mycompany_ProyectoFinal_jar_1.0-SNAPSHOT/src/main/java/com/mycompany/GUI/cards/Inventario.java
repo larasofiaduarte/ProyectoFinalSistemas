@@ -67,29 +67,29 @@ public class Inventario extends MainPanelBase {
         java.util.List<Producto> productos = control.traerProductos();
 
         String[] columns = {
-            "ID", "Nombre", "Stock", "Unidad", "Minimo", "Categoria", "Proveedor"
+            "ID", "Nombre", "Stock", "Minimo", "Unidad", "Categoria", "Proveedor"
         };
 
         java.util.List<Function<Producto, Object>> getters = java.util.List.of(
             c -> c.getId(),
             c -> c.getNombre(),
             c -> StockFormatter.format(c.getStock(), c.getUnidad()),
+            c -> StockFormatter.format(c.getMinimo(), c.getUnidad()),
             c -> {
                 String u = c.getUnidad();
                 // Si el stock supera 1 litro, la unidad efectiva de display es "lt"
                 if ("ml".equals(u) && c.getStock() >= 1000) return "lt";
                 return u != null ? u : "ml";
             },
-            c -> StockFormatter.format(c.getMinimo(), c.getUnidad()),
             c -> c.getCategoria() != null ? c.getCategoria().getNombre() : "",
             c -> c.getProveedor()
         );
 
-        // Unidad (col 3) es solo lectura — se actualiza automáticamente cuando se edita stock o mínimo
+        // Unidad (col 4) es solo lectura — se actualiza automáticamente cuando se edita stock o mínimo
         boolean[] editables = new boolean[columns.length];
         for (int i = 1; i < columns.length; i++) editables[i] = true;
         editables[0] = false;
-        editables[3] = false;
+        editables[4] = false;
         setTableData(productos, columns, getters, editables);
 
         @SuppressWarnings("unchecked")
@@ -106,8 +106,7 @@ public class Inventario extends MainPanelBase {
                     "Error de validación", JOptionPane.WARNING_MESSAGE);
             }
         });
-        // col 3 (Unidad) no tiene setter — se deriva de la categoría
-        prodModel.setValueSetter(4, (p, v) -> {
+        prodModel.setValueSetter(3, (p, v) -> {
             try {
                 StockFormatter.ParseResult r = StockFormatter.parseConUnidad(v.toString(), p.getUnidad());
                 p.setMinimo(r.valor);
@@ -117,6 +116,7 @@ public class Inventario extends MainPanelBase {
                     "Error de validación", JOptionPane.WARNING_MESSAGE);
             }
         });
+        // col 4 (Unidad) no tiene setter — se deriva de la categoría
         prodModel.setValueSetter(5, (p, v) -> {
             if (v instanceof Categoria cat) p.setCategoria(cat);
         });
@@ -158,7 +158,7 @@ public class Inventario extends MainPanelBase {
                     e.consume();
                 }
             });
-            table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(minimoField));
+            table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(minimoField));
 
             // Editor de categoría: dropdown con entidades Categoria desde la BD
             List<Categoria> cats = control.traerCategorias();

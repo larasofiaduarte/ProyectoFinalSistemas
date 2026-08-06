@@ -6,6 +6,7 @@ package com.mycompany.GUI.abm;
 
 import com.mycompany.GUI.*;
 import com.mycompany.GUI.components.Btn;
+import com.mycompany.GUI.components.ComboAltaBinder;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
 import com.mycompany.proyectofinal.util.DialogUtil;
 import com.mycompany.proyectofinal.Caja;
@@ -156,9 +157,20 @@ public class AltaTurnos extends JDialog {
             return;
         }
 
-        // Resuelve el empleado seleccionado en el combo, con fallback al empleado del servicio
+        // Resuelve el empleado seleccionado en el combo, con fallback al empleado del servicio.
+        // Empleado es opcional (dejarlo vacío cae al empleado por defecto del servicio) — pero si
+        // el usuario escribió algo que NO está vacío y tampoco coincide con ningún empleado real
+        // (mismo problema que Cliente/Servicio: combo editable, texto libre), no debe caer
+        // silenciosamente al fallback: hay que avisar en vez de ignorar lo que tipeó.
         String empStr = (String) cboEmpleado.getSelectedItem();
         Usuario empleadoSeleccionado = encontrarEmpleado(empStr);
+        if (empleadoSeleccionado == null && empStr != null && !empStr.isBlank()) {
+            JOptionPane.showMessageDialog(this,
+                "El empleado ingresado no es válido. Selecciónelo de la lista o deje el campo vacío.",
+                "Campos vacíos",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         if (empleadoSeleccionado == null && servicioSeleccionado != null) {
             empleadoSeleccionado = servicioSeleccionado.getEmpleado();
         }
@@ -302,11 +314,11 @@ public class AltaTurnos extends JDialog {
 
         jLabel4.setText("Horario*");
 
-        // Los horarios se cargan dinámicamente en actualizarHorariosDisponibles() según servicio/empleado/fecha
+        cboHora.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30" }));
 
         jLabel5.setText("Estado*");
 
-        cboEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pendiente", "Finalizado", "Cancelado" }));
+        cboEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pendiente", "Finalizado" }));
 
         jLabel6.setText("Detalle");
 
@@ -323,10 +335,7 @@ public class AltaTurnos extends JDialog {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(51, 51, 51)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(cboEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addGroup(jPanel3Layout.createSequentialGroup()
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -340,13 +349,13 @@ public class AltaTurnos extends JDialog {
                                 .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGap(18, 18, 18)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(cboEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(calendar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(cboServicio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(calendar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cboServicio, 0, 122, Short.MAX_VALUE)
+                                .addComponent(cboClientes, 0, 122, Short.MAX_VALUE)
+                                .addComponent(cboEmpleado, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGap(196, 196, 196))))
                 .addContainerGap(70, Short.MAX_VALUE))
         );
@@ -354,17 +363,17 @@ public class AltaTurnos extends JDialog {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboClientes))
+                    .addComponent(cboClientes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(38, 38, 38)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboServicio))
+                    .addComponent(cboServicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(31, 31, 31)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
@@ -372,23 +381,23 @@ public class AltaTurnos extends JDialog {
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(calendar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(34, 34, 34)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboHora))
+                    .addComponent(cboHora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(28, 28, 28)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboEstado))
+                    .addComponent(cboEstado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(cboEmpleado))
+                    .addComponent(cboEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(31, 31, 31)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
@@ -497,15 +506,23 @@ public class AltaTurnos extends JDialog {
     }
     
     private boolean validarCampos() {
-    if (cboClientes.getSelectedItem() == null  || 
-        cboServicio.getSelectedItem() == null || 
-        cboHora.getSelectedItem() == null || 
-        cboEstado.getSelectedItem() == null || 
-        calendar.getDate() == null ) {
+    // cboClientes/cboServicio son editables (para permitir búsqueda por texto): si el usuario
+    // borra el texto o escribe algo que no coincide con ningún ítem, getSelectedItem() devuelve
+    // "" o un String cualquiera — NUNCA null — así que ese check solo no alcanza. clienteSeleccionado
+    // y servicioSeleccionado ya se resolvieron por nombre antes de este llamado (guardarCliente/
+    // guardarServicio) y quedan null si el texto no corresponde a ninguna entidad real: son la
+    // validación real de "hay una entidad válida elegida", no el texto crudo del combo.
+    if (cboClientes.getSelectedItem() == null  ||
+        cboServicio.getSelectedItem() == null ||
+        cboHora.getSelectedItem() == null ||
+        cboEstado.getSelectedItem() == null ||
+        calendar.getDate() == null ||
+        clienteSeleccionado == null ||
+        servicioSeleccionado == null) {
 
-        JOptionPane.showMessageDialog(this, 
-            "Por favor, complete todos los campos obligatorios.", 
-            "Campos vacíos", 
+        JOptionPane.showMessageDialog(this,
+            "Por favor, complete todos los campos obligatorios.",
+            "Campos vacíos",
             JOptionPane.WARNING_MESSAGE);
         return false;
     }
@@ -551,36 +568,40 @@ public class AltaTurnos extends JDialog {
 
     //cargar servicios a cbo
     public void obtenerServicios(){
-        List<Servicio> servicios = control.traerServicios();
-        List<String> nombres = new ArrayList<>();
-        for (Servicio servicio : servicios) {
-            String nombreServicio = servicio.getNombre();
-            cboServicio.addItem(nombreServicio);  // Assuming the toString method is implemented in Servicio
-            nombres.add(nombreServicio);
-        }
-        Styles.addAutoComplete(cboServicio, nombres); //permitir busqueda
+        Runnable refresh = getOwner() instanceof Ventana v ? v::recargarServicios : null;
+        new ComboAltaBinder<>(
+            cboServicio, this,
+            control::traerServicios,
+            Servicio::getNombre,
+            "+ Nuevo servicio...",
+            (frame, onSave) -> new AltaServicios(frame, true, onSave),
+            refresh
+        ).cargar();
     }
     //cargar clientes a cbo
     public void obtenerClientes(){
-        List<Cliente> clientes = control.traerClientes().stream()
-                .filter(c -> c.isActivo())
-                .collect(java.util.stream.Collectors.toList());
-        List<String> nombres = new ArrayList<>();
-        for (Cliente cliente : clientes) {
-            String nombreCliente = (cliente.getNombre()+" " +cliente.getApellido());
-            cboClientes.addItem(nombreCliente);
-            nombres.add(nombreCliente);
-        }
-        Styles.addAutoComplete(cboClientes, nombres);
+        Runnable refresh = getOwner() instanceof Ventana v ? v::recargarClientes : null;
+        new ComboAltaBinder<>(
+            cboClientes, this,
+            control::traerClientes,
+            c -> c.getNombre() + " " + c.getApellido(),
+            "+ Nuevo cliente...",
+            (frame, onSave) -> new AltaClientes(frame, true, onSave),
+            refresh
+        ).cargar();
     }
-    
+
     private void obtenerEmpleados() {
         listaUsuarios = control.traerUsuarios();
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-        for (Usuario u : listaUsuarios) {
-            model.addElement(u.getNombre() + " " + u.getApellido());
-        }
-        cboEmpleado.setModel(model);
+        Runnable refresh = getOwner() instanceof Ventana v ? v::recargarUsuarios : null;
+        new ComboAltaBinder<>(
+            cboEmpleado, this,
+            control::traerUsuarios,
+            u -> u.getNombre() + " " + u.getApellido(),
+            "+ Nuevo empleado...",
+            (frame, onSave) -> new AltaEmpleados(frame, true, onSave),
+            refresh
+        ).cargar();
         cboEmpleado.setSelectedIndex(-1);
         cboEmpleado.setEnabled(false);
     }

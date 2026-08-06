@@ -6,6 +6,7 @@
 package com.mycompany.GUI.cards;
 
 import com.mycompany.proyectofinal.util.ReportManager;
+import com.mycompany.proyectofinal.util.NombreVerifier;
 import com.mycompany.GUI.Styles;
 import java.awt.*;
 import javax.swing.*;
@@ -78,8 +79,10 @@ public class Clientes extends MainPanelBase {
 
         @SuppressWarnings("unchecked")
         CustomTableModel<Cliente> clienteModel = (CustomTableModel<Cliente>) table.getModel();
+        clienteModel.setNombreColumns(1, 2);
         clienteModel.setValueSetter(1, (c, v) -> c.setNombre(v.toString()));
         clienteModel.setValueSetter(2, (c, v) -> c.setApellido(v.toString()));
+        clienteModel.setTelefonoColumns(3);
         clienteModel.setValueSetter(3, (c, v) -> c.setTelefono(v.toString()));
         clienteModel.setValueSetter(4, (c, v) -> c.setGenero(v.toString()));
         clienteModel.setEntityClass(Cliente.class, Map.of(1, "nombre", 2, "apellido", 3, "telefono", 4, "genero"));
@@ -98,6 +101,21 @@ public class Clientes extends MainPanelBase {
             int colGenero = colIndex("Género");
             JComboBox<String> generoCombo = new JComboBox<>(new String[]{"F", "M", "X"});
             table.getColumnModel().getColumn(colGenero).setCellEditor(new DefaultCellEditor(generoCombo));
+
+            // Nombre/Apellido: solo letras y espacios. El mismo NombreVerifier hace de KeyListener
+            // (bloquea tecla inválida al tipear) y de InputVerifier (revalida al perder el foco,
+            // atrapa texto pegado) — CustomTableModel.setNombreColumns ya validado arriba es el
+            // respaldo a nivel de modelo por si el InputVerifier no intercepta el commit.
+            NombreVerifier nombreVerifier = new NombreVerifier();
+            JTextField nombreField = new JTextField();
+            nombreField.addKeyListener(nombreVerifier);
+            nombreField.setInputVerifier(nombreVerifier);
+            table.getColumnModel().getColumn(colIndex("Nombre")).setCellEditor(new DefaultCellEditor(nombreField));
+
+            JTextField apellidoField = new JTextField();
+            apellidoField.addKeyListener(nombreVerifier);
+            apellidoField.setInputVerifier(nombreVerifier);
+            table.getColumnModel().getColumn(colIndex("Apellido")).setCellEditor(new DefaultCellEditor(apellidoField));
         });
     }
 
@@ -123,12 +141,22 @@ public class Clientes extends MainPanelBase {
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
 
-        DeleteWithRelationsHandler.handleDeleteCliente(this, id, () ->
-            JOptionPane.showMessageDialog(this, "Cliente dado de baja correctamente.",
-                    "Baja exitosa", JOptionPane.INFORMATION_MESSAGE)
-        );
-
-        cargarTabla();
+        // El refresco de tabla vive DENTRO de onSuccess (mismo motivo que Servicios.eliminarServicio):
+        // si el borrado fallaba o el usuario cancelaba, cargarTabla() incondicional dejaba la tabla
+        // con datos viejos hasta reiniciar la app.
+        try {
+            DeleteWithRelationsHandler.handleDeleteCliente(this, id, () -> {
+                table.clearSelection();
+                cargarTabla();
+                ventana.recargarTurnos(); // los turnos de este cliente pudieron eliminarse/reasignarse
+                JOptionPane.showMessageDialog(this, "Cliente eliminado correctamente.",
+                        "Eliminación exitosa", JOptionPane.INFORMATION_MESSAGE);
+            });
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Ocurrió un error al eliminar el cliente.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     // private void modificarCliente() { // disabled — editing is handled inline

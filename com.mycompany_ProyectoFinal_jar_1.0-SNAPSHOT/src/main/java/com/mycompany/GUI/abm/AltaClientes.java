@@ -5,6 +5,7 @@ import com.mycompany.GUI.components.Btn;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Controladora;
 import com.mycompany.proyectofinal.util.RegistrarActividad;
+import com.mycompany.proyectofinal.util.NombreVerifier;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -65,6 +66,35 @@ public class AltaClientes extends JDialog {
             genero = "F";
         }else if(RadioBtnM.isSelected()){
             genero = "M";
+        }
+
+        // validarCampos() ya existía pero nunca se llamaba acá — Nombre/Apellido nunca se
+        // validaban como obligatorios pese al "*" en sus labels.
+        if (!validarCampos()) {
+            return;
+        }
+
+        // El KeyListener de txtTelCli (línea ~281) solo filtra tipeo: pegar texto (Ctrl+V) inserta
+        // directo en el Document sin pasar por keyTyped, así que un teléfono con letras/símbolos
+        // pegado se cuela sin validar. Se valida acá antes de persistir, sin depender solo del
+        // filtro de teclas. Teléfono no es obligatorio (sin "*" en el label, a diferencia de
+        // Nombre*/Apellido*), así que vacío sigue siendo válido. El espacio se quita antes de
+        // guardar (ej: "3764 839272" → "3764839272") — misma regla que la tabla de Clientes
+        // (CustomTableModel.setTelefonoColumns), para que ambos puntos de carga sean consistentes.
+        telefono = telefono.replace(" ", "");
+        if (!telefono.isEmpty()) {
+            if (!telefono.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this,
+                    "El teléfono debe contener solo números.",
+                    "Teléfono inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (telefono.length() < 10) {
+                JOptionPane.showMessageDialog(this,
+                    "El teléfono debe tener al menos 10 dígitos (ej: 3764 839272).",
+                    "Teléfono inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
         }
 
         try {
@@ -286,7 +316,16 @@ public class AltaClientes extends JDialog {
                 }
             }
         });
-        
+
+        // Nombre/Apellido: solo letras y espacios. NombreVerifier hace de KeyListener (bloquea
+        // tecla inválida al tipear) y de InputVerifier (revalida al perder el foco — atrapa
+        // texto pegado con números/símbolos que el KeyListener no puede interceptar).
+        NombreVerifier nombreVerifier = new NombreVerifier();
+        txtNombreCli.addKeyListener(nombreVerifier);
+        txtNombreCli.setInputVerifier(nombreVerifier);
+        txtApellidoCli.addKeyListener(nombreVerifier);
+        txtApellidoCli.setInputVerifier(nombreVerifier);
+
         btnLimpiar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -308,11 +347,19 @@ public class AltaClientes extends JDialog {
     }
     
     private boolean validarCampos() {
-        if (txtNombreCli.getText().isEmpty() || 
-            txtApellidoCli.getText().isEmpty() ) {
+        if (txtNombreCli.getText().isBlank() ||
+            txtApellidoCli.getText().isBlank() ) {
 
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos obligatorios.", "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return false; //falla de validacion
+        }
+        // Respaldo del NombreVerifier (InputVerifier) ya adjuntado a los campos — por si el botón
+        // Guardar no dispara la pérdida de foco de forma confiable en algún caso.
+        if (!NombreVerifier.isValid(txtNombreCli.getText()) || !NombreVerifier.isValid(txtApellidoCli.getText())) {
+            JOptionPane.showMessageDialog(null,
+                "El nombre y el apellido solo pueden contener letras y espacios.",
+                "Valor inválido", JOptionPane.WARNING_MESSAGE);
+            return false;
         }
         return true; // validacion correcta
     }

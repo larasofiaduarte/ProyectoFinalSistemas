@@ -44,7 +44,10 @@ public class StockFormatter {
 
     /** Formatea un valor en litros quitando ceros y punto innecesarios: 1.50 → "1.5", 2.00 → "2". */
     private static String formatLt(double litros) {
-        String s = String.format("%.2f", litros);
+        // Locale.US fuerza punto decimal — sin esto toma el locale por defecto de la app
+        // (es-AR, ver ProyectoFinal.main) y devuelve coma, ej. "1,00" en vez de "1.00",
+        // que la limpieza de abajo (solo saca puntos) no detecta y deja colgando: "1,lt".
+        String s = String.format(java.util.Locale.US, "%.2f", litros);
         s = s.replaceAll("0+$", "").replaceAll("\\.$", "");
         return s;
     }

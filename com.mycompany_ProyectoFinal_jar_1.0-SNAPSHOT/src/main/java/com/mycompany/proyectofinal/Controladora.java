@@ -108,6 +108,10 @@ public class Controladora {
     public boolean doesUsernameExist(String username) {
             return controlPersis.doesUsernameExist(username);
     }
+
+    public boolean doesEmailExist(String email, int excludeId) {
+            return controlPersis.doesEmailExist(email, excludeId);
+    }
     
  
     public void resetPassword(String user, String newPass) {
@@ -145,7 +149,6 @@ public class Controladora {
         nuevoCliente.setApellido(apellido);
         nuevoCliente.setTelefono(telefono);
         nuevoCliente.setGenero(genero);
-        nuevoCliente.setActivo(true);
 
         controlPersis.guardarCliente(nuevoCliente);
         

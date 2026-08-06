@@ -214,26 +214,8 @@ public class TurnoJpaController {
         }
     }
 
-    public void cancelByCliente(int clienteId) {
-        EntityManager em = null;
-        EntityTransaction tx = null;
-        try {
-            em = emf.createEntityManager();
-            tx = em.getTransaction();
-            tx.begin();
-            em.createQuery(
-                "UPDATE Turno t SET t.estado = 'CANCELADO' WHERE t.cliente.id = :id AND t.estado NOT IN ('CANCELADO','Cancelado','Finalizado')")
-                .setParameter("id", clienteId)
-                .executeUpdate();
-            tx.commit();
-        } catch (Exception e) {
-            if (tx != null && tx.isActive()) tx.rollback();
-            logger.error("Error cancelando turnos por cliente", e);
-            throw new RuntimeException("Error cancelling turnos by cliente", e);
-        } finally {
-            if (em != null) em.close();
-        }
-    }
+    // cancelByCliente se reemplazó por ClienteJpaController.deleteAndRemoveTurnos /
+    // .deleteAndReassignTurnos — mismo motivo que cancelByServicio (ver comentario arriba).
 
     public List<Turno> findActiveByEmpleado(int usuarioId) {
         EntityManager em = emf.createEntityManager();

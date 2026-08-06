@@ -1,6 +1,8 @@
 package com.mycompany.GUI.cards;
 
 import com.mycompany.GUI.Ventana;
+import com.mycompany.GUI.abm.AltaClientes;
+import com.mycompany.GUI.abm.AltaEmpleados;
 import com.mycompany.GUI.abm.AltaProveedores;
 import com.mycompany.GUI.abm.AltaServicios;
 import com.mycompany.persistencia.ClienteJpaController;
@@ -8,7 +10,6 @@ import com.mycompany.persistencia.ProductoJpaController;
 import com.mycompany.persistencia.ProveedorJpaController;
 import com.mycompany.persistencia.ServicioJpaController;
 import com.mycompany.persistencia.ServicioProductoJpaController;
-import com.mycompany.persistencia.TurnoJpaController;
 import com.mycompany.persistencia.UsuarioJpaController;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.proyectofinal.Producto;
@@ -224,71 +225,97 @@ public class DeleteWithRelationsHandler {
     }
 
     // -------------------------------------------------------------------------
-    // 4. Cliente → Turno  (soft delete only — hard delete NOT allowed)
+    // 4. Cliente → Turno  (mismo patrón que Servicio → Turno: sin soft-delete, sin NULL)
     // -------------------------------------------------------------------------
     public static void handleDeleteCliente(Component parent, int clienteId, Runnable onSuccess) {
         ClienteJpaController cliJpa = new ClienteJpaController();
-        TurnoJpaController turJpa = new TurnoJpaController();
 
         Cliente cliente = cliJpa.findCliente(clienteId);
         if (cliente == null) { showError(parent, "Cliente no encontrado."); return; }
 
-        List<Turno> activeTurnos = turJpa.findActiveByCliente(clienteId);
-        List<RelationType> relaciones = activeTurnos.isEmpty() ? List.of() : List.of(RelationType.TURNOS);
+        // Igual que Servicio: cualquier turno que referencie a este cliente, sea cual sea su
+        // estado, tiene que reasignarse o eliminarse antes de poder borrar el cliente.
+        boolean tieneTurnosAsociados = cliJpa.checkIfClientReferenced(clienteId);
+        List<RelationType> relaciones = tieneTurnosAsociados ? List.of(RelationType.TURNOS) : List.of();
 
-        // Cliente usa soft-delete (nunca se borra realmente), por eso el verbo es "dar de baja"
-        // en vez del "eliminar" genérico que usa el resto de las entidades.
-        if (activeTurnos.isEmpty()) {
-            String msg = htmlWrap(DeleteWarningService.buildMessage(
-                    EntityType.CLIENTE, relaciones, "dar de baja", "se da de baja", "¿Desea continuar?"));
+        if (!tieneTurnosAsociados) {
+            String msg = htmlWrap(DeleteWarningService.buildMessage(EntityType.CLIENTE, relaciones));
             if (!confirmar(parent, msg)) return;
-            cliJpa.softDelete(clienteId);
+            cliJpa.destroy(clienteId);
             if (onSuccess != null) onSuccess.run();
             return;
         }
 
+        List<Cliente> otros = cliJpa.findClienteEntities().stream()
+                .filter(c -> c.getId() != clienteId).collect(Collectors.toList());
+
+        // "Eliminar turnos" borra las filas físicamente — mismo mensaje/estructura que Servicio.
         String msg = htmlWrap(DeleteWarningService.buildMessage(
-                EntityType.CLIENTE, relaciones, "dar de baja", "se da de baja", "¿Qué desea hacer?"));
+                EntityType.CLIENTE, relaciones, "¿Qué desea hacer con los turnos?")
+                + "<br><br>Si elige <b>Eliminar turnos</b>, los turnos asociados se borrarán "
+                + "de forma permanente y esta acción no se podrá deshacer. Si prefiere conservarlos, "
+                + "use <b>Reasignar a otro cliente</b>.");
 
         Window window = SwingUtilities.getWindowAncestor(parent);
+        Frame frame = findFrame(window);
         DeleteRelationsDialog dialog = new DeleteRelationsDialog(
                 window, msg,
-                "Solo dar de baja al cliente (mantener turnos)",
-                "Cancelar turnos y dar de baja al cliente"
+                "Eliminar turnos",
+                "Reasignar a otro cliente",
+                otros,
+                obj -> obj.toString(),
+                () -> {
+                    Runnable onNuevoSave = frame instanceof Ventana v ? v::recargarClientes : () -> {};
+                    AltaClientes alta = new AltaClientes(frame, true, onNuevoSave);
+                    alta.setLocationRelativeTo(window);
+                    alta.setVisible(true);
+                },
+                () -> cliJpa.findClienteEntities().stream()
+                        .filter(c -> c.getId() != clienteId)
+                        .collect(Collectors.toList())
         );
         dialog.setVisible(true);
 
         if (dialog.getChoice() == null) return;
 
-        if (dialog.getChoice() == DeleteRelationsDialog.Choice.B) {
-            turJpa.cancelByCliente(clienteId);
+        // Reasignar/eliminar turnos + borrar el cliente corre en UNA transacción (ver
+        // ClienteJpaController) — nunca queda un estado intermedio a mitad de camino.
+        if (dialog.getChoice() == DeleteRelationsDialog.Choice.A) {
+            // Segunda confirmación obligatoria, igual que Servicio: esta rama borra turnos de
+            // forma permanente e irreversible.
+            boolean confirmaBorrado = confirmar(parent,
+                    "¿Está seguro que desea eliminar permanentemente los turnos relacionados? "
+                    + "Esta acción no se puede deshacer.");
+            if (!confirmaBorrado) return;
+            cliJpa.deleteAndRemoveTurnos(clienteId);
+        } else {
+            Cliente nuevo = (Cliente) dialog.getSelectedItem();
+            cliJpa.deleteAndReassignTurnos(clienteId, nuevo.getId());
         }
-        cliJpa.softDelete(clienteId);
         if (onSuccess != null) onSuccess.run();
     }
 
     // -------------------------------------------------------------------------
-    // 5. Empleado (Usuario) → Turno (via Servicio)
+    // 5. Empleado (Usuario) → Turno  (mismo patrón que Cliente/Servicio → Turno: sin
+    //    soft-delete, sin NULL en Turno.empleado — se reasigna o se elimina. Los Servicio que
+    //    el empleado tenía asignados se desvinculan/reasignan junto con los turnos, en la misma
+    //    transacción, para no romper la FK de Servicio.empleado al borrar el Usuario.)
     // -------------------------------------------------------------------------
     public static void handleDeleteEmpleado(Component parent, int usuarioId, Runnable onSuccess) {
         UsuarioJpaController usuJpa = new UsuarioJpaController();
-        ServicioJpaController serJpa = new ServicioJpaController();
-        TurnoJpaController turJpa = new TurnoJpaController();
 
         Usuario usuario = usuJpa.findUsuario(usuarioId);
         if (usuario == null) { showError(parent, "Empleado no encontrado."); return; }
 
-        List<Servicio> servicios = serJpa.findByEmpleado(usuarioId);
-        List<Turno> activeTurnos = turJpa.findActiveByEmpleado(usuarioId);
+        // Igual que Cliente/Servicio: cualquier turno que referencie a este empleado, sea cual
+        // sea su estado, tiene que reasignarse o eliminarse antes de poder borrar el empleado.
+        boolean tieneTurnosAsociados = usuJpa.checkIfReferencedByTurnos(usuarioId);
+        List<RelationType> relaciones = tieneTurnosAsociados ? List.of(RelationType.TURNOS) : List.of();
 
-        List<RelationType> relaciones = new ArrayList<>();
-        if (!servicios.isEmpty()) relaciones.add(RelationType.SERVICIOS);
-        if (!activeTurnos.isEmpty()) relaciones.add(RelationType.TURNOS);
-
-        if (servicios.isEmpty()) {
+        if (!tieneTurnosAsociados) {
             String msg = htmlWrap(DeleteWarningService.buildMessage(EntityType.EMPLEADO, relaciones));
             if (!confirmar(parent, msg)) return;
-            usuJpa.destroy(usuarioId);
+            usuJpa.destroyAndUnlinkServicios(usuarioId);
             if (onSuccess != null) onSuccess.run();
             return;
         }
@@ -296,29 +323,49 @@ public class DeleteWithRelationsHandler {
         List<Usuario> otros = usuJpa.findUsuarioEntities().stream()
                 .filter(u -> u.getId() != usuarioId).collect(Collectors.toList());
 
+        // "Eliminar turnos" borra las filas físicamente — mismo mensaje/estructura que Cliente/Servicio.
         String msg = htmlWrap(DeleteWarningService.buildMessage(
-                EntityType.EMPLEADO, relaciones, "¿Qué desea hacer?"));
+                EntityType.EMPLEADO, relaciones, "¿Qué desea hacer con los turnos?")
+                + "<br><br>Si elige <b>Eliminar turnos</b>, los turnos asociados se borrarán "
+                + "de forma permanente y esta acción no se podrá deshacer. Si prefiere conservarlos, "
+                + "use <b>Reasignar a otro empleado</b>.");
 
         Window window = SwingUtilities.getWindowAncestor(parent);
+        Frame frame = findFrame(window);
         DeleteRelationsDialog dialog = new DeleteRelationsDialog(
                 window, msg,
-                "Cancelar turnos activos y desvincular servicios",
-                "Reasignar servicios a otro empleado",
+                "Eliminar turnos",
+                "Reasignar a otro empleado",
                 otros,
-                obj -> obj.toString()
+                obj -> obj.toString(),
+                () -> {
+                    Runnable onNuevoSave = frame instanceof Ventana v ? v::recargarUsuarios : () -> {};
+                    AltaEmpleados alta = new AltaEmpleados(frame, true, onNuevoSave);
+                    alta.setLocationRelativeTo(window);
+                    alta.setVisible(true);
+                },
+                () -> usuJpa.findUsuarioEntities().stream()
+                        .filter(u -> u.getId() != usuarioId)
+                        .collect(Collectors.toList())
         );
         dialog.setVisible(true);
 
         if (dialog.getChoice() == null) return;
 
+        // Reasignar/eliminar turnos + servicios + borrar el empleado corre en UNA transacción
+        // (ver UsuarioJpaController) — nunca queda un estado intermedio a mitad de camino.
         if (dialog.getChoice() == DeleteRelationsDialog.Choice.A) {
-            turJpa.cancelByEmpleado(usuarioId);
-            serJpa.nullifyEmpleado(usuarioId);
+            // Segunda confirmación obligatoria, igual que Cliente/Servicio: esta rama borra
+            // turnos de forma permanente e irreversible.
+            boolean confirmaBorrado = confirmar(parent,
+                    "¿Está seguro que desea eliminar permanentemente los turnos relacionados? "
+                    + "Esta acción no se puede deshacer.");
+            if (!confirmaBorrado) return;
+            usuJpa.deleteAndRemoveTurnos(usuarioId);
         } else {
             Usuario nuevo = (Usuario) dialog.getSelectedItem();
-            serJpa.reassignEmpleado(usuarioId, nuevo.getId());
+            usuJpa.deleteAndReassignTurnos(usuarioId, nuevo.getId());
         }
-        usuJpa.destroy(usuarioId);
         if (onSuccess != null) onSuccess.run();
     }
 

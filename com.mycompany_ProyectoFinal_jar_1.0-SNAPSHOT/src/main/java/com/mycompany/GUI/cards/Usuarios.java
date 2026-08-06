@@ -7,7 +7,7 @@ package com.mycompany.GUI.cards;
 import com.mycompany.proyectofinal.util.ReportManager;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.proyectofinal.util.NumberVerifier;
-import com.mycompany.proyectofinal.util.DialogUtil;
+import com.mycompany.proyectofinal.util.NombreVerifier;
 import java.util.Map;
 import java.awt.*;
 import javax.swing.*;
@@ -80,9 +80,13 @@ public class Usuarios extends MainPanelBase {
         userModel.setValueSetter(1, (u, v) -> u.setUsername(v.toString()));
         userModel.setNumericColumns(2);
         userModel.setValueSetter(2, (u, v) -> u.setDni(v.toString()));
+        userModel.setNombreColumns(3, 4);
         userModel.setValueSetter(3, (u, v) -> u.setNombre(v.toString()));
         userModel.setValueSetter(4, (u, v) -> u.setApellido(v.toString()));
+        userModel.setTelefonoColumns(5);
         userModel.setValueSetter(5, (u, v) -> u.setTelefono(v.toString()));
+        userModel.setEmailColumns(6);
+        userModel.setEmailDuplicateChecker((email, excludeId) -> control.doesEmailExist(email, excludeId));
         userModel.setValueSetter(6, (u, v) -> u.setEmail(v.toString()));
         userModel.setValueSetter(7, (u, v) -> u.setRol(v.toString()));
         userModel.setEntityClass(Usuario.class, Map.of(1, "username", 2, "dni", 3, "nombre", 4, "apellido", 5, "telefono", 6, "email", 7, "rol"));
@@ -101,6 +105,23 @@ public class Usuarios extends MainPanelBase {
             JTextField dniField = new JTextField();
             dniField.addKeyListener(new NumberVerifier());
             table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(dniField));
+
+            // Nombre/Apellido: solo letras y espacios (mismo NombreVerifier que Clientes.java —
+            // KeyListener para tipeo, InputVerifier para pegado; setNombreColumns es el respaldo).
+            NombreVerifier nombreVerifier = new NombreVerifier();
+            JTextField nombreField = new JTextField();
+            nombreField.addKeyListener(nombreVerifier);
+            nombreField.setInputVerifier(nombreVerifier);
+            table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(nombreField));
+
+            JTextField apellidoField = new JTextField();
+            apellidoField.addKeyListener(nombreVerifier);
+            apellidoField.setInputVerifier(nombreVerifier);
+            table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(apellidoField));
+
+            int colRol = colIndex("Rol");
+            JComboBox<String> rolCombo = new JComboBox<>(new String[]{"Administrador", "Dueño", "Empleado"});
+            table.getColumnModel().getColumn(colRol).setCellEditor(new DefaultCellEditor(rolCombo));
         });
     }
 
@@ -134,14 +155,6 @@ public class Usuarios extends MainPanelBase {
             );
             return;
         }
-
-        boolean confirm = DialogUtil.confirmar(
-            this,
-            "¿Está seguro que desea eliminar este usuario?",
-            "Confirmar eliminación"
-        );
-
-        if (!confirm) return;
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();

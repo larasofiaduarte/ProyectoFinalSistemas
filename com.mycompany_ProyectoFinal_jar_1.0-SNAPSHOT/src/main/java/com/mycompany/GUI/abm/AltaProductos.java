@@ -143,10 +143,12 @@ public class AltaProductos extends JDialog{
         }
         Categoria categoriaSelec = (Categoria) catObj;
 
-        // Convierte litros → ml si la categoría usa ml como unidad base
+        // Convierte litros → ml si la categoría usa ml como unidad base — aplica a stock Y a
+        // mínimo por igual (antes solo convertía stock, dejando el mínimo guardado en lt crudo).
         String inputUnidad = (String) cmbUnidad.getSelectedItem();
         if ("lt".equalsIgnoreCase(inputUnidad) && "ml".equals(categoriaSelec.getUnidad())) {
             stock = stock * 1000;
+            minimo = minimo * 1000;
         }
 
         String provNombre = (String) cboProv.getSelectedItem();
@@ -316,7 +318,7 @@ public class AltaProductos extends JDialog{
 
         jLabel5.setText("Unidad*");
 
-        jLabelCategoria.setText("Categoría");
+        jLabelCategoria.setText("Categoría*");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -422,6 +424,14 @@ public class AltaProductos extends JDialog{
                 "Campos vacíos", JOptionPane.WARNING_MESSAGE);
             return false;
         }
+        // Categoría es obligatoria — "+ Nueva categoría..." es un sentinel, no una selección real.
+        Object catSel = cmbCategoria.getSelectedItem();
+        if (catSel == null || !(catSel instanceof Categoria)) {
+            JOptionPane.showMessageDialog(this,
+                "Por favor, complete todos los campos obligatorios.",
+                "Campos vacíos", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
         return true;
     }
 
@@ -493,10 +503,13 @@ public class AltaProductos extends JDialog{
         cboProv.addActionListener(e -> {
             if (NUEVA_PROV_OPCION.equals(cboProv.getSelectedItem())) {
                 cboProv.hidePopup();
-                Frame parent = (Frame) SwingUtilities.getWindowAncestor(cboProv);
-                // AltaProductos.this.getOwner() es la Ventana principal que abrió este diálogo —
-                // si el nuevo proveedor se guarda, refresca la pantalla de Proveedores también.
+                // AltaProductos.this.getOwner() es la Ventana principal que abrió este diálogo.
+                // OJO: NO usar SwingUtilities.getWindowAncestor(cboProv) acá — devuelve el propio
+                // JDialog de AltaProductos, y un JDialog no es un Frame (son hermanos bajo Window),
+                // así que castearlo tira ClassCastException apenas se confirma la selección.
                 Window owner = AltaProductos.this.getOwner();
+                Frame parent = (Frame) owner;
+                // si el nuevo proveedor se guarda, refresca la pantalla de Proveedores también.
                 Runnable onNuevoSave = owner instanceof Ventana v ? v::recargarProveedores : () -> {};
                 AltaProveedores dialog = new AltaProveedores(parent, true, onNuevoSave);
                 dialog.setLocationRelativeTo(AltaProductos.this);
