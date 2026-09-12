@@ -28,4 +28,20 @@ public class Session {
             && (currentUser.getRol().equalsIgnoreCase("Administrador")
                 || currentUser.getRol().equalsIgnoreCase("Dueño"));
     }
+
+    /** true si el usuario logueado es Dueño. */
+    public static boolean isOwner() {
+        return currentUser != null && currentUser.getRol().equalsIgnoreCase("Dueño");
+    }
+
+    /** true si userId es el id del usuario logueado — sin sesión, nunca es "self". */
+    public static boolean isSelf(int userId) {
+        return currentUser != null && currentUser.getId() == userId;
+    }
+
+    /** true si el usuario dado tiene rol Administrador — null-safe. */
+    public static boolean esAdministrador(Usuario usuario) {
+        return usuario != null && usuario.getRol() != null
+            && usuario.getRol().equalsIgnoreCase("Administrador");
+    }
 }

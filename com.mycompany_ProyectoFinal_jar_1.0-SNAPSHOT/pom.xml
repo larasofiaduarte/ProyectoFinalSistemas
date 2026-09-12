@@ -163,6 +163,55 @@
                     <mainClass>com.mycompany.proyectofinal.ProyectoFinal</mainClass>
                 </configuration>
             </plugin>
+            <!--
+                Produce un uber/fat JAR ejecutable en la fase "package" (mvn clean package),
+                con todas las dependencias runtime incluidas, para poder correrlo con
+                "java -jar" fuera de NetBeans (paso previo al empaquetado como .exe).
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>false</minimizeJar>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.mycompany.proyectofinal.ProyectoFinal</mainClass>
+                                </transformer>
+                                <!-- Varias dependencias registran providers vía META-INF/services
+                                     (driver JDBC de MySQL, JavaMail, EclipseLink, Log4j2): sin este
+                                     transformer, el shade plugin se queda solo con el archivo de
+                                     services de UNA dependencia por nombre de archivo en vez de
+                                     combinarlos. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!-- JavaFX y otras dependencias traen module-info.class; al fusionar
+                                             todo en un solo JAR de classpath (no modular) sobra y puede
+                                             chocar entre distintos jars. -->
+                                        <exclude>module-info.class</exclude>
+                                        <!-- Evita "Invalid signature file digest" si alguna dependencia
+                                             (transitiva) viene firmada: la firma ya no es válida una vez
+                                             fusionada con clases de otros jars. -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <properties>

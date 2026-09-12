@@ -132,6 +132,17 @@ public class Ventana extends JFrame implements Navigator {
         }
     }
 
+    // El calendario del dashboard (FullCalendar) solo vuelve a pedir turnos al servidor
+    // cuando cambia el rango visible (mes/semana); tras alta/edición/baja hay que forzarlo.
+    public void recargarCalendario() {
+        for (Component c : cardPanel.getComponents()) {
+            if (c instanceof Inicio i) {
+                i.refreshCalendar();
+                break;
+            }
+        }
+    }
+
     public void recargarInventario() {
         for (Component c : cardPanel.getComponents()) {
             if (c instanceof Inventario inv) {

@@ -10,7 +10,7 @@ import com.mycompany.GUI.Ventana;
 import com.mycompany.GUI.abm.*;
 import com.mycompany.GUI.components.CustomTableModel;
 import com.mycompany.GUI.components.DateCellEditor;
-import com.mycompany.GUI.components.TimeCellEditor;
+import com.mycompany.GUI.components.HorarioCellEditor;
 import com.mycompany.GUI.components.FilteredComboBoxEditor;
 import com.mycompany.proyectofinal.Cliente;
 import com.mycompany.controladora.Controladora;
@@ -187,6 +187,7 @@ public class Turnos extends MainPanelBase{
                     ventana.recargarCaja();
                 }
             }
+            ventana.recargarCalendario();
             showToast(mensajeToast);
         });
 
@@ -197,7 +198,7 @@ public class Turnos extends MainPanelBase{
         SwingUtilities.invokeLater(() -> {
             table.getColumnModel().getColumn(colIndex("Fecha")).setCellEditor(new DateCellEditor());
 
-            table.getColumnModel().getColumn(colIndex("Hora")).setCellEditor(new TimeCellEditor());
+            table.getColumnModel().getColumn(colIndex("Hora")).setCellEditor(new HorarioCellEditor(control));
             DefaultTableCellRenderer horaRenderer = new DefaultTableCellRenderer();
             horaRenderer.setHorizontalAlignment(SwingConstants.CENTER);
             table.getColumnModel().getColumn(colIndex("Hora")).setCellRenderer(horaRenderer);
@@ -263,6 +264,7 @@ public class Turnos extends MainPanelBase{
             () -> {
                 cargarTabla();
                 ventana.recargarCaja();
+                ventana.recargarCalendario();
             }
         );
         dialog.setLocationRelativeTo(this);
@@ -316,6 +318,7 @@ public class Turnos extends MainPanelBase{
         }
 
         control.borrarTurno(id);
+        ventana.recargarCalendario();
 
         JOptionPane.showMessageDialog(
                 this,

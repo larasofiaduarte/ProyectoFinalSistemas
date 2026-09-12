@@ -575,7 +575,8 @@ public class AltaTurnos extends JDialog {
             Servicio::getNombre,
             "+ Nuevo servicio...",
             (frame, onSave) -> new AltaServicios(frame, true, onSave),
-            refresh
+            refresh,
+            this::onServicioSelected
         ).cargar();
     }
     //cargar clientes a cbo

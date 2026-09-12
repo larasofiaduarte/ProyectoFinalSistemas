@@ -50,6 +50,14 @@ public class CustomTableModel<T> extends AbstractTableModel {
     private Class<?> entityClass;
     private Map<Integer, String> columnFieldMap;
     private String tableName;
+    // (entidad de la fila, valor nuevo propuesto) -> false bloquea el commit; el validador
+    // es responsable de mostrar su propio mensaje de error, ya que difiere por regla de negocio.
+    private Map<Integer, java.util.function.BiPredicate<T, Object>> valueValidators;
+
+    public void setValueValidator(int col, java.util.function.BiPredicate<T, Object> validator) {
+        if (valueValidators == null) valueValidators = new java.util.HashMap<>();
+        valueValidators.put(col, validator);
+    }
 
     public void setNumericColumns(int... cols) {
         this.numericColumns = cols;
@@ -277,6 +285,10 @@ public void setValueAt(Object value, int row, int col) {
                 "Campo requerido", JOptionPane.WARNING_MESSAGE);
             return;
         }
+    }
+    if (valueValidators != null && valueValidators.containsKey(col)
+            && !valueValidators.get(col).test(data.get(row), processedValue)) {
+        return;
     }
     if (valueSetters == null || valueSetters[col] == null) {
         logger.debug("No setter registered for col={}, skipping", col);

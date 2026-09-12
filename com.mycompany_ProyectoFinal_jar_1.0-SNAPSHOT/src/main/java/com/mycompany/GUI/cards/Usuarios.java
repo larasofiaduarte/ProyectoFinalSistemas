@@ -88,6 +88,19 @@ public class Usuarios extends MainPanelBase {
         userModel.setEmailDuplicateChecker((email, excludeId) -> control.doesEmailExist(email, excludeId));
         userModel.setValueSetter(6, (u, v) -> u.setEmail(v.toString()));
         userModel.setValueSetter(7, (u, v) -> u.setRol(v.toString()));
+        // Nadie puede cambiar su propio rol, ni siquiera Administrador/Dueño (evita
+        // auto-bloqueos o escaladas accidentales) — la comparación va contra el rol todavía
+        // no mutado de la fila (setValueValidator corre antes que valueSetters).
+        userModel.setValueValidator(7, (u, v) -> {
+            if (Session.isSelf(u.getId()) && u.getRol() != null
+                    && !u.getRol().equalsIgnoreCase(String.valueOf(v))) {
+                JOptionPane.showMessageDialog(this,
+                    "No se puede modificar el rol del usuario de la sesión actual.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            return true;
+        });
         userModel.setEntityClass(Usuario.class, Map.of(1, "username", 2, "dni", 3, "nombre", 4, "apellido", 5, "telefono", 6, "email", 7, "rol"));
         userModel.setTableName("USUARIOS");
         userModel.setOnPersist(u -> {
@@ -158,6 +171,29 @@ public class Usuarios extends MainPanelBase {
 
         Number idNum = (Number) table.getValueAt(filaSeleccionada, 0);
         int id = idNum.intValue();
+
+        // Feedback inmediato antes de abrir cualquier diálogo de confirmación — la validación
+        // real (que no se puede saltear) vive en DeleteWithRelationsHandler.handleDeleteEmpleado.
+        if (Session.isSelf(id)) {
+            JOptionPane.showMessageDialog(
+                this,
+                "No se puede eliminar el usuario de la sesión actual.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        String targetRol = (String) table.getValueAt(filaSeleccionada, colIndex("Rol"));
+        if (Session.isOwner() && targetRol != null && targetRol.equalsIgnoreCase("Administrador")) {
+            JOptionPane.showMessageDialog(
+                this,
+                "No se puede eliminar un usuario administrador.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
         DeleteWithRelationsHandler.handleDeleteEmpleado(this, id, () ->
             JOptionPane.showMessageDialog(this, "Usuario borrado correctamente.",

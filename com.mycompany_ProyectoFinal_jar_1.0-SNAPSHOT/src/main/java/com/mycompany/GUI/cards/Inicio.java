@@ -411,4 +411,8 @@ public class Inicio extends JPanel {
     public void refreshStats() {
         initStatsChart();
     }
+
+    public void refreshCalendar() {
+        calendarPanel.refrescarTurnos();
+    }
 }

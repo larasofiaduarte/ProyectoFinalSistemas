@@ -33,6 +33,7 @@ public class ComboAltaBinder<T> {
     private final String nuevaOpcion;
     private final BiFunction<Frame, Runnable, ? extends JDialog> dialogFactory;
     private final Runnable onExternalRefresh;
+    private final Runnable onSeleccionCambiada;
     private final List<String> nombres = new ArrayList<>();
 
     public ComboAltaBinder(
@@ -44,6 +45,27 @@ public class ComboAltaBinder<T> {
             BiFunction<Frame, Runnable, ? extends JDialog> dialogFactory,
             Runnable onExternalRefresh
     ) {
+        this(combo, host, fetcher, nameOf, nuevaOpcion, dialogFactory, onExternalRefresh, null);
+    }
+
+    /**
+     * @param onSeleccionCambiada callback opcional que reproduce la misma lógica que corre ante una
+     * selección manual del combo (ej. recalcular datos dependientes). Se invoca explícitamente tras
+     * seleccionar el ítem recién creado en {@link #recargar()} porque, al ocurrir en medio del
+     * fireActionEvent original (el disparado por elegir "+ Nuevo..."), JComboBox ignora ese
+     * fireActionEvent anidado (guard interno firingActionEvent) y los ActionListener normales del
+     * combo no llegan a ejecutarse para esa selección.
+     */
+    public ComboAltaBinder(
+            JComboBox<String> combo,
+            JDialog host,
+            Supplier<List<T>> fetcher,
+            Function<T, String> nameOf,
+            String nuevaOpcion,
+            BiFunction<Frame, Runnable, ? extends JDialog> dialogFactory,
+            Runnable onExternalRefresh,
+            Runnable onSeleccionCambiada
+    ) {
         this.combo = combo;
         this.host = host;
         this.fetcher = fetcher;
@@ -51,6 +73,7 @@ public class ComboAltaBinder<T> {
         this.nuevaOpcion = nuevaOpcion;
         this.dialogFactory = dialogFactory;
         this.onExternalRefresh = onExternalRefresh;
+        this.onSeleccionCambiada = onSeleccionCambiada;
     }
 
     /** Construye modelo+renderer+autocomplete+listeners. Llamar una vez, en lugar del viejo obtenerX(). */
@@ -104,6 +127,7 @@ public class ComboAltaBinder<T> {
         poblar(actualizados);
         if (!actualizados.isEmpty()) {
             combo.setSelectedItem(nameOf.apply(actualizados.get(actualizados.size() - 1)));
+            if (onSeleccionCambiada != null) onSeleccionCambiada.run();
         }
     }
 

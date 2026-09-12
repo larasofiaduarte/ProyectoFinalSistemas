@@ -22,6 +22,7 @@ import com.mycompany.proyectofinal.util.DeleteWarningService;
 import com.mycompany.proyectofinal.util.DialogUtil;
 import com.mycompany.proyectofinal.util.EntityType;
 import com.mycompany.proyectofinal.util.RelationType;
+import com.mycompany.proyectofinal.util.Session;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Window;
@@ -304,6 +305,21 @@ public class DeleteWithRelationsHandler {
 
         Usuario usuario = usuJpa.findUsuario(usuarioId);
         if (usuario == null) { showError(parent, "Empleado no encontrado."); return; }
+
+        // Punto único de entrada real del borrado de empleados (la UI y cualquier llamador futuro
+        // pasan por acá) — se valida acá, no solo en la UI, para que la regla no dependa de que el
+        // caller se acuerde de chequearla antes de invocar este método.
+        if (Session.isSelf(usuarioId)) {
+            showError(parent, "No se puede eliminar el usuario de la sesión actual.");
+            return;
+        }
+
+        // Un Dueño puede borrar empleados y otros Dueños, pero no a un Administrador —
+        // protege la jerarquía de roles aunque el Dueño tenga permiso general de borrado.
+        if (Session.isOwner() && Session.esAdministrador(usuario)) {
+            showError(parent, "No se puede eliminar un usuario administrador.");
+            return;
+        }
 
         // Igual que Cliente/Servicio: cualquier turno que referencie a este empleado, sea cual
         // sea su estado, tiene que reasignarse o eliminarse antes de poder borrar el empleado.

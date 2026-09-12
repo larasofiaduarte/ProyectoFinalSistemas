@@ -11,6 +11,7 @@ import com.mycompany.proyectofinal.util.NumberVerifier;
 import com.mycompany.proyectofinal.util.NombreVerifier;
 import com.mycompany.proyectofinal.util.EmailVerifier;
 import com.mycompany.proyectofinal.Usuario;
+import com.mycompany.proyectofinal.util.Session;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -223,6 +224,15 @@ public class AltaEmpleados extends JDialog {
                 JOptionPane.showMessageDialog(this, "Usuario creado correctamente.");
             } else {
                 //MODO MODIFICAR
+                // Feedback inmediato antes de persistir — la validación real (que no se puede
+                // saltear) vive en Controladora.modificarUsuario.
+                if (Session.isSelf(userEditar.getId()) && userEditar.getRol() != null
+                        && !userEditar.getRol().equalsIgnoreCase(rol)) {
+                    JOptionPane.showMessageDialog(this,
+                        "No se puede modificar el rol del usuario de la sesión actual.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 control.modificarUsuario(userEditar, user, pass, nombre, apellido, tel, rol, dni, email);
                 JOptionPane.showMessageDialog(this, "Usuario modificado correctamente.");
             }

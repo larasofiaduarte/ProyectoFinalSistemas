@@ -129,11 +129,32 @@ public class Controladora {
 
     //DELETE USUARIO
     public void borrarUsuario(int numUsuario) {
+        // Chequeo defensivo independiente de la UI: cualquier caller (actual o futuro, ej. una
+        // API) que llegue a este método sin pasar por Usuarios.java queda igual bloqueado.
+        if (Session.isSelf(numUsuario)) {
+            throw new IllegalStateException("No se puede eliminar el usuario de la sesión actual.");
+        }
+        if (Session.isOwner()) {
+            Usuario target = controlPersis.findUsuario(numUsuario);
+            if (Session.esAdministrador(target)) {
+                throw new IllegalStateException("No se puede eliminar un usuario administrador.");
+            }
+        }
         controlPersis.borrarUsuario(numUsuario);
     }
 
     //edit
     public void modificarUsuario(Usuario usu, String user, String pass, String nombre, String apellido, String tel, String rol, String dni, String email) {
+
+        // usu puede llegar con el rol ya sobrescrito por el caller (ej. edición inline de la
+        // tabla) — se compara contra el rol PERSISTIDO, no el de "usu" en memoria, para que la
+        // regla no dependa de en qué momento el caller mutó la entidad.
+        if (Session.isSelf(usu.getId())) {
+            Usuario persisted = controlPersis.findUsuario(usu.getId());
+            if (persisted != null && persisted.getRol() != null && !persisted.getRol().equalsIgnoreCase(rol)) {
+                throw new IllegalStateException("No se puede modificar el rol del usuario de la sesión actual.");
+            }
+        }
 
         usu.setUsername(user);
         usu.setPassword(pass);

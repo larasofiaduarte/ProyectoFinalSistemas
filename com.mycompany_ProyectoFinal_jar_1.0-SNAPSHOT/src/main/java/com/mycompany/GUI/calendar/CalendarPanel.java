@@ -72,6 +72,26 @@ public class CalendarPanel extends JPanel {
         });
     }
 
+    /**
+     * Fuerza al FullCalendar embebido a volver a pedir los turnos al servidor local
+     * (GET /turnos), sin recargar la página ni cambiar de mes. FullCalendar solo
+     * refetchea su "events: {url}" cuando cambia el rango visible, por eso alta/edición
+     * de turnos no se reflejaban hasta navegar el calendario manualmente.
+     */
+    public void refrescarTurnos() {
+        Platform.runLater(() -> {
+            if (engine != null && pageLoaded) {
+                try {
+                    engine.executeScript(
+                        "if (typeof calendar !== 'undefined' && calendar) { calendar.refetchEvents(); }"
+                    );
+                } catch (Exception e) {
+                    logger.warn("[CalendarPanel] Error al refrescar turnos: {}", e.getMessage());
+                }
+            }
+        });
+    }
+
     public void applyTheme(boolean isDark) {
         pendingDark = isDark;
 
